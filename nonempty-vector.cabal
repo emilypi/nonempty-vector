@@ -1,0 +1,61 @@
+cabal-version:       2.4
+name:                nonempty-vector
+version:             0.1.0.0
+synopsis:            Non-empty Vectors
+description:         Non-empty Vectors
+homepage:            https://github.com/emilypi/nonempty-vector
+bug-reports:         https://github.com/emilypi/nonempty-vector/issues
+license:             BSD-3-Clause
+license-file:        LICENSE
+author:              Emily Pillmore
+maintainer:          emilypi@cohomolo.gy
+copyright:           (c) 2019 Emily Pillmore
+category:            Data
+build-type:          Simple
+extra-source-files:
+  CHANGELOG.md
+  README.md
+
+tested-with:         GHC ==8.8.1 || ==8.6.5 || ==8.6.3 || ==8.4.4 || ==8.4.3 || ==8.0.2
+
+
+source-repository head
+  type:     git
+  location: https://github.com/emilypi/nonempty-vector.git
+
+
+library
+  exposed-modules:     Data.Vector.NonEmpty
+  build-depends:       base   >=4.0  && <5
+                     , vector >=0.12 && <0.13
+
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+
+
+test-suite nonempty-vector-tests
+  default-language:    Haskell2010
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             NEVectorTests.hs
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
+
+  build-depends:       base    >=4.0  && <5
+                     , vector  >=0.12 && <0.13
+                     , tasty
+                     , tasty-hunit
+
+
+test-suite doctests
+  main-is:           doctests.hs
+  type:              exitcode-stdio-1.0
+  build-depends:     base    >=4.0  && <5
+                   , vector  >=0.12 && <0.13
+                   , doctest >=0.16  && <1.1
+                   , nonempty-vector
+
+  hs-source-dirs:    test
+  default-language:  Haskell2010
+  ghc-options:       -Wall -threaded
+  x-doctest-options: --fast
