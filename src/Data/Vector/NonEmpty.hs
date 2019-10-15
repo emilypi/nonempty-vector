@@ -5,8 +5,9 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 -- |
 -- Module       : Data.Vector.NonEmpty
 -- Copyright 	: 2019 Emily Pillmore
@@ -33,13 +34,15 @@
 --
 module Data.Vector.NonEmpty
 ( -- * Boxed non-empty vectors
-  NEVector
+  NonEmptyVector
 
   -- * Accessors
 , length, head, tail, last, (!), (!?)
 , unsafeIndex, unsafeLast
+
   -- * Construction
 , cons, snoc, uncons, singleton
+
   -- * Conversion
 , fromNonEmpty, toNonEmpty
 , toVector, fromVector
@@ -78,87 +81,89 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Generic as G
 import Data.Vector.Mutable  ( MVector(..) )
 
-import qualified GHC.Exts as Exts (IsList(..))
 import GHC.Generics
 
 
-newtype NEVector a = NEVector
-    { _neVec :: V.Vector a }
-    deriving
+newtype NonEmptyVector a = NonEmptyVector
+    { _neVec :: V.Vector a
+    } deriving
       ( Eq, Ord, Show, Read
       , Data, Typeable, Generic
-      , Foldable
+      , Foldable, NFData
       )
+
+-- ---------------------------------------------------------------------- --
+-- Instances
 
 -- ---------------------------------------------------------------------- --
 -- Accessors + Indexing
 
-length :: NEVector a -> Int
+length :: NonEmptyVector a -> Int
 length = V.length . _neVec
 {-# INLINE length #-}
 
-head :: NEVector a -> a
+head :: NonEmptyVector a -> a
 head = V.head . _neVec
 {-# INLINE head #-}
 
-tail :: NEVector a -> NEVector a
-tail (NEVector as) = NEVector (V.tail as)
+tail :: NonEmptyVector a -> NonEmptyVector a
+tail (NonEmptyVector as) = NonEmptyVector (V.tail as)
 {-# INLINE tail #-}
 
-last :: NEVector a -> a
+last :: NonEmptyVector a -> a
 last = V.last . _neVec
 {-# INLINE last #-}
 
-(!) :: NEVector a -> Int -> a
-(!) (NEVector as) n = as V.! n
+(!) :: NonEmptyVector a -> Int -> a
+(!) (NonEmptyVector as) n = as V.! n
 {-# INLINE (!) #-}
 
-(!?) :: NEVector a -> Int -> Maybe a
-(NEVector as) !? n = as V.!? n
+(!?) :: NonEmptyVector a -> Int -> Maybe a
+(NonEmptyVector as) !? n = as V.!? n
 {-# INLINE (!?) #-}
 
-unsafeIndex :: NEVector a -> Int -> a
-unsafeIndex (NEVector as) n = V.unsafeIndex as n
+unsafeIndex :: NonEmptyVector a -> Int -> a
+unsafeIndex (NonEmptyVector as) n = V.unsafeIndex as n
 {-# INLINE unsafeIndex #-}
 
-unsafeLast :: NEVector a -> a
+unsafeLast :: NonEmptyVector a -> a
 unsafeLast = V.last . _neVec
 {-# INLINE unsafeLast #-}
 
 -- ---------------------------------------------------------------------- --
 -- Construction
 
-cons :: a -> NEVector a -> NEVector a
-cons a (NEVector as) = NEVector (V.cons a as)
+cons :: a -> NonEmptyVector a -> NonEmptyVector a
+cons a (NonEmptyVector as) = NonEmptyVector (V.cons a as)
 {-# INLINE cons #-}
 
-snoc :: NEVector a -> a -> NEVector a
-snoc (NEVector as) a = NEVector (V.snoc as a)
+snoc :: NonEmptyVector a -> a -> NonEmptyVector a
+snoc (NonEmptyVector as) a = NonEmptyVector (V.snoc as a)
 {-# INLINE snoc #-}
 
-uncons :: NEVector a -> (a, Maybe (NEVector a))
-uncons (NEVector as) = (V.head as, fromVector as)
+uncons :: NonEmptyVector a -> (a, Maybe (NonEmptyVector a))
+uncons (NonEmptyVector as) = (V.head as, fromVector as)
 {-# INLINE uncons #-}
 
-singleton :: a -> NEVector a
-singleton = NEVector . V.singleton
+singleton :: a -> NonEmptyVector a
+singleton = NonEmptyVector . V.singleton
 {-# INLINE singleton #-}
 
 -- ---------------------------------------------------------------------- --
 -- Conversion
 
-fromNonEmpty :: NonEmpty a -> NEVector a
-fromNonEmpty = NEVector . V.fromList . toList
+fromNonEmpty :: NonEmpty a -> NonEmptyVector a
+fromNonEmpty = NonEmptyVector . V.fromList . toList
 {-# INLINE fromNonEmpty #-}
 
-toNonEmpty :: NEVector a -> NonEmpty a
+toNonEmpty :: NonEmptyVector a -> NonEmpty a
 toNonEmpty = NonEmpty.fromList . toList . _neVec
 {-# INLINE toNonEmpty #-}
 
-toVector :: NEVector a -> V.Vector a
+toVector :: NonEmptyVector a -> V.Vector a
 toVector = _neVec
 {-# INLINE toVector #-}
 
-fromVector :: V.Vector a -> Maybe (NEVector a)
-fromVector v = if V.null v then Nothing else Just (NEVector v)
+fromVector :: V.Vector a -> Maybe (NonEmptyVector a)
+fromVector v = if V.null v then Nothing else Just (NonEmptyVector v)
 {-# INLINE fromVector #-}
