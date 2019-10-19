@@ -117,10 +117,26 @@ module Data.Vector.NonEmpty
 , zipWith, zipWith3, zipWith4, zipWith5, zipWith6
 , izipWith, izipWith3, izipWith4, izipWith5, izipWith6
 , zip, zip3, zip4, zip5, zip6
+
+  -- ** Monadic Zipping
+, zipWithM, zipWithM_, izipWithM, izipWithM_
+
+  -- ** Unzipping
+, unzip, unzip3, unzip4, unzip5, unzip6
+
+  -- * Working with predicates
+
+  -- ** Filtering
+, filter, ifilter, uniq, mapMaybe, imapMaybe, filterM
+, takeWhile, dropWhile
+
+  -- * Partitioning
+, partition, unstablePartition, span, break
+
 ) where
 
 
-import Prelude (Eq, Ord, Read, Show, Num, Enum, (.))
+import Prelude (Bool, Eq, Ord, Read, Show, Num, Enum, (.))
 
 
 import Control.Applicative
@@ -136,7 +152,7 @@ import Data.Functor
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
-import Data.Maybe
+import Data.Maybe (Maybe(..))
 import Data.Semigroup (Semigroup(..), (<>))
 import Data.Traversable (Traversable, traverse)
 import Data.Typeable (Typeable)
@@ -715,3 +731,171 @@ zip6 a b c d e f = NonEmptyVector (V.zip6 a' b' c' d' e' f')
     d' = _neVec d
     e' = _neVec e
     f' = _neVec f
+
+-- ---------------------------------------------------------------------- --
+-- Monadic Zipping
+
+zipWithM
+    :: Monad m
+    => (a -> b -> m c)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> m (NonEmptyVector c)
+zipWithM f a b = fmap NonEmptyVector (V.zipWithM f a' b')
+  where
+    a' = _neVec a
+    b' = _neVec b
+
+izipWithM
+    :: Monad m
+    => (Int -> a -> b -> m c)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> m (NonEmptyVector c)
+izipWithM f a b = fmap NonEmptyVector (V.izipWithM f a' b')
+  where
+    a' = _neVec a
+    b' = _neVec b
+
+zipWithM_
+    :: Monad m
+    => (a -> b -> m c)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> m ()
+zipWithM_ f a b = V.zipWithM_ f (_neVec a) (_neVec b)
+
+
+izipWithM_
+    :: Monad m
+    => (Int -> a -> b -> m c)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> m ()
+izipWithM_ f a b = V.izipWithM_ f (_neVec a) (_neVec b)
+
+-- ---------------------------------------------------------------------- --
+-- Unzipping
+
+unzip :: NonEmptyVector (a, b) -> (NonEmptyVector a, NonEmptyVector b)
+unzip (NonEmptyVector v) = case V.unzip v of
+    ~(a,b) -> (NonEmptyVector a, NonEmptyVector b)
+
+unzip3
+    :: NonEmptyVector (a, b, c)
+    -> (NonEmptyVector a, NonEmptyVector b, NonEmptyVector c)
+unzip3 (NonEmptyVector v) = case V.unzip3 v of
+    ~(a,b,c) ->
+      ( NonEmptyVector a
+      , NonEmptyVector b
+      , NonEmptyVector c
+      )
+
+unzip4
+    :: NonEmptyVector (a, b, c, d)
+    -> ( NonEmptyVector a
+       , NonEmptyVector b
+       , NonEmptyVector c
+       , NonEmptyVector d
+       )
+unzip4 (NonEmptyVector v) = case V.unzip4 v of
+    ~(a,b,c,d) ->
+      ( NonEmptyVector a
+      , NonEmptyVector b
+      , NonEmptyVector c
+      , NonEmptyVector d
+      )
+
+unzip5
+    :: NonEmptyVector (a, b, c, d, e)
+    -> ( NonEmptyVector a
+       , NonEmptyVector b
+       , NonEmptyVector c
+       , NonEmptyVector d
+       , NonEmptyVector e
+       )
+unzip5 (NonEmptyVector v) = case V.unzip5 v of
+    ~(a,b,c,d,e) ->
+      ( NonEmptyVector a
+      , NonEmptyVector b
+      , NonEmptyVector c
+      , NonEmptyVector d
+      , NonEmptyVector e
+      )
+
+unzip6
+    :: NonEmptyVector (a, b, c, d, e, f)
+    -> ( NonEmptyVector a
+       , NonEmptyVector b
+       , NonEmptyVector c
+       , NonEmptyVector d
+       , NonEmptyVector e
+       , NonEmptyVector f
+       )
+unzip6 (NonEmptyVector v) = case V.unzip6 v of
+    ~(a,b,c,d,e,f) ->
+      ( NonEmptyVector a
+      , NonEmptyVector b
+      , NonEmptyVector c
+      , NonEmptyVector d
+      , NonEmptyVector e
+      , NonEmptyVector f
+      )
+
+-- ---------------------------------------------------------------------- --
+-- Filtering
+
+filter :: (a -> Bool) -> NonEmptyVector a -> Vector a
+filter f = V.filter f . _neVec
+
+ifilter
+    :: (Int -> a -> Bool)
+    -> NonEmptyVector a
+    -> Vector a
+ifilter f = V.ifilter f . _neVec
+
+uniq :: Eq a => NonEmptyVector a -> NonEmptyVector a
+uniq = NonEmptyVector . V.uniq . _neVec
+
+mapMaybe
+    :: (a -> Maybe b)
+    -> NonEmptyVector a
+    -> Vector b
+mapMaybe f = V.mapMaybe f . _neVec
+
+imapMaybe
+    :: (Int -> a -> Maybe b)
+    -> NonEmptyVector a
+    -> Vector b
+imapMaybe f = V.imapMaybe f . _neVec
+
+filterM
+    :: Monad m
+    => (a -> m Bool)
+    -> NonEmptyVector a
+    -> m (Vector a)
+filterM f = V.filterM f . _neVec
+
+takeWhile :: (a -> Bool) -> NonEmptyVector a -> Vector a
+takeWhile f = V.takeWhile f . _neVec
+
+dropWhile :: (a -> Bool) -> NonEmptyVector a -> Vector a
+dropWhile f = V.dropWhile f . _neVec
+
+-- ---------------------------------------------------------------------- --
+-- Partitioning
+
+partition :: (a -> Bool) -> NonEmptyVector a -> (Vector a, Vector a)
+partition f = V.partition f . _neVec
+
+unstablePartition
+    :: (a -> Bool)
+    -> NonEmptyVector a
+    -> (Vector a, Vector a)
+unstablePartition f = V.unstablePartition f . _neVec
+
+span :: (a -> Bool) -> NonEmptyVector a -> (Vector a, Vector a)
+span f = V.span f . _neVec
+
+break :: (a -> Bool) -> NonEmptyVector a -> (Vector a, Vector a)
+break f = V.break f . _neVec
