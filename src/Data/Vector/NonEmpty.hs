@@ -36,11 +36,25 @@ module Data.Vector.NonEmpty
   NonEmptyVector
 
   -- * Accessors
-, length, head, tail, last, (!), (!?)
-, unsafeIndex, unsafeLast
+, length
+
+  -- * Indexing
+, head, last, (!), (!?)
+, unsafeIndex
+
+  -- * Monadic Indexing
+, headM, lastM, indexM, unsafeIndexM
 
   -- * Construction
-, cons, snoc, uncons, singleton
+, cons, snoc, singleton, replicate, generate
+, iterateN
+
+  -- * Extracting subvectors (slicing)
+, tail, slice, init, take, drop, splitAt
+, unsafeSlice, unsafeTake
+
+  -- * Monad Initialization
+, replicateM, generateM, iterateNM
 
   -- * Conversion
 , fromNonEmpty, toNonEmpty
@@ -76,6 +90,7 @@ import qualified Data.List.NonEmpty as NonEmpty
 import Data.Semigroup (Semigroup(..))
 import Data.Traversable as Traversable
 import Data.Typeable (Typeable)
+import Data.Vector (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Generic as G
 import Data.Vector.Mutable  ( MVector(..) )
@@ -108,16 +123,16 @@ length :: NonEmptyVector a -> Int
 length = V.length . _neVec
 {-# INLINE length #-}
 
+-- | /O(1)/ First element.
+--
 head :: NonEmptyVector a -> a
-head = V.head . _neVec
+head = V.unsafeHead . _neVec
 {-# INLINE head #-}
 
-tail :: NonEmptyVector a -> NonEmptyVector a
-tail (NonEmptyVector as) = NonEmptyVector (V.tail as)
-{-# INLINE tail #-}
-
+-- | /O(1)/ Last element.
+--
 last :: NonEmptyVector a -> a
-last = V.last . _neVec
+last = V.unsafeLast . _neVec
 {-# INLINE last #-}
 
 (!) :: NonEmptyVector a -> Int -> a
@@ -132,9 +147,52 @@ unsafeIndex :: NonEmptyVector a -> Int -> a
 unsafeIndex (NonEmptyVector as) n = V.unsafeIndex as n
 {-# INLINE unsafeIndex #-}
 
-unsafeLast :: NonEmptyVector a -> a
-unsafeLast = V.last . _neVec
-{-# INLINE unsafeLast #-}
+-- ---------------------------------------------------------------------- --
+-- Monadic Indexing
+
+indexM :: Monad m => NonEmptyVector a -> Int -> m a
+indexM (NonEmptyVector v) n = V.indexM v n
+{-# INLINE indexM #-}
+
+headM :: Monad m => NonEmptyVector a -> m a
+headM (NonEmptyVector v) = V.unsafeHeadM v
+{-# INLINE headM #-}
+
+lastM :: Monad m => NonEmptyVector a -> m a
+lastM (NonEmptyVector v) = V.unsafeLastM v
+{-# INLINE lastM #-}
+
+unsafeIndexM :: Monad m => NonEmptyVector a -> Int -> m a
+unsafeIndexM (NonEmptyVector v) n = V.unsafeIndexM v n
+{-# INLINE unsafeIndexM #-}
+
+-- ---------------------------------------------------------------------- --
+-- Extracting subvectors (slicing)
+
+tail :: NonEmptyVector a -> Vector a
+tail = V.unsafeTail . _neVec
+{-# INLINE tail #-}
+
+slice :: Int -> Int -> NonEmptyVector a -> Vector a
+slice i n = V.slice i n . _neVec
+
+init :: NonEmptyVector a -> Vector a
+init = V.unsafeInit . _neVec
+
+take :: Int -> NonEmptyVector a -> Vector a
+take n = V.take n . _neVec
+
+drop :: Int ->  NonEmptyVector a -> Vector a
+drop n = V.drop n . _neVec
+
+splitAt :: Int -> NonEmptyVector a -> (Vector a, Vector a)
+splitAt n = V.splitAt n . _neVec
+
+unsafeSlice :: Int -> Int -> NonEmptyVector a -> Vector a
+unsafeSlice i n = V.unsafeSlice i n . _neVec
+
+unsafeTake :: Int -> NonEmptyVector a -> Vector a
+unsafeTake n = V.unsafeTake n . _neVec
 
 -- ---------------------------------------------------------------------- --
 -- Construction
@@ -147,13 +205,45 @@ snoc :: NonEmptyVector a -> a -> NonEmptyVector a
 snoc (NonEmptyVector as) a = NonEmptyVector (V.snoc as a)
 {-# INLINE snoc #-}
 
-uncons :: NonEmptyVector a -> (a, Maybe (NonEmptyVector a))
-uncons (NonEmptyVector as) = (V.head as, fromVector as)
-{-# INLINE uncons #-}
-
 singleton :: a -> NonEmptyVector a
 singleton = NonEmptyVector . V.singleton
 {-# INLINE singleton #-}
+
+replicate :: Int -> a -> Maybe (NonEmptyVector a)
+replicate n a
+    | n <= 0 = Nothing
+    | otherwise = Just (NonEmptyVector (V.replicate n a))
+{-# INLINE replicate #-}
+
+generate :: Int -> (Int -> a) -> Maybe (NonEmptyVector a)
+generate n f
+    | n <= 0 = Nothing
+    | otherwise = Just (NonEmptyVector (V.generate n f))
+{-# INLINE generate #-}
+
+iterateN :: Int -> (a -> a) -> a -> Maybe (NonEmptyVector a)
+iterateN n f a
+    | n <= 0 = Nothing
+    | otherwise = Just (NonEmptyVector (V.iterateN n f a))
+{-# INLINE iterateN #-}
+
+-- ---------------------------------------------------------------------- --
+-- Monadic Initialization
+
+replicateM :: Monad m => Int -> m a -> m (Maybe (NonEmptyVector a))
+replicateM n a
+    | n <= 0 = return Nothing
+    | otherwise = fmap (Just . NonEmptyVector) (V.replicateM n a)
+
+generateM :: Monad m => Int -> (Int -> m a) -> m (Maybe (NonEmptyVector a))
+generateM n f
+    | n <= 0 = return Nothing
+    | otherwise = fmap (Just . NonEmptyVector) (V.generateM n f)
+
+iterateNM :: Monad m => Int -> (a -> m a) -> a -> m (Maybe (NonEmptyVector a))
+iterateNM n f a
+    | n <= 0 = return Nothing
+    | otherwise = fmap (Just . NonEmptyVector) (V.iterateNM n f a)
 
 -- ---------------------------------------------------------------------- --
 -- Conversion
