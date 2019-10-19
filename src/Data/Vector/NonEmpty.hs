@@ -85,11 +85,38 @@ module Data.Vector.NonEmpty
   -- ** From list
 , fromList
 
-  -- * Modifying NonEmptyVectors
+  -- * Modifying non-empty vectors
 
   -- ** Bulk Updates
 , (//), update, update_
 , unsafeUpd, unsafeUpdate, unsafeUpdate_
+
+  -- * Accumulations
+, accum, accumulate, accumulate_
+, unsafeAccum, unsafeAccumulate, unsafeAccumulate_
+
+  -- * Permutations
+, reverse, backpermute, unsafeBackpermute
+
+  -- * Safe destructive updates
+, modify
+
+  -- * Elementwise operations
+
+  -- ** Indexing
+, indexed
+
+  -- ** Mapping
+, map, imap, concatMap
+
+  -- ** Monadic mapping
+, mapM, imapM, mapM_, imapM_
+, forM, forM_
+
+  -- ** Zipping
+, zipWith, zipWith3, zipWith4, zipWith5, zipWith6
+, izipWith, izipWith3, izipWith4, izipWith5, izipWith6
+, zip, zip3, zip4, zip5, zip6
 ) where
 
 
@@ -100,21 +127,23 @@ import Control.Applicative
 import Control.DeepSeq hiding (force)
 import Control.Monad (Monad)
 import Control.Monad.Fail
+import Control.Monad.ST
 import Control.Monad.Zip (MonadZip)
 
 import Data.Data (Data)
-import Data.Foldable hiding (length, concat)
+import Data.Foldable (Foldable, toList, foldl', foldMap)
 import Data.Functor
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
 import Data.Maybe
 import Data.Semigroup (Semigroup(..), (<>))
-import Data.Traversable as Traversable
+import Data.Traversable (Traversable, traverse)
 import Data.Typeable (Typeable)
 import Data.Vector (Vector)
 import qualified Data.Vector as V
-
+import Data.Vector.Mutable (MVector)
+import qualified Data.Vector.Mutable as MV
 import GHC.Generics
 
 
@@ -340,7 +369,7 @@ force :: NonEmptyVector a -> NonEmptyVector a
 force (NonEmptyVector a) = NonEmptyVector (V.force a)
 
 -- ---------------------------------------------------------------------- --
--- Restricting memory usage
+-- Bulk Updates
 
 (//) :: NonEmptyVector a -> [(Int, a)] -> NonEmptyVector a
 NonEmptyVector v // us = NonEmptyVector (v V.// us)
@@ -359,3 +388,330 @@ unsafeUpdate (NonEmptyVector v) us = NonEmptyVector (V.unsafeUpdate v us)
 
 unsafeUpdate_ :: NonEmptyVector a -> Vector Int -> Vector a -> NonEmptyVector a
 unsafeUpdate_ (NonEmptyVector v) is as = NonEmptyVector (V.unsafeUpdate_ v is as)
+
+-- ---------------------------------------------------------------------- --
+-- Accumulation
+
+accum
+    :: (a -> b -> a)
+    -> NonEmptyVector a
+    -> [(Int, b)]
+    -> NonEmptyVector a
+accum f (NonEmptyVector v) us = NonEmptyVector (V.accum f v us)
+
+accumulate
+    :: (a -> b -> a)
+    -> NonEmptyVector a
+    -> Vector (Int, b)
+    -> NonEmptyVector a
+accumulate f (NonEmptyVector v) us = NonEmptyVector (V.accumulate f v us)
+
+accumulate_
+    :: (a -> b -> a)
+    -> NonEmptyVector a
+    -> Vector Int
+    -> Vector b
+    -> NonEmptyVector a
+accumulate_ f (NonEmptyVector v) is bs
+    = NonEmptyVector (V.accumulate_ f v is bs)
+
+unsafeAccum
+    :: (a -> b -> a)
+    -> NonEmptyVector a
+    -> [(Int, b)]
+    -> NonEmptyVector a
+unsafeAccum f (NonEmptyVector v) us = NonEmptyVector (V.unsafeAccum f v us)
+
+unsafeAccumulate
+    :: (a -> b -> a)
+    -> NonEmptyVector a
+    -> Vector (Int, b)
+    -> NonEmptyVector a
+unsafeAccumulate f (NonEmptyVector v) us
+    = NonEmptyVector (V.unsafeAccumulate f v us)
+
+unsafeAccumulate_
+    :: (a -> b -> a)
+    -> NonEmptyVector a
+    -> Vector Int
+    -> Vector b
+    -> NonEmptyVector a
+unsafeAccumulate_ f (NonEmptyVector v) is bs
+    = NonEmptyVector (V.unsafeAccumulate_ f v is bs)
+
+-- ---------------------------------------------------------------------- --
+-- Permutations
+
+reverse :: NonEmptyVector a -> NonEmptyVector a
+reverse = NonEmptyVector . V.reverse . _neVec
+
+backpermute :: NonEmptyVector a -> NonEmptyVector Int -> NonEmptyVector a
+backpermute (NonEmptyVector v) (NonEmptyVector i)
+    = NonEmptyVector (V.backpermute v i)
+
+unsafeBackpermute
+    :: NonEmptyVector a
+    -> NonEmptyVector Int
+    -> NonEmptyVector a
+unsafeBackpermute (NonEmptyVector v) (NonEmptyVector i)
+    = NonEmptyVector (V.unsafeBackpermute v i)
+
+-- ---------------------------------------------------------------------- --
+-- Safe destructive updates
+
+modify
+    :: (forall s. MVector s a -> ST s ())
+    -> NonEmptyVector a
+    -> NonEmptyVector a
+modify p (NonEmptyVector v) = NonEmptyVector (V.modify p v)
+
+-- ---------------------------------------------------------------------- --
+-- Indexing
+
+indexed :: NonEmptyVector a -> NonEmptyVector (Int, a)
+indexed = NonEmptyVector . V.indexed . _neVec
+
+-- ---------------------------------------------------------------------- --
+-- Mapping
+
+map :: (a -> b) -> NonEmptyVector a -> NonEmptyVector b
+map f = NonEmptyVector . V.map f . _neVec
+
+imap :: (Int -> a -> b) -> NonEmptyVector a -> NonEmptyVector b
+imap f = NonEmptyVector . V.imap f . _neVec
+
+concatMap
+    :: (a -> NonEmptyVector b)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+concatMap f = NonEmptyVector . V.concatMap (_neVec . f) . _neVec
+
+-- ---------------------------------------------------------------------- --
+-- Monadic Mapping
+
+mapM :: Monad m => (a -> m b) -> NonEmptyVector a -> m (NonEmptyVector b)
+mapM f = fmap NonEmptyVector . V.mapM f . _neVec
+
+imapM
+    :: Monad m
+    => (Int -> a -> m b)
+    -> NonEmptyVector a
+    -> m (NonEmptyVector b)
+imapM f = fmap NonEmptyVector . V.imapM f . _neVec
+
+mapM_ :: Monad m => (a -> m b) -> NonEmptyVector a -> m ()
+mapM_ f = V.mapM_ f . _neVec
+
+imapM_ :: Monad m => (Int -> a -> m b) -> NonEmptyVector a -> m ()
+imapM_ f = V.imapM_ f . _neVec
+
+forM :: Monad m => NonEmptyVector a -> (a -> m b) -> m (NonEmptyVector b)
+forM (NonEmptyVector v) f = fmap NonEmptyVector (V.forM v f)
+
+forM_ :: Monad m => NonEmptyVector a -> (a -> m b) -> m ()
+forM_ (NonEmptyVector v) f = V.forM_ v f
+
+-- ---------------------------------------------------------------------- --
+-- Zipping
+
+zipWith
+    :: (a -> b -> c)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+zipWith f a b = NonEmptyVector (V.zipWith f a' b')
+  where
+    a' = _neVec a
+    b' = _neVec b
+
+zipWith3
+    :: (a -> b -> c -> d)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector d
+zipWith3 f a b c = NonEmptyVector (V.zipWith3 f a' b' c')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+
+zipWith4
+    :: (a -> b -> c -> d -> e)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector d
+    -> NonEmptyVector e
+zipWith4 f a b c d = NonEmptyVector (V.zipWith4 f a' b' c' d')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+    d' = _neVec d
+
+zipWith5
+    :: (a -> b -> c -> d -> e -> f)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector d
+    -> NonEmptyVector e
+    -> NonEmptyVector f
+zipWith5 f a b c d e = NonEmptyVector (V.zipWith5 f a' b' c' d' e')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+    d' = _neVec d
+    e' = _neVec e
+
+zipWith6
+    :: (a -> b -> c -> d -> e -> f -> g)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector d
+    -> NonEmptyVector e
+    -> NonEmptyVector f
+    -> NonEmptyVector g
+zipWith6 k a b c d e f = NonEmptyVector (V.zipWith6 k a' b' c' d' e' f')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+    d' = _neVec d
+    e' = _neVec e
+    f' = _neVec f
+
+izipWith
+    :: (Int -> a -> b -> c)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+izipWith f a b = NonEmptyVector (V.izipWith f a' b')
+  where
+    a' = _neVec a
+    b' = _neVec b
+
+izipWith3
+    :: (Int -> a -> b -> c -> d)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector d
+izipWith3 f a b c = NonEmptyVector (V.izipWith3 f a' b' c')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+
+izipWith4
+    :: (Int -> a -> b -> c -> d -> e)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector d
+    -> NonEmptyVector e
+izipWith4 f a b c d = NonEmptyVector (V.izipWith4 f a' b' c' d')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+    d' = _neVec d
+
+izipWith5
+    :: (Int -> a -> b -> c -> d -> e -> f)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector d
+    -> NonEmptyVector e
+    -> NonEmptyVector f
+izipWith5 f a b c d e = NonEmptyVector (V.izipWith5 f a' b' c' d' e')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+    d' = _neVec d
+    e' = _neVec e
+
+izipWith6
+    :: (Int -> a -> b -> c -> d -> e -> f -> g)
+    -> NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector d
+    -> NonEmptyVector e
+    -> NonEmptyVector f
+    -> NonEmptyVector g
+izipWith6 k a b c d e f = NonEmptyVector (V.izipWith6 k a' b' c' d' e' f')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+    d' = _neVec d
+    e' = _neVec e
+    f' = _neVec f
+
+zip :: NonEmptyVector a -> NonEmptyVector b -> NonEmptyVector (a, b)
+zip a b = NonEmptyVector (V.zip a' b')
+  where
+    a' = _neVec a
+    b' = _neVec b
+
+zip3
+    :: NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector (a, b, c)
+zip3 a b c = NonEmptyVector (V.zip3 a' b' c')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+
+zip4
+    :: NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector d
+    -> NonEmptyVector (a, b, c, d)
+zip4 a b c d = NonEmptyVector (V.zip4 a' b' c' d')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+    d' = _neVec d
+
+zip5
+    :: NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector d
+    -> NonEmptyVector e
+    -> NonEmptyVector (a, b, c, d, e)
+zip5 a b c d e = NonEmptyVector (V.zip5 a' b' c' d' e')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+    d' = _neVec d
+    e' = _neVec e
+
+zip6
+    :: NonEmptyVector a
+    -> NonEmptyVector b
+    -> NonEmptyVector c
+    -> NonEmptyVector d
+    -> NonEmptyVector e
+    -> NonEmptyVector f
+    -> NonEmptyVector (a, b, c, d, e, f)
+zip6 a b c d e f = NonEmptyVector (V.zip6 a' b' c' d' e' f')
+  where
+    a' = _neVec a
+    b' = _neVec b
+    c' = _neVec c
+    d' = _neVec d
+    e' = _neVec e
+    f' = _neVec f
