@@ -36,50 +36,80 @@ module Data.Vector.NonEmpty
   NonEmptyVector
 
   -- * Accessors
+
+  -- ** Length information
 , length
 
-  -- * Indexing
+  -- ** Indexing
 , head, last, (!), (!?)
 , unsafeIndex
 
-  -- * Monadic Indexing
+  -- ** Monadic Indexing
 , headM, lastM, indexM, unsafeIndexM
 
-  -- * Construction
-, cons, snoc, singleton, replicate, generate
-, iterateN
-
-  -- * Extracting subvectors (slicing)
+  -- ** Extracting subvectors (slicing)
 , tail, slice, init, take, drop, splitAt
 , unsafeSlice, unsafeTake, unsafeDrop
 
-  -- * Monad Initialization
+  -- * Construction
+
+  -- ** Initialization
+, singleton, replicate, generate
+, iterateN
+
+  -- ** Monad Initialization
 , replicateM, generateM, iterateNM
 
+  -- ** Unfolding
+, unfoldr, unfoldrN, unfoldrM, unfoldrNM
+, constructN, constructrN
+
+  -- ** Enumeration
+, enumFromN, enumFromStepN
+, enumFromTo, enumFromThenTo
+
+  -- ** Concatenation
+, cons, snoc, (++), concat, concat1
+
+  -- ** Restricting memory usage
+, force
+
   -- * Conversion
+
+  -- ** To/from non-empty lists
 , fromNonEmpty, toNonEmpty
+
+  -- ** To/from vector
 , toVector, fromVector
+
+  -- ** From list
 , fromList
+
+  -- * Modifying NonEmptyVectors
+
+  -- ** Bulk Updates
+, (//), update, update_
+, unsafeUpd, unsafeUpdate, unsafeUpdate_
 ) where
 
 
-import Prelude (Eq, Ord, Read, Show, (.))
+import Prelude (Eq, Ord, Read, Show, Num, Enum, (.))
 
 
 import Control.Applicative
-import Control.DeepSeq
+import Control.DeepSeq hiding (force)
 import Control.Monad (Monad)
 import Control.Monad.Fail
 import Control.Monad.Zip (MonadZip)
 
 import Data.Data (Data)
-import Data.Foldable hiding (length)
+import Data.Foldable hiding (length, concat)
 import Data.Functor
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
 import Data.Maybe
-import Data.Semigroup (Semigroup(..))
+import Data.Semigroup (Semigroup(..), (<>))
 import Data.Traversable as Traversable
 import Data.Typeable (Typeable)
 import Data.Vector (Vector)
@@ -191,14 +221,6 @@ unsafeDrop n = V.unsafeDrop n . _neVec
 -- ---------------------------------------------------------------------- --
 -- Construction
 
-cons :: a -> NonEmptyVector a -> NonEmptyVector a
-cons a (NonEmptyVector as) = NonEmptyVector (V.cons a as)
-{-# INLINE cons #-}
-
-snoc :: NonEmptyVector a -> a -> NonEmptyVector a
-snoc (NonEmptyVector as) a = NonEmptyVector (V.snoc as a)
-{-# INLINE snoc #-}
-
 singleton :: a -> NonEmptyVector a
 singleton = NonEmptyVector . V.singleton
 {-# INLINE singleton #-}
@@ -231,6 +253,64 @@ iterateNM n f a = fmap fromVector (V.iterateNM n f a)
 {-# INLINE iterateNM #-}
 
 -- ---------------------------------------------------------------------- --
+-- Unfolding
+
+unfoldr :: (b -> Maybe (a, b)) -> b -> Maybe (NonEmptyVector a)
+unfoldr f b = fromVector (V.unfoldr f b)
+
+unfoldrN :: Int -> (b -> Maybe (a, b)) -> b -> Maybe (NonEmptyVector a)
+unfoldrN n f b = fromVector (V.unfoldrN n f b)
+
+unfoldrM :: Monad m => (b -> m (Maybe (a, b))) -> b -> m (Maybe (NonEmptyVector a))
+unfoldrM f b = fmap fromVector (V.unfoldrM f b)
+
+unfoldrNM :: Monad m => Int -> (b -> m (Maybe (a, b))) -> b -> m (Maybe (NonEmptyVector a))
+unfoldrNM n f b = fmap fromVector (V.unfoldrNM n f b)
+
+constructN :: Int -> (Vector a -> a) -> Maybe (NonEmptyVector a)
+constructN n f = fromVector (V.constructN n f)
+
+constructrN :: Int -> (Vector a -> a) -> Maybe (NonEmptyVector a)
+constructrN n f = fromVector (V.constructrN n f)
+
+-- ---------------------------------------------------------------------- --
+-- Enumeration
+
+enumFromN :: Num a => a -> Int -> Maybe (NonEmptyVector a)
+enumFromN a n = fromVector (V.enumFromN a n)
+
+enumFromStepN :: Num a => a -> a -> Int -> Maybe (NonEmptyVector a)
+enumFromStepN a0 a1 n = fromVector (V.enumFromStepN a0 a1 n)
+
+enumFromTo :: Enum a => a -> a -> Maybe (NonEmptyVector a)
+enumFromTo a0 a1 = fromVector (V.enumFromTo a0 a1)
+
+enumFromThenTo :: Enum a => a -> a -> a -> Maybe (NonEmptyVector a)
+enumFromThenTo a0 a1 a2 = fromVector (V.enumFromThenTo a0 a1 a2)
+
+-- ---------------------------------------------------------------------- --
+-- Concatenation
+
+cons :: a -> NonEmptyVector a -> NonEmptyVector a
+cons a (NonEmptyVector as) = NonEmptyVector (V.cons a as)
+{-# INLINE cons #-}
+
+snoc :: NonEmptyVector a -> a -> NonEmptyVector a
+snoc (NonEmptyVector as) a = NonEmptyVector (V.snoc as a)
+{-# INLINE snoc #-}
+
+(++) :: NonEmptyVector a -> NonEmptyVector a -> NonEmptyVector a
+NonEmptyVector v ++ NonEmptyVector v' = NonEmptyVector (v <> v')
+{-# INLINE (++) #-}
+
+concat :: [NonEmptyVector a] -> Maybe (NonEmptyVector a)
+concat [] = Nothing
+concat (a:as) = Just (concat1 (a :| as))
+
+concat1 :: NonEmpty (NonEmptyVector a) -> NonEmptyVector a
+concat1 = NonEmptyVector . foldl' (\v (NonEmptyVector a) -> v <> a) V.empty
+
+-- ---------------------------------------------------------------------- --
 -- Conversion
 
 fromNonEmpty :: NonEmpty a -> NonEmptyVector a
@@ -252,3 +332,30 @@ fromVector v = if V.null v then Nothing else Just (NonEmptyVector v)
 fromList :: [a] -> Maybe (NonEmptyVector a)
 fromList = fromVector . V.fromList
 {-# INLINE fromList #-}
+
+-- ---------------------------------------------------------------------- --
+-- Restricting memory usage
+
+force :: NonEmptyVector a -> NonEmptyVector a
+force (NonEmptyVector a) = NonEmptyVector (V.force a)
+
+-- ---------------------------------------------------------------------- --
+-- Restricting memory usage
+
+(//) :: NonEmptyVector a -> [(Int, a)] -> NonEmptyVector a
+NonEmptyVector v // us = NonEmptyVector (v V.// us)
+
+update :: NonEmptyVector a -> Vector (Int, a) -> NonEmptyVector a
+update (NonEmptyVector v) v' = NonEmptyVector (V.update v v')
+
+update_ :: NonEmptyVector a -> Vector Int -> Vector a -> NonEmptyVector a
+update_ (NonEmptyVector v) is as = NonEmptyVector (V.update_ v is as)
+
+unsafeUpd :: NonEmptyVector a -> [(Int, a)] -> NonEmptyVector a
+unsafeUpd (NonEmptyVector v) us = NonEmptyVector (V.unsafeUpd v us)
+
+unsafeUpdate :: NonEmptyVector a -> Vector (Int, a) -> NonEmptyVector a
+unsafeUpdate (NonEmptyVector v) us = NonEmptyVector (V.unsafeUpdate v us)
+
+unsafeUpdate_ :: NonEmptyVector a -> Vector Int -> Vector a -> NonEmptyVector a
+unsafeUpdate_ (NonEmptyVector v) is as = NonEmptyVector (V.unsafeUpdate_ v is as)
