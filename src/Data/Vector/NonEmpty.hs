@@ -5,7 +5,6 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveFoldable #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 -- |
@@ -66,7 +65,7 @@ import Prelude hiding ( length, replicate, (++), concat,
 
 import Control.Applicative
 import Control.DeepSeq
-import Control.Monad (MonadPlus(..))
+import Control.Monad.Fail
 import Control.Monad.Zip (MonadZip)
 
 import Data.Data (Data)
@@ -88,12 +87,19 @@ newtype NonEmptyVector a = NonEmptyVector
     { _neVec :: V.Vector a
     } deriving
       ( Eq, Ord, Show, Read
-      , Data, Typeable, Generic
-      , Foldable, NFData
+      , Data, Typeable, Generic, NFData
+      , Functor, Applicative, Monad
+      , MonadFail, MonadZip, Alternative
       )
 
 -- ---------------------------------------------------------------------- --
 -- Instances
+
+instance Foldable NonEmptyVector where
+    foldMap f = foldMap f . _neVec
+
+instance Traversable NonEmptyVector where
+    traverse f = fmap NonEmptyVector . traverse f . _neVec
 
 -- ---------------------------------------------------------------------- --
 -- Accessors + Indexing
