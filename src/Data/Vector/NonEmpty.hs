@@ -77,13 +77,13 @@ module Data.Vector.NonEmpty
   -- * Conversion
 
   -- ** To/from non-empty lists
-, fromNonEmpty, toNonEmpty
+, toNonEmpty, fromNonEmpty, fromNonEmptyN
 
   -- ** To/from vector
 , toVector, fromVector
 
   -- ** From list
-, fromList
+, toList, fromList, fromListN
 
   -- * Modifying non-empty vectors
 
@@ -133,10 +133,36 @@ module Data.Vector.NonEmpty
   -- * Partitioning
 , partition, unstablePartition, span, break
 
+  -- * Searching
+, elem, notElem, find, findIndex, findIndices, elemIndex
+, elemIndices
+
+  -- * Folding
+, foldl, foldl1, foldl', foldl1'
+, foldr, foldr1, foldr', foldr1'
+, ifoldl, ifoldl', ifoldr, ifoldr'
+
+  -- * Specialized folds
+, all, any, and, or, sum, product
+, maximum, maximumBy, minimum, minimumBy
+, maxIndex, maxIndexBy, minIndex, minIndexBy
+
+  -- * Monadic Folds
+, foldM, foldM', fold1M, fold1M', foldM_, foldM'_, fold1M_
+, fold1M'_, ifoldM, ifoldM', ifoldM_, ifoldM'_
+
+  -- * Monadic Sequencing
+, sequence, sequence_
+
+  -- * Prefix sums (scans)
+, prescanl, prescanl', postscanl, postscanl'
+, scanl, scanl', scanl1, scanl1', iscanl, iscanl'
+, prescanr, prescanr', postscanr, postscanr'
+, scanr, scanr', scanr1, scanr1', iscanr, iscanr'
 ) where
 
 
-import Prelude (Bool, Eq, Ord, Read, Show, Num, Enum, (.))
+import Prelude (Bool, Eq, Ord, Read, Show, Num, Enum, (.), Ordering)
 
 
 import Control.Applicative
@@ -147,7 +173,8 @@ import Control.Monad.ST
 import Control.Monad.Zip (MonadZip)
 
 import Data.Data (Data)
-import Data.Foldable (Foldable, toList, foldl', foldMap)
+import Data.Foldable (Foldable)
+import qualified Data.Foldable as Foldable
 import Data.Functor
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
@@ -177,7 +204,7 @@ newtype NonEmptyVector a = NonEmptyVector
 -- Instances
 
 instance Foldable NonEmptyVector where
-    foldMap f = foldMap f . _neVec
+    foldMap f = Foldable.foldMap f . _neVec
 
 instance Traversable NonEmptyVector where
     traverse f = fmap NonEmptyVector . traverse f . _neVec
@@ -353,18 +380,24 @@ concat [] = Nothing
 concat (a:as) = Just (concat1 (a :| as))
 
 concat1 :: NonEmpty (NonEmptyVector a) -> NonEmptyVector a
-concat1 = NonEmptyVector . foldl' (\v (NonEmptyVector a) -> v <> a) V.empty
+concat1 = NonEmptyVector
+    . Foldable.foldl' (\v (NonEmptyVector a) -> v <> a) V.empty
 
 -- ---------------------------------------------------------------------- --
--- Conversion
-
-fromNonEmpty :: NonEmpty a -> NonEmptyVector a
-fromNonEmpty = NonEmptyVector . V.fromList . toList
-{-# INLINE fromNonEmpty #-}
+-- Conversions
 
 toNonEmpty :: NonEmptyVector a -> NonEmpty a
-toNonEmpty = NonEmpty.fromList . toList . _neVec
+toNonEmpty = NonEmpty.fromList . V.toList . _neVec
 {-# INLINE toNonEmpty #-}
+
+fromNonEmpty :: NonEmpty a -> NonEmptyVector a
+fromNonEmpty = NonEmptyVector . V.fromList . Foldable.toList
+{-# INLINE fromNonEmpty #-}
+
+fromNonEmptyN :: Int -> NonEmpty a -> Maybe (NonEmptyVector a)
+fromNonEmptyN 0 _ = Nothing
+fromNonEmptyN n as = Just (NonEmptyVector (V.fromListN n (Foldable.toList as)))
+{-# INLINE fromNonEmptyN #-}
 
 toVector :: NonEmptyVector a -> V.Vector a
 toVector = _neVec
@@ -374,9 +407,19 @@ fromVector :: V.Vector a -> Maybe (NonEmptyVector a)
 fromVector v = if V.null v then Nothing else Just (NonEmptyVector v)
 {-# INLINE fromVector #-}
 
+toList :: NonEmptyVector a -> [a]
+toList = V.toList . _neVec
+{-# INLINE toList #-}
+
 fromList :: [a] -> Maybe (NonEmptyVector a)
 fromList = fromVector . V.fromList
 {-# INLINE fromList #-}
+
+fromListN :: Int -> [a] -> Maybe (NonEmptyVector a)
+fromListN 0 _ = Nothing
+fromListN _ [] = Nothing
+fromListN n as = Just (NonEmptyVector (V.fromListN n as))
+{-# INLINE fromListN #-}
 
 -- ---------------------------------------------------------------------- --
 -- Restricting memory usage
@@ -899,3 +942,223 @@ span f = V.span f . _neVec
 
 break :: (a -> Bool) -> NonEmptyVector a -> (Vector a, Vector a)
 break f = V.break f . _neVec
+
+
+-- ---------------------------------------------------------------------- --
+-- Searching
+
+elem :: Eq a => a -> NonEmptyVector a -> Bool
+elem a = V.elem a . _neVec
+
+notElem :: Eq a => a -> NonEmptyVector a -> Bool
+notElem a = V.notElem a . _neVec
+
+find :: (a -> Bool) -> NonEmptyVector a -> Maybe a
+find f = V.find f . _neVec
+
+findIndex :: (a -> Bool) -> NonEmptyVector a -> Maybe Int
+findIndex f = V.findIndex f . _neVec
+
+findIndices :: (a -> Bool) -> NonEmptyVector a -> Vector Int
+findIndices f = V.findIndices f . _neVec
+
+elemIndex :: Eq a => a -> NonEmptyVector a -> Maybe Int
+elemIndex a = V.elemIndex a . _neVec
+
+elemIndices :: Eq a => a -> NonEmptyVector a -> Vector Int
+elemIndices a = V.elemIndices a . _neVec
+
+-- ---------------------------------------------------------------------- --
+-- Folding
+
+foldl :: (a -> b -> a) -> a -> NonEmptyVector b -> a
+foldl f a = V.foldl f a . _neVec
+
+foldl1 :: (a -> a -> a) -> NonEmptyVector a -> a
+foldl1 f = V.foldl1 f . _neVec
+
+foldl' :: (a -> b -> a) -> a -> NonEmptyVector b -> a
+foldl' f a = V.foldl' f a . _neVec
+
+foldl1' :: (a -> a -> a) -> NonEmptyVector a -> a
+foldl1' f = V.foldl1' f . _neVec
+
+foldr :: (a -> b -> b) -> b -> NonEmptyVector a -> b
+foldr f b = V.foldr f b . _neVec
+
+foldr1 :: (a -> a -> a) -> NonEmptyVector a -> a
+foldr1 f = V.foldr1 f . _neVec
+
+foldr' :: (a -> b -> b) -> b -> NonEmptyVector a -> b
+foldr' f b = V.foldr' f b. _neVec
+
+foldr1' :: (a -> a -> a) -> NonEmptyVector a -> a
+foldr1' f = V.foldr1' f . _neVec
+
+ifoldl :: (a -> Int -> b -> a) -> a -> NonEmptyVector b -> a
+ifoldl f a = V.ifoldl f a . _neVec
+
+ifoldl' :: (a -> Int -> b -> a) -> a -> NonEmptyVector b -> a
+ifoldl' f a = V.ifoldl' f a . _neVec
+
+ifoldr :: (Int -> a -> b -> b) -> b -> NonEmptyVector a -> b
+ifoldr f b = V.ifoldr f b . _neVec
+
+ifoldr' :: (Int -> a -> b -> b) -> b -> NonEmptyVector a -> b
+ifoldr' f b = V.ifoldr' f b . _neVec
+
+-- ---------------------------------------------------------------------- --
+-- Specialised folds
+
+all :: (a -> Bool) -> NonEmptyVector a -> Bool
+all f = V.all f . _neVec
+
+any :: (a -> Bool) -> NonEmptyVector a -> Bool
+any f = V.any f . _neVec
+
+and :: NonEmptyVector Bool -> Bool
+and = V.and . _neVec
+
+or :: NonEmptyVector Bool -> Bool
+or = V.or . _neVec
+
+sum :: Num a => NonEmptyVector a -> a
+sum = V.sum . _neVec
+
+product :: Num a => NonEmptyVector a -> a
+product = V.product . _neVec
+
+maximum :: Ord a => NonEmptyVector a -> a
+maximum = V.maximum . _neVec
+
+maximumBy :: (a -> a -> Ordering) -> NonEmptyVector a -> a
+maximumBy f = V.maximumBy f . _neVec
+
+minimum :: Ord a => NonEmptyVector a -> a
+minimum = V.minimum . _neVec
+
+minimumBy :: (a -> a -> Ordering) -> NonEmptyVector a -> a
+minimumBy f = V.minimumBy f . _neVec
+
+minIndex :: Ord a => NonEmptyVector a -> Int
+minIndex = V.minIndex . _neVec
+
+minIndexBy :: (a -> a -> Ordering) -> NonEmptyVector a -> Int
+minIndexBy f = V.minIndexBy f . _neVec
+
+maxIndex :: Ord a => NonEmptyVector a -> Int
+maxIndex = V.maxIndex . _neVec
+
+maxIndexBy :: (a -> a -> Ordering) -> NonEmptyVector a -> Int
+maxIndexBy f = V.maxIndexBy f . _neVec
+
+-- ---------------------------------------------------------------------- --
+-- Monadic folds
+
+foldM :: Monad m => (a -> b -> m a) -> a -> NonEmptyVector b -> m a
+foldM f a = V.foldM f a . _neVec
+
+ifoldM :: Monad m => (a -> Int -> b -> m a) -> a -> NonEmptyVector b -> m a
+ifoldM f a = V.ifoldM f a . _neVec
+
+foldM' :: Monad m => (a -> b -> m a) -> a -> NonEmptyVector b -> m a
+foldM' f a = V.foldM' f a . _neVec
+
+ifoldM' :: Monad m => (a -> Int -> b -> m a) -> a -> NonEmptyVector b -> m a
+ifoldM' f a = V.ifoldM' f a . _neVec
+
+fold1M :: Monad m => (a -> a -> m a) -> NonEmptyVector a -> m a
+fold1M f = V.fold1M f . _neVec
+
+fold1M' :: Monad m => (a -> a -> m a) -> NonEmptyVector a -> m a
+fold1M' f = V.fold1M' f . _neVec
+
+foldM_ :: Monad m => (a -> b -> m a) -> a -> NonEmptyVector b -> m ()
+foldM_ f a = V.foldM_ f a . _neVec
+
+ifoldM_ :: Monad m => (a -> Int -> b -> m a) -> a -> NonEmptyVector b -> m ()
+ifoldM_ f a = V.ifoldM_ f a . _neVec
+
+foldM'_ :: Monad m => (a -> b -> m a) -> a -> NonEmptyVector b -> m ()
+foldM'_ f a = V.foldM'_ f a . _neVec
+
+ifoldM'_ :: Monad m => (a -> Int -> b -> m a) -> a -> NonEmptyVector b -> m ()
+ifoldM'_ f a = V.ifoldM'_ f a . _neVec
+
+fold1M_ :: Monad m => (a -> a -> m a) -> NonEmptyVector a -> m ()
+fold1M_ f = V.fold1M_ f . _neVec
+
+fold1M'_ :: Monad m => (a -> a -> m a) -> NonEmptyVector a -> m ()
+fold1M'_ f = V.fold1M'_ f . _neVec
+
+-- ---------------------------------------------------------------------- --
+-- Monadic sequencing
+
+sequence :: Monad m => NonEmptyVector (m a) -> m (NonEmptyVector a)
+sequence = fmap NonEmptyVector . V.sequence . _neVec
+
+sequence_ :: Monad m => NonEmptyVector (m a) -> m ()
+sequence_ = V.sequence_ . _neVec
+
+-- ---------------------------------------------------------------------- --
+-- Prefix sums (scans)
+
+prescanl :: (a -> b -> a) -> a -> NonEmptyVector b -> NonEmptyVector a
+prescanl f a = NonEmptyVector . V.prescanl f a . _neVec
+
+prescanl' :: (a -> b -> a) -> a -> NonEmptyVector b -> NonEmptyVector a
+prescanl' f a = NonEmptyVector . V.prescanl' f a . _neVec
+
+postscanl :: (a -> b -> a) -> a -> NonEmptyVector b -> NonEmptyVector a
+postscanl f a = NonEmptyVector . V.postscanl f a . _neVec
+
+postscanl' :: (a -> b -> a) -> a -> NonEmptyVector b -> NonEmptyVector a
+postscanl' f a = NonEmptyVector . V.postscanl' f a . _neVec
+
+scanl :: (a -> b -> a) -> a -> NonEmptyVector b -> NonEmptyVector a
+scanl f a = NonEmptyVector . V.scanl f a . _neVec
+
+scanl' :: (a -> b -> a) -> a -> NonEmptyVector b -> NonEmptyVector a
+scanl' f a = NonEmptyVector . V.scanl' f a . _neVec
+
+scanl1 :: (a -> a -> a) -> NonEmptyVector a -> NonEmptyVector a
+scanl1 f = NonEmptyVector . V.scanl1 f . _neVec
+
+scanl1' :: (a -> a -> a) -> NonEmptyVector a -> NonEmptyVector a
+scanl1' f = NonEmptyVector . V.scanl1' f . _neVec
+
+iscanl :: (Int -> a -> b -> a) -> a -> NonEmptyVector b -> NonEmptyVector a
+iscanl f a = NonEmptyVector . V.iscanl f a . _neVec
+
+iscanl' :: (Int -> a -> b -> a) -> a -> NonEmptyVector b -> NonEmptyVector a
+iscanl' f a = NonEmptyVector . V.iscanl' f a . _neVec
+
+prescanr :: (a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
+prescanr f b = NonEmptyVector . V.prescanr f b . _neVec
+
+prescanr' :: (a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
+prescanr' f b = NonEmptyVector . V.prescanr f b . _neVec
+
+postscanr :: (a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
+postscanr f b = NonEmptyVector . V.postscanr f b . _neVec
+
+postscanr' :: (a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
+postscanr' f b = NonEmptyVector . V.postscanr' f b . _neVec
+
+scanr :: (a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
+scanr f b = NonEmptyVector . V.scanr f b . _neVec
+
+scanr' :: (a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
+scanr' f b = NonEmptyVector . V.scanr' f b . _neVec
+
+scanr1 :: (a -> a -> a) -> NonEmptyVector a -> NonEmptyVector a
+scanr1 f = NonEmptyVector . V.scanr1 f . _neVec
+
+scanr1' :: (a -> a -> a) -> NonEmptyVector a -> NonEmptyVector a
+scanr1' f = NonEmptyVector . V.scanr1' f . _neVec
+
+iscanr :: (Int -> a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
+iscanr f b = NonEmptyVector . V.iscanr f b . _neVec
+
+iscanr' :: (Int -> a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
+iscanr' f b = NonEmptyVector . V.iscanr' f b . _neVec
