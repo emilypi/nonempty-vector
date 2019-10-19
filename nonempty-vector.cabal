@@ -15,6 +15,7 @@ build-type:          Simple
 extra-source-files:
   CHANGELOG.md
   README.md
+  dependencies.png
 
 tested-with:         GHC ==8.8.1 || ==8.6.5 || ==8.6.3 || ==8.4.4 || ==8.4.3 || ==8.0.2
 
@@ -26,6 +27,11 @@ source-repository head
 
 library
   exposed-modules:     Data.Vector.NonEmpty
+                     , Data.Vector.NonEmpty.Generic
+                     , Data.Vector.NonEmpty.Mutable
+                     , Data.Vector.NonEmpty.Primitive
+                     , Data.Vector.NonEmpty.Unboxed
+
   build-depends:       base       >=4.0  && <5
                      , deepseq
                      , semigroups >=0.19 && <0.20

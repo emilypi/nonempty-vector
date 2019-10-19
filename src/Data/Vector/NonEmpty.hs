@@ -34,7 +34,7 @@
 -- 'Bool'-valued functions passed in, hence one could write the following:
 --
 -- @
--- filter (const false) <my-vector>
+-- filter (const false) v
 -- @
 --
 -- which always produces an empty vector. Hence, some operations must return either
