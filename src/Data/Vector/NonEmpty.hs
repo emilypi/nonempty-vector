@@ -6,7 +6,7 @@
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-
+{-# LANGUAGE NoImplicitPrelude #-}
 -- |
 -- Module       : Data.Vector.NonEmpty
 -- Copyright 	: 2019 Emily Pillmore
@@ -51,7 +51,7 @@ module Data.Vector.NonEmpty
 
   -- * Extracting subvectors (slicing)
 , tail, slice, init, take, drop, splitAt
-, unsafeSlice, unsafeTake
+, unsafeSlice, unsafeTake, unsafeDrop
 
   -- * Monad Initialization
 , replicateM, generateM, iterateNM
@@ -59,41 +59,31 @@ module Data.Vector.NonEmpty
   -- * Conversion
 , fromNonEmpty, toNonEmpty
 , toVector, fromVector
+, fromList
 ) where
 
 
-import qualified Prelude
-import Prelude hiding ( length, replicate, (++), concat,
-                        head, last, init, tail, take, drop, splitAt,
-                        reverse, map, concat, concatMap,
-                        zipWith, zipWith3, zip, zip3, unzip, unzip3,
-                        filter, takeWhile, dropWhile, span, break,
-                        elem, notElem, foldl, foldl1, foldr, foldr1,
-                        all, any, and, or, sum, product, maximum, minimum,
-                        scanl, scanl1, scanr, scanr1,
-                        enumFromTo, enumFromThenTo,
-                        mapM, mapM_, sequence, sequence_,
-                        showsPrec )
-
+import Prelude (Eq, Ord, Read, Show, (.))
 
 
 import Control.Applicative
 import Control.DeepSeq
+import Control.Monad (Monad)
 import Control.Monad.Fail
 import Control.Monad.Zip (MonadZip)
 
 import Data.Data (Data)
 import Data.Foldable hiding (length)
-import Data.Functor.Classes (Eq1, Ord1, Read1, Show1)
+import Data.Functor
+import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
+import Data.Maybe
 import Data.Semigroup (Semigroup(..))
 import Data.Traversable as Traversable
 import Data.Typeable (Typeable)
 import Data.Vector (Vector)
 import qualified Data.Vector as V
-import qualified Data.Vector.Generic as G
-import Data.Vector.Mutable  ( MVector(..) )
 
 import GHC.Generics
 
@@ -105,6 +95,7 @@ newtype NonEmptyVector a = NonEmptyVector
       , Data, Typeable, Generic, NFData
       , Functor, Applicative, Monad
       , MonadFail, MonadZip, Alternative
+      , Semigroup
       )
 
 -- ---------------------------------------------------------------------- --
@@ -194,6 +185,9 @@ unsafeSlice i n = V.unsafeSlice i n . _neVec
 unsafeTake :: Int -> NonEmptyVector a -> Vector a
 unsafeTake n = V.unsafeTake n . _neVec
 
+unsafeDrop :: Int -> NonEmptyVector a -> Vector a
+unsafeDrop n = V.unsafeDrop n . _neVec
+
 -- ---------------------------------------------------------------------- --
 -- Construction
 
@@ -210,40 +204,31 @@ singleton = NonEmptyVector . V.singleton
 {-# INLINE singleton #-}
 
 replicate :: Int -> a -> Maybe (NonEmptyVector a)
-replicate n a
-    | n <= 0 = Nothing
-    | otherwise = Just (NonEmptyVector (V.replicate n a))
+replicate n a = fromVector (V.replicate n a)
 {-# INLINE replicate #-}
 
 generate :: Int -> (Int -> a) -> Maybe (NonEmptyVector a)
-generate n f
-    | n <= 0 = Nothing
-    | otherwise = Just (NonEmptyVector (V.generate n f))
+generate n f = fromVector (V.generate n f)
 {-# INLINE generate #-}
 
 iterateN :: Int -> (a -> a) -> a -> Maybe (NonEmptyVector a)
-iterateN n f a
-    | n <= 0 = Nothing
-    | otherwise = Just (NonEmptyVector (V.iterateN n f a))
+iterateN n f a = fromVector (V.iterateN n f a)
 {-# INLINE iterateN #-}
 
 -- ---------------------------------------------------------------------- --
 -- Monadic Initialization
 
 replicateM :: Monad m => Int -> m a -> m (Maybe (NonEmptyVector a))
-replicateM n a
-    | n <= 0 = return Nothing
-    | otherwise = fmap (Just . NonEmptyVector) (V.replicateM n a)
+replicateM n a = fmap fromVector (V.replicateM n a)
+{-# INLINE replicateM #-}
 
 generateM :: Monad m => Int -> (Int -> m a) -> m (Maybe (NonEmptyVector a))
-generateM n f
-    | n <= 0 = return Nothing
-    | otherwise = fmap (Just . NonEmptyVector) (V.generateM n f)
+generateM n f = fmap fromVector (V.generateM n f)
+{-# INLINE generateM #-}
 
 iterateNM :: Monad m => Int -> (a -> m a) -> a -> m (Maybe (NonEmptyVector a))
-iterateNM n f a
-    | n <= 0 = return Nothing
-    | otherwise = fmap (Just . NonEmptyVector) (V.iterateNM n f a)
+iterateNM n f a = fmap fromVector (V.iterateNM n f a)
+{-# INLINE iterateNM #-}
 
 -- ---------------------------------------------------------------------- --
 -- Conversion
@@ -263,3 +248,7 @@ toVector = _neVec
 fromVector :: V.Vector a -> Maybe (NonEmptyVector a)
 fromVector v = if V.null v then Nothing else Just (NonEmptyVector v)
 {-# INLINE fromVector #-}
+
+fromList :: [a] -> Maybe (NonEmptyVector a)
+fromList = fromVector . V.fromList
+{-# INLINE fromList #-}
