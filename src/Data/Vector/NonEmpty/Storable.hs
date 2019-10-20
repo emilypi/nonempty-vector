@@ -10,6 +10,6 @@
 -- Stability   : experimental
 -- Portability : non-portable
 --
--- Non-empty mutable boxed vectors.
+-- Non-empty storable vectors.
 --
 module Data.Vector.NonEmpty.Storable where

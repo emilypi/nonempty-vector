@@ -10,6 +10,6 @@
 -- Stability   : experimental
 -- Portability : non-portable
 --
--- Non-empty mutable boxed vectors.
+-- Non-empty generic vectors.
 --
 module Data.Vector.NonEmpty.Generic where
