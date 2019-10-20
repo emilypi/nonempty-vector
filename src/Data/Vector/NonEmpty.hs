@@ -34,16 +34,13 @@
 -- filter (const false) v
 -- @
 --
--- which always produces an empty vector. Hence, some operations must return either
+-- which always produces an empty vector. Thus, some operations must return either
 -- a 'Maybe' containing a 'NonEmptyVector' or a 'Vector' whenever appropriate. Generally
 -- The former is used in initialization and generation operations, and the latter
 -- is used in iterative operations where the intent is not to create an instance
 -- of 'NonEmptyVector'.
 --
--- For unboxed non-empty arrays, use "Data.Vector.NonEmpty.Unboxed"
---
--- Credit to Roman Leshchinskiy for the original Vector library
--- upon which this is based.
+-- Credit to Roman Leshchinskiy for the original Vector library  upon which this is based.
 --
 module Data.Vector.NonEmpty
 ( -- * Boxed non-empty vectors
