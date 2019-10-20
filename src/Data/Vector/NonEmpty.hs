@@ -65,12 +65,17 @@ module Data.Vector.NonEmpty
   -- * Construction
 
   -- ** Initialization
-, singleton, replicate, generate
-, iterateN
+, singleton
+, replicate, replicate1
+, generate, generate1
+, iterateN, iterateN1
 
   -- ** Monad Initialization
-, replicateM, generateM, iterateNM
-, create, createT
+, replicateM, replicate1M
+, generateM, generate1M
+, iterateNM, iterateN1M
+, create, unsafeCreate
+, createT, unsafeCreateT
 
   -- ** Unfolding
 , unfoldr, unfoldrN, unfoldrM, unfoldrNM
@@ -89,10 +94,12 @@ module Data.Vector.NonEmpty
   -- * Conversion
 
   -- ** To/from non-empty lists
-, toNonEmpty, fromNonEmpty, fromNonEmptyN
+, toNonEmpty, fromNonEmpty
+, fromNonEmptyN, fromNonEmptyN1
+, unsafeFromList
 
   -- ** To/from vector
-, toVector, fromVector
+, toVector, fromVector, unsafeFromVector
 
   -- ** To/from list
 , toList, fromList, fromListN
@@ -174,7 +181,7 @@ module Data.Vector.NonEmpty
 ) where
 
 
-import Prelude (Bool, Eq, Ord, Show(..), Num, Enum, (.), Ordering)
+import Prelude (Bool, Eq, Ord, Show(..), Num, Enum, (.), Ordering, max, ($))
 
 
 import Control.Applicative
@@ -200,8 +207,6 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Generic as G
 import Data.Vector.Mutable (MVector)
 
-import GHC.Generics
-
 
 -- | 'NonEmptyVector' is a thin wrapper around 'Vector' that
 -- witnesses an API requiring non-empty construction,
@@ -216,7 +221,7 @@ newtype NonEmptyVector a = NonEmptyVector
     } deriving
       ( Eq, Ord
       , Eq1, Ord1, Show1
-      , Data, Typeable, Generic, NFData
+      , Data, Typeable, NFData
       , Functor, Applicative, Monad
       , MonadZip
       , Semigroup
@@ -394,6 +399,15 @@ replicate :: Int -> a -> Maybe (NonEmptyVector a)
 replicate n a = fromVector (V.replicate n a)
 {-# INLINE replicate #-}
 
+-- | /O(n)/ Non-empty vector of the given length with the same value in
+-- each position.
+--
+-- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
+--
+replicate1 :: Int -> a -> NonEmptyVector a
+replicate1 n a = unsafeFromVector (V.replicate (max n 1) a)
+{-# INLINE replicate1 #-}
+
 -- | /O(n)/ Construct a vector of the given length by applying the function to
 -- each index.
 --
@@ -403,6 +417,15 @@ generate :: Int -> (Int -> a) -> Maybe (NonEmptyVector a)
 generate n f = fromVector (V.generate n f)
 {-# INLINE generate #-}
 
+-- | /O(n)/ Construct a vector of the given length by applying the function to
+-- each index.
+--
+-- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
+--
+generate1 :: Int -> (Int -> a) -> Maybe (NonEmptyVector a)
+generate1 n f = fromVector (V.generate (max n 1) f)
+{-# INLINE generate1 #-}
+
 -- | /O(n)/ Apply function n times to value. Zeroth element is original value.
 --
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
@@ -410,6 +433,14 @@ generate n f = fromVector (V.generate n f)
 iterateN :: Int -> (a -> a) -> a -> Maybe (NonEmptyVector a)
 iterateN n f a = fromVector (V.iterateN n f a)
 {-# INLINE iterateN #-}
+
+-- | /O(n)/ Apply function n times to value. Zeroth element is original value.
+--
+-- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
+--
+iterateN1 :: Int -> (a -> a) -> a -> Maybe (NonEmptyVector a)
+iterateN1 n f a = fromVector (V.iterateN (max n 1) f a)
+{-# INLINE iterateN1 #-}
 
 -- ---------------------------------------------------------------------- --
 -- Monadic Initialization
@@ -423,6 +454,15 @@ replicateM :: Monad m => Int -> m a -> m (Maybe (NonEmptyVector a))
 replicateM n a = fmap fromVector (V.replicateM n a)
 {-# INLINE replicateM #-}
 
+-- | /O(n)/ Execute the monadic action the given number of times and store
+-- the results in a vector.
+--
+-- This version of @generateM@ takes @max n 1@ repetitions of the given value
+--
+replicate1M :: Monad m => Int -> m a -> m (NonEmptyVector a)
+replicate1M n a = fmap unsafeFromVector (V.replicateM (max n 1) a)
+{-# INLINE replicate1M #-}
+
 -- | /O(n)/ Construct a vector of the given length by applying the monadic
 -- action to each index
 --
@@ -431,6 +471,15 @@ replicateM n a = fmap fromVector (V.replicateM n a)
 generateM :: Monad m => Int -> (Int -> m a) -> m (Maybe (NonEmptyVector a))
 generateM n f = fmap fromVector (V.generateM n f)
 {-# INLINE generateM #-}
+
+-- | /O(n)/ Construct a vector of the given length by applying the monadic
+-- action to each index
+--
+-- This version of @generateM@ takes @max n 1@ repetitions of the given value
+--
+generate1M :: Monad m => Int -> (Int -> m a) -> m (NonEmptyVector a)
+generate1M n f = fmap unsafeFromVector (V.generateM (max n 1) f)
+{-# INLINE generate1M #-}
 
 -- | /O(n)/ Apply monadic function n times to value. Zeroth element is
 -- original value.
@@ -441,6 +490,15 @@ iterateNM :: Monad m => Int -> (a -> m a) -> a -> m (Maybe (NonEmptyVector a))
 iterateNM n f a = fmap fromVector (V.iterateNM n f a)
 {-# INLINE iterateNM #-}
 
+-- | /O(n)/ Apply monadic function n times to value. Zeroth element is
+-- original value.
+--
+-- This version of @iterateNM@ takes @max n 1@ repetitions of the given value
+--
+iterateN1M :: Monad m => Int -> (a -> m a) -> a -> m (NonEmptyVector a)
+iterateN1M n f a = fmap unsafeFromVector (V.iterateNM (max n 1) f a)
+{-# INLINE iterateN1M #-}
+
 -- | Execute the monadic action and freeze the resulting non-empty vector.
 --
 create :: (forall s. ST s (MVector s a)) -> Maybe (NonEmptyVector a)
@@ -449,12 +507,27 @@ create p = fromVector (G.create p)
 
 -- | Execute the monadic action and freeze the resulting non-empty vector.
 --
+unsafeCreate :: (forall s. ST s (MVector s a)) -> NonEmptyVector a
+unsafeCreate p = unsafeFromVector (G.create p)
+{-# INLINE unsafeCreate #-}
+
+-- | Execute the monadic action and freeze the resulting non-empty vector.
+--
 createT
     :: Traversable t
     => (forall s. ST s (t (MVector s a)))
     -> t (Maybe (NonEmptyVector a))
-{-# INLINE createT #-}
 createT p = fmap fromVector (G.createT p)
+{-# INLINE createT #-}
+
+-- | Execute the monadic action and freeze the resulting non-empty vector.
+--
+unsafeCreateT
+    :: Traversable t
+    => (forall s. ST s (t (MVector s a)))
+    -> t (NonEmptyVector a)
+unsafeCreateT p = fmap unsafeFromVector (G.createT p)
+{-# INLINE unsafeCreateT #-}
 
 -- ---------------------------------------------------------------------- --
 -- Unfolding
@@ -635,8 +708,18 @@ fromNonEmpty = NonEmptyVector . V.fromList . Foldable.toList
 -- the non-empty vector.
 --
 fromNonEmptyN :: Int -> NonEmpty a -> Maybe (NonEmptyVector a)
-fromNonEmptyN n as = fromVector (V.fromListN n (Foldable.toList as))
+fromNonEmptyN n a = fromVector (V.fromListN n (Foldable.toList a))
 {-# INLINE fromNonEmptyN #-}
+
+-- | O(n) Convert from the first n-elements of a non-empty list to a
+-- non-empty vector. This is a safe version of `fromNonEmptyN` which
+-- takes @max n 1@ of the first n-elements of the non-empty list.
+--
+fromNonEmptyN1 :: Int -> NonEmpty a -> NonEmptyVector a
+fromNonEmptyN1 n a = unsafeFromVector
+    $ V.fromListN (max n 1)
+    $ Foldable.toList a
+{-# INLINE fromNonEmptyN1 #-}
 
 -- | /O(1)/ Convert from a non-empty vector to a vector.
 --
@@ -649,9 +732,19 @@ toVector = _neVec
 -- If the vector is empty, then 'Nothing' is returned,
 -- otherwise 'Just' containing the non-empty vector.
 --
-fromVector :: V.Vector a -> Maybe (NonEmptyVector a)
+fromVector :: Vector a -> Maybe (NonEmptyVector a)
 fromVector v = if V.null v then Nothing else Just (NonEmptyVector v)
 {-# INLINE fromVector #-}
+
+-- | /O(1)/ Convert from a vector to a non-empty vector without
+-- checking bounds.
+--
+-- /Warning/: the onus is on the user to ensure that their vector
+-- is not empty, otherwise all bets are off!
+--
+unsafeFromVector :: Vector a -> NonEmptyVector a
+unsafeFromVector = NonEmptyVector
+{-# INLINE unsafeFromVector #-}
 
 -- | /O(n)/ Convert from a non-empty vector to a list.
 --
@@ -664,6 +757,14 @@ toList = V.toList . _neVec
 fromList :: [a] -> Maybe (NonEmptyVector a)
 fromList = fromVector . V.fromList
 {-# INLINE fromList #-}
+
+-- | /O(n)/ Convert from a list to a non-empty vector.
+--
+-- /Warning/: the onus is on the user to ensure that their vector
+-- is not empty, otherwise all bets are off!
+unsafeFromList :: [a] -> NonEmptyVector a
+unsafeFromList = unsafeFromVector . V.fromList
+{-# INLINE unsafeFromList #-}
 
 -- | /O(n)/ Convert the first n elements of a list to a non-empty vector.
 --
