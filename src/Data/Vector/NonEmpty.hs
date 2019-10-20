@@ -180,7 +180,6 @@ import Prelude (Bool, Eq, Ord, Read, Show(..), Num, Enum, (.), Ordering)
 import Control.Applicative
 import Control.DeepSeq hiding (force)
 import Control.Monad (Monad)
-import Control.Monad.Fail
 import Control.Monad.ST
 import Control.Monad.Zip (MonadZip)
 
@@ -219,7 +218,7 @@ newtype NonEmptyVector a = NonEmptyVector
       , Eq1, Ord1, Show1, Read1
       , Data, Typeable, Generic, NFData
       , Functor, Applicative, Monad
-      , MonadFail, MonadZip, Alternative
+      , MonadZip, Alternative
       , Semigroup
       )
 
