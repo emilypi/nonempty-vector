@@ -83,8 +83,8 @@ type NonEmptySTVector = NonEmptyMVector
 
 -- | Length of the mutable vector.
 length :: NonEmptyMVector s a -> Int
-{-# INLINE length #-}
 length = M.length . _nemVec
+{-# INLINE length #-}
 
 -- ---------------------------------------------------------------------- --
 -- Extracting subvectors

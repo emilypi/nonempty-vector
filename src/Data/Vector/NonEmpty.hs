@@ -3,6 +3,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE TypeFamilies #-}
 -- |
 -- Module       : Data.Vector.NonEmpty
 -- Copyright 	: (c) 2019 Emily Pillmore
@@ -72,6 +73,7 @@ module Data.Vector.NonEmpty
 
   -- ** Monad Initialization
 , replicateM, generateM, iterateNM
+, create, createT
 
   -- ** Unfolding
 , unfoldr, unfoldrN, unfoldrM, unfoldrNM
@@ -189,6 +191,7 @@ import Data.Data (Data)
 import Data.Foldable (Foldable)
 import qualified Data.Foldable as Foldable
 import Data.Functor
+import Data.Functor.Classes
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
@@ -198,8 +201,9 @@ import Data.Traversable (Traversable, traverse)
 import Data.Typeable (Typeable)
 import Data.Vector (Vector)
 import qualified Data.Vector as V
+import qualified Data.Vector.Generic as G
 import Data.Vector.Mutable (MVector)
-import qualified Data.Vector.Mutable as MV
+
 import GHC.Generics
 
 
@@ -215,6 +219,7 @@ newtype NonEmptyVector a = NonEmptyVector
     { _neVec :: V.Vector a
     } deriving
       ( Eq, Ord, Show, Read
+      , Eq1, Ord1, Show1, Read1
       , Data, Typeable, Generic, NFData
       , Functor, Applicative, Monad
       , MonadFail, MonadZip, Alternative
@@ -436,6 +441,21 @@ generateM n f = fmap fromVector (V.generateM n f)
 iterateNM :: Monad m => Int -> (a -> m a) -> a -> m (Maybe (NonEmptyVector a))
 iterateNM n f a = fmap fromVector (V.iterateNM n f a)
 {-# INLINE iterateNM #-}
+
+-- | Execute the monadic action and freeze the resulting non-empty vector.
+--
+create :: (forall s. ST s (MVector s a)) -> Maybe (NonEmptyVector a)
+create p = fromVector (G.create p)
+{-# INLINE create #-}
+
+-- | Execute the monadic action and freeze the resulting non-empty vector.
+--
+createT
+    :: Traversable t
+    => (forall s. ST s (t (MVector s a)))
+    -> t (Maybe (NonEmptyVector a))
+{-# INLINE createT #-}
+createT p = fmap fromVector (G.createT p)
 
 -- ---------------------------------------------------------------------- --
 -- Unfolding
