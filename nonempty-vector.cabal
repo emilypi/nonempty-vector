@@ -1,8 +1,10 @@
 cabal-version:       2.4
 name:                nonempty-vector
 version:             0.1.0.0
-synopsis:            Non-empty Vectors
-description:         Non-empty Vectors
+synopsis:            Non-empty vectors
+description:
+  Performant non-empty mutable and immutable vectors. These vectors strive to implement
+  the common APIs seen in `vector` without any additional performance cost.
 homepage:            https://github.com/emilypi/nonempty-vector
 bug-reports:         https://github.com/emilypi/nonempty-vector/issues
 license:             BSD-3-Clause
