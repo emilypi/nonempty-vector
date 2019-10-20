@@ -739,13 +739,10 @@ accum
       -- ^ accumulating function @f@
     -> NonEmptyVector a
       -- ^ initial non-empty vector (of length @m@)
-    -> NonEmpty (Int, b)
+    -> [(Int, b)]
       -- ^ list of index/value pairs (of length @n@)
     -> NonEmptyVector a
-accum f v u = NonEmptyVector (V.accum f v' u')
-  where
-    v' = _neVec v
-    u' = Foldable.toList u
+accum f (NonEmptyVector v) u = NonEmptyVector (V.accum f v u)
 
 {-# INLINE accum #-}
 
@@ -757,13 +754,11 @@ accumulate
       -- ^ accumulating function @f@
     -> NonEmptyVector a
       -- ^ initial non-empty vector (of length @m@)
-    -> NonEmptyVector (Int, b)
+    -> Vector (Int, b)
       -- ^ vector of index/value pairs (of length @n@)
     -> NonEmptyVector a
-accumulate f v u = NonEmptyVector (V.accumulate f v' u')
-  where
-    v' = _neVec v
-    u' = _neVec u
+accumulate f (NonEmptyVector v) u = NonEmptyVector (V.accumulate f v u)
+
 {-# INLINE accumulate #-}
 
 -- | /O(m+min(n1,n2))/ For each index @i@ from the index vector and the
@@ -775,16 +770,12 @@ accumulate_
       -- ^ accumulating function @f@
     -> NonEmptyVector a
       -- ^ initial non-empty vector (of length @m@)
-    -> NonEmptyVector Int
+    -> Vector Int
        -- ^ vector of indices (of length @n1@)
-    -> NonEmptyVector b
+    -> Vector b
        -- ^ vector of values (of length @n2@)
     -> NonEmptyVector a
-accumulate_ f v i b = NonEmptyVector (V.accumulate_ f v' i' b')
-  where
-    v' = _neVec v
-    i' = _neVec i
-    b' = _neVec b
+accumulate_ f (NonEmptyVector v) i b = NonEmptyVector (V.accumulate_ f v i b)
 {-# INLINE accumulate_ #-}
 
 -- | Same as 'accum' but without bounds checking.
@@ -794,13 +785,10 @@ unsafeAccum
       -- ^ accumulating function @f@
     -> NonEmptyVector a
       -- ^ initial non-empty vector (of length @m@)
-    -> NonEmpty (Int, b)
+    -> [(Int, b)]
       -- ^ list of index/value pairs (of length @n@)
     -> NonEmptyVector a
-unsafeAccum f v u = NonEmptyVector (V.unsafeAccum f v' u')
-  where
-    v' = _neVec v
-    u' = Foldable.toList u
+unsafeAccum f (NonEmptyVector v) u = NonEmptyVector (V.unsafeAccum f v u)
 {-# INLINE unsafeAccum #-}
 
 -- | Same as 'accumulate' but without bounds checking.
@@ -810,13 +798,12 @@ unsafeAccumulate
       -- ^ accumulating function @f@
     -> NonEmptyVector a
       -- ^ initial non-empty vector (of length @m@)
-    -> NonEmptyVector (Int, b)
+    -> Vector (Int, b)
       -- ^ vector of index/value pairs (of length @n@)
     -> NonEmptyVector a
-unsafeAccumulate f v u = NonEmptyVector (V.unsafeAccumulate f v' u')
+unsafeAccumulate f v u = NonEmptyVector (V.unsafeAccumulate f v' u)
   where
     v' = _neVec v
-    u' = _neVec u
 {-# INLINE unsafeAccumulate #-}
 
 -- | Same as 'accumulate_' but without bounds checking.
@@ -826,16 +813,14 @@ unsafeAccumulate_
       -- ^ accumulating function @f@
     -> NonEmptyVector a
       -- ^ initial non-empty vector (of length @m@)
-    -> NonEmptyVector Int
+    -> Vector Int
       -- ^ vector of indices of length @n1@
-    -> NonEmptyVector b
+    -> Vector b
       -- ^ vector of values (of length @n2@)
     -> NonEmptyVector a
-unsafeAccumulate_ f v i b = NonEmptyVector (V.unsafeAccumulate_ f v' i' b')
+unsafeAccumulate_ f v i b = NonEmptyVector (V.unsafeAccumulate_ f v' i b)
   where
     v' = _neVec v
-    i' = _neVec i
-    b' = _neVec b
 {-# INLINE unsafeAccumulate_ #-}
 
 -- ---------------------------------------------------------------------- --
