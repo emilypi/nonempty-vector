@@ -12,5 +12,11 @@ module Main
 ) where
 
 
+import Test.QuickCheck
+
+import qualified Data.Vector as V
+import qualified Data.Vector.NonEmpty as NEV
+
+
 main :: IO ()
 main = return ()

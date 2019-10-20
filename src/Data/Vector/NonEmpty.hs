@@ -94,7 +94,7 @@ module Data.Vector.NonEmpty
   -- ** To/from vector
 , toVector, fromVector
 
-  -- ** From list
+  -- ** To/from list
 , toList, fromList, fromListN
 
   -- * Modifying non-empty vectors

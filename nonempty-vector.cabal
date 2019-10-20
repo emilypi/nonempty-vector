@@ -48,9 +48,8 @@ test-suite nonempty-vector-tests
   main-is:             NEVectorTests.hs
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
 
-  build-depends:       base    >=4.0  && <5
+  build-depends:       base             >=4.0  && <5
                      , nonempty-vector
-                     , semigroups >=0.19
-                     , tasty
-                     , tasty-hunit
-                     , vector  >=0.12 && <0.13
+                     , QuickCheck      ^>=2.13
+                     , semigroups      ^>=0.19
+                     , vector          ^>=0.12
