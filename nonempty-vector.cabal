@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                nonempty-vector
-version:             0.1.0.0
+version:             0.0.1.0
 synopsis:            Non-empty vectors
 description:
   Performant non-empty mutable and immutable vectors. These vectors strive to implement
@@ -30,7 +30,7 @@ library
   exposed-modules:     Data.Vector.NonEmpty
                      , Data.Vector.NonEmpty.Mutable
 
-  build-depends:       base       >=4.0  && <5
+  build-depends:       base       >=4.9  && <5
                      , deepseq
                      , primitive  >=0.7
                      , semigroups >=0.19 && <0.20
@@ -48,7 +48,7 @@ test-suite nonempty-vector-tests
   main-is:             NEVectorTests.hs
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
 
-  build-depends:       base             >=4.0  && <5
+  build-depends:       base             >=4.9  && <5
                      , nonempty-vector
                      , hedgehog        ^>=1.0
                      , semigroups      ^>=0.19
