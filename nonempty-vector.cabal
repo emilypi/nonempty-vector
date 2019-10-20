@@ -19,8 +19,17 @@ extra-source-files:
   README.md
   dependencies.png
 
-tested-with:         GHC ==8.8.1 || ==8.6.5 || ==8.6.3 || ==8.4.4 || ==8.4.3 || ==8.0.2
-
+tested-with:        GHC ==8.8.1
+                     || ==8.6.5
+                     || ==8.6.3
+                     || ==8.4.4
+                     || ==8.4.3
+                     || ==8.0.2
+                     || ==7.10.3
+                     || ==7.8.4
+                     || ==7.6.3
+                     || ==7.4.2
+                     || ==7.0.4
 
 source-repository head
   type:     git
