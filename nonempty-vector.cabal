@@ -30,11 +30,11 @@ library
   exposed-modules:     Data.Vector.NonEmpty
                      , Data.Vector.NonEmpty.Mutable
 
-  build-depends:       base       >=4.9  && <5
+  build-depends:       base        >=4.9  && <5
                      , deepseq
-                     , primitive  >=0.7
-                     , semigroups >=0.19 && <0.20
-                     , vector     >=0.12 && <0.13
+                     , primitive  ^>=0.6
+                     , semigroups  >=0.17 && <0.19
+                     , vector     ^>=0.12
 
   hs-source-dirs:      src
   default-language:    Haskell2010
@@ -50,6 +50,6 @@ test-suite nonempty-vector-tests
 
   build-depends:       base             >=4.9  && <5
                      , nonempty-vector
-                     , hedgehog        ^>=1.0
-                     , semigroups      ^>=0.19
+                     , hedgehog         >=0.6  && <1.1
+                     , semigroups       >=0.17 && <0.19
                      , vector          ^>=0.12
