@@ -1,20 +1,16 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE Rank2Types #-}
 -- |
 -- Module       : Data.Vector.NonEmpty
--- Copyright 	: 2019 Emily Pillmore
--- License	: BSD
+-- Copyright 	: (c) 2019 Emily Pillmore
+-- License	: BSD-style
 --
 -- Maintainer	: Emily Pillmore <emilypi@cohomolo.gy>
 -- Stability	: Experimental
--- Portability	: TypeFamilies, MPTC, Rank2Types, DataTypeable, CPP
+-- Portability	: DataTypeable, CPP
 --
 -- A library for non-empty boxed vectors (that is, polymorphic arrays capable of
 -- holding any Haskell value). Non-empty vectors come in two flavors:
@@ -209,7 +205,7 @@ import GHC.Generics
 
 -- | 'NonEmptyVector' is a thin wrapper around 'Vector' that
 -- witnesses an API requiring non-empty construction,
--- initialization, and generation of vectors by design.
+-- initialization, and generation of non-empty vectors by design.
 --
 -- A newtype wrapper was chosen so that no new pointer indirection
 -- is introduced when working with 'Vector's, and all performance
@@ -224,9 +220,6 @@ newtype NonEmptyVector a = NonEmptyVector
       , MonadFail, MonadZip, Alternative
       , Semigroup
       )
-
--- ---------------------------------------------------------------------- --
--- Instances
 
 instance Foldable NonEmptyVector where
     foldMap f = Foldable.foldMap f . _neVec
