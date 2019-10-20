@@ -22,7 +22,7 @@ tested-with:         GHC ==8.8.1 || ==8.6.5 || ==8.6.3 || ==8.4.4 || ==8.4.3 || 
 
 source-repository head
   type:     git
-  location: git@github.com:emilypi/lens-process.git
+  location: https://github.com/emilypi/nonempty-vector.git
 
 
 library
