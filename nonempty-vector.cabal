@@ -22,16 +22,12 @@ tested-with:         GHC ==8.8.1 || ==8.6.5 || ==8.6.3 || ==8.4.4 || ==8.4.3 || 
 
 source-repository head
   type:     git
-  location: https://github.com/emilypi/nonempty-vector.git
+  location: git@github.com:emilypi/lens-process.git
 
 
 library
   exposed-modules:     Data.Vector.NonEmpty
-                     , Data.Vector.NonEmpty.Generic
                      , Data.Vector.NonEmpty.Mutable
-                     , Data.Vector.NonEmpty.Primitive
-                     , Data.Vector.NonEmpty.Storable
-                     , Data.Vector.NonEmpty.Unboxed
 
   build-depends:       base       >=4.0  && <5
                      , deepseq
