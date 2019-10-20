@@ -30,6 +30,7 @@ library
                      , Data.Vector.NonEmpty.Generic
                      , Data.Vector.NonEmpty.Mutable
                      , Data.Vector.NonEmpty.Primitive
+                     , Data.Vector.NonEmpty.Storable
                      , Data.Vector.NonEmpty.Unboxed
 
   build-depends:       base       >=4.0  && <5

@@ -2,7 +2,7 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 -- |
--- Module      : Data.Vector.NonEmpty.Primitive
+-- Module      : Data.Vector.NonEmpty.Storable
 -- Copyright   : (c) 2019 Emily Pillmore
 -- License     : BSD-style
 --
@@ -12,4 +12,4 @@
 --
 -- Non-empty mutable boxed vectors.
 --
-module Data.Vector.NonEmpty.Primitive where
+module Data.Vector.NonEmpty.Storable where
