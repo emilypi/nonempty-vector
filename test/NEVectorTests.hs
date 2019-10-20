@@ -11,14 +11,12 @@
 --
 module Main
 ( main
-, genNEV
 ) where
 
 
 import Data.Functor
 import Data.Maybe
 import Data.Vector (Vector)
-import qualified Data.Vector as V
 import Data.Vector.NonEmpty (NonEmptyVector)
 import qualified Data.Vector.NonEmpty as NEV
 
@@ -26,10 +24,6 @@ import Hedgehog
 import qualified Hedgehog.Range as Range
 
 import qualified Hedgehog.Internal.Gen as Gen
-import qualified Hedgehog.Internal.Shrink as Shrink
-import Hedgehog.Internal.Source (HasCallStack, withFrozenCallStack)
-import Hedgehog.Internal.Tree (Tree)
-import qualified Hedgehog.Internal.Tree as Tree
 
 
 main :: IO ()
