@@ -14,7 +14,7 @@
 --
 module Data.Vector.NonEmpty.Mutable
 ( -- * Mutable boxed vectors
-  NonEmptyMVector(..)
+  NonEmptyMVector
 , NonEmptyIOVector
 , NonEmptySTVector
 
@@ -75,8 +75,10 @@ newtype NonEmptyMVector s a = NonEmptyMVector
     { _nemVec :: MVector s a }
     deriving (Typeable)
 
+-- | NonEmptyMVector parametrized by 'PrimState'
 type NonEmptyIOVector = NonEmptyMVector RealWorld
-type NonEmptySTVector = NonEmptyMVector
+-- | NonEmptyMVector parametrized by 'ST'
+type NonEmptySTVector s = NonEmptyMVector s
 
 -- ---------------------------------------------------------------------- --
 -- Length information
@@ -89,27 +91,38 @@ length = M.length . _nemVec
 -- ---------------------------------------------------------------------- --
 -- Extracting subvectors
 
--- | Yield a part of the mutable vector without copying it.
+-- | Yield a part of the mutable vector without copying.
+--
 slice :: Int -> Int -> NonEmptyMVector s a -> MVector s a
 slice n m = M.slice n m . _nemVec
 {-# INLINE slice #-}
 
+-- | Yield at the first n elements without copying.
+--
 take :: Int -> NonEmptyMVector s a -> MVector s a
 take n = M.take n . _nemVec
 {-# INLINE take #-}
 
+-- | Yield all but the first n elements without copying.
+--
 drop :: Int -> NonEmptyMVector s a -> MVector s a
 drop n = M.drop n . _nemVec
 {-# INLINE drop #-}
 
+-- | Yield the first n elements paired with the remainder without copying.
+--
 splitAt :: Int -> NonEmptyMVector s a -> (MVector s a, MVector s a)
 splitAt n = M.splitAt n . _nemVec
 {-# INLINE splitAt #-}
 
+-- | Yield all but the last element without copying.
+--
 init :: NonEmptyMVector s a -> MVector s a
 init = M.unsafeInit . _nemVec
 {-# INLINE init #-}
 
+-- | Yield all but the first element without copying.
+--
 tail :: NonEmptyMVector s a -> MVector s a
 tail = M.unsafeTail . _nemVec
 {-# INLINE tail #-}
@@ -127,10 +140,16 @@ unsafeSlice
 unsafeSlice n m = M.unsafeSlice n m . _nemVec
 {-# INLINE unsafeSlice #-}
 
+-- | Yield the first n elements without copying. The vector must contain at
+-- least n elements but this is not checked.
+--
 unsafeTake :: Int -> NonEmptyMVector s a -> MVector s a
 unsafeTake n = M.unsafeTake n . _nemVec
 {-# INLINE unsafeTake #-}
 
+-- | Yield all but the first n elements without copying. The vector must
+-- contain at least n elements but this is not checked.
+--
 unsafeDrop :: Int -> NonEmptyMVector s a -> MVector s a
 unsafeDrop n = M.unsafeDrop n . _nemVec
 {-# INLINE unsafeDrop #-}

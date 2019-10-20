@@ -242,14 +242,14 @@ length = V.length . _neVec
 {-# INLINE length #-}
 
 -- | /O(1)/ First element. Since head is gauranteed, bounds checks
--- are bypassed by deferring to 'Vector.unsafeHead'.
+-- are bypassed by deferring to 'unsafeHead'.
 --
 head :: NonEmptyVector a -> a
 head = V.unsafeHead . _neVec
 {-# INLINE head #-}
 
 -- | /O(1)/ Last element. Since a last element is gauranteed, bounds checks
--- are bypassed by deferring to 'Vector.unsafeLast'.
+-- are bypassed by deferring to 'unsafeLast'.
 --
 last :: NonEmptyVector a -> a
 last = V.unsafeLast . _neVec
@@ -291,7 +291,7 @@ indexM (NonEmptyVector v) n = V.indexM v n
 --
 -- See 'V.indexM' for an explanation of why this is useful.
 --
--- Note that this function defers to 'V.unsafeHeadM' since head is
+-- Note that this function defers to 'unsafeHeadM' since head is
 -- gauranteed to be safe by construction.
 --
 headM :: Monad m => NonEmptyVector a -> m a
@@ -301,14 +301,14 @@ headM (NonEmptyVector v) = V.unsafeHeadM v
 -- | /O(1)/ Last element of a non-empty vector in a monad. See 'V.indexM' for an
 -- explanation of why this is useful.
 --
--- Note that this function defers to 'V.unsafeHeadM' since a last element is
+-- Note that this function defers to 'unsafeHeadM' since a last element is
 -- gauranteed.
 --
 lastM :: Monad m => NonEmptyVector a -> m a
 lastM (NonEmptyVector v) = V.unsafeLastM v
 {-# INLINE lastM #-}
 
--- | O(1) Indexing in a monad without bounds checks. See 'V.indexM' for an
+-- | O(1) Indexing in a monad without bounds checks. See 'indexM' for an
 -- explanation of why this is useful.
 --
 unsafeIndexM :: Monad m => NonEmptyVector a -> Int -> m a
@@ -346,7 +346,7 @@ init = V.unsafeInit . _neVec
 take :: Int -> NonEmptyVector a -> Vector a
 take n = V.take n . _neVec
 
--- /O(1)/ Yield all but the first n elements without copying. The non-empty vector
+-- | /O(1)/ Yield all but the first n elements without copying. The non-empty vector
 -- may contain less than n elements in which case an empty vector is returned.
 --
 drop :: Int -> NonEmptyVector a -> Vector a
@@ -1643,7 +1643,7 @@ and :: NonEmptyVector Bool -> Bool
 and = V.and . _neVec
 {-# INLINE and #-}
 
--- | /O(n)/ Check if any element is 'True'
+-- | /O(n)/ Check if any element is @True@
 --
 or :: NonEmptyVector Bool -> Bool
 or = V.or . _neVec
