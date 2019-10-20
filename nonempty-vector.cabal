@@ -55,18 +55,4 @@ test-suite nonempty-vector-tests
                      , tasty
                      , tasty-hunit
                      , vector  >=0.12 && <0.13
-
-
-test-suite doctests
-  main-is:           doctests.hs
-  type:              exitcode-stdio-1.0
-  build-depends:     base    >=4.0  && <5
-                   , doctest >=0.16  && <1.1
-                   , nonempty-vector
-                   , semigroups >=0.19
-                   , vector  >=0.12 && <0.13
-
-  hs-source-dirs:    test
-  default-language:  Haskell2010
-  ghc-options:       -Wall -threaded
-  x-doctest-options: --fast
+t

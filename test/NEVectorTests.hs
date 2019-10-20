@@ -7,7 +7,7 @@
 -- Stability	: Experimental
 -- Portability	: TypeFamilies
 --
-module NEVectorTests
+module Main
 ( main
 ) where
 
