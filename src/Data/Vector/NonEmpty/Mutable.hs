@@ -29,7 +29,8 @@ module Data.Vector.NonEmpty.Mutable
   -- ** Overlapping
 , overlaps
 
-  -- * Construction
+  -- * Conversion from/to mvectors
+, fromMVector, toMVector
 
   -- ** Initialisation
 , new, unsafeNew, replicate, replicateM, clone
@@ -164,11 +165,22 @@ overlaps (NonEmptyMVector v) (NonEmptyMVector u) = M.overlaps v u
 {-# INLINE overlaps #-}
 
 -- ---------------------------------------------------------------------- --
--- Initialisation
+-- Conversion
 
+-- | Convert a non-empty mutable vector from an 'MVector'
+--
 fromMVector :: MVector s a -> Maybe (NonEmptyMVector s a)
 fromMVector v = if M.null v then Nothing else Just (NonEmptyMVector v)
 
+-- | Convert a non-empty mutable vector to an 'MVector'
+--
+toMVector :: NonEmptyMVector s a -> MVector s a
+toMVector = _nemVec
+
+-- ---------------------------------------------------------------------- --
+-- Initialisation
+
+-- |
 -- | Create a mutable vector of the given length.
 --
 new
