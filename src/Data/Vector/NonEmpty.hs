@@ -174,7 +174,7 @@ module Data.Vector.NonEmpty
 ) where
 
 
-import Prelude (Bool, Eq, Ord, Read, Show(..), Num, Enum, (.), Ordering)
+import Prelude (Bool, Eq, Ord, Show(..), Num, Enum, (.), Ordering)
 
 
 import Control.Applicative
@@ -214,11 +214,11 @@ import GHC.Generics
 newtype NonEmptyVector a = NonEmptyVector
     { _neVec :: V.Vector a
     } deriving
-      ( Eq, Ord, Read
-      , Eq1, Ord1, Show1, Read1
+      ( Eq, Ord
+      , Eq1, Ord1, Show1
       , Data, Typeable, Generic, NFData
       , Functor, Applicative, Monad
-      , MonadZip, Alternative
+      , MonadZip
       , Semigroup
       )
 
