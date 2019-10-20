@@ -55,4 +55,3 @@ test-suite nonempty-vector-tests
                      , tasty
                      , tasty-hunit
                      , vector  >=0.12 && <0.13
-t
