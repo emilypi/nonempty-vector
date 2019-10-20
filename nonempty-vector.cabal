@@ -50,6 +50,6 @@ test-suite nonempty-vector-tests
 
   build-depends:       base             >=4.0  && <5
                      , nonempty-vector
-                     , QuickCheck      ^>=2.13
+                     , hedgehog        ^>=1.0
                      , semigroups      ^>=0.19
                      , vector          ^>=0.12
