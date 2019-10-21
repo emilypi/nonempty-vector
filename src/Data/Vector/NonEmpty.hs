@@ -79,11 +79,10 @@ module Data.Vector.NonEmpty
 
   -- ** Unfolding
 , unfoldr, unfoldr1
-, unfoldrN, unfoldrN1, unfoldr1N
+, unfoldrN, unfoldr1N
 , unfoldrM, unfoldr1M
-, unfoldrNM, unfoldrN1M, unfoldr1NM
-, constructN, constructN1
-, constructrN, constructrN1
+, unfoldrNM, unfoldr1NM
+, constructN, constructrN
 
   -- ** Enumeration
 , enumFromN, enumFromStepN
@@ -426,8 +425,8 @@ generate n f = fromVector (V.generate n f)
 --
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
 --
-generate1 :: Int -> (Int -> a) -> Maybe (NonEmptyVector a)
-generate1 n f = fromVector (V.generate (max n 1) f)
+generate1 :: Int -> (Int -> a) -> NonEmptyVector a
+generate1 n f = unsafeFromVector (V.generate (max n 1) f)
 {-# INLINE generate1 #-}
 
 -- | /O(n)/ Apply function n times to value. Zeroth element is original value.
@@ -442,8 +441,8 @@ iterateN n f a = fromVector (V.iterateN n f a)
 --
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
 --
-iterateN1 :: Int -> (a -> a) -> a -> Maybe (NonEmptyVector a)
-iterateN1 n f a = fromVector (V.iterateN (max n 1) f a)
+iterateN1 :: Int -> (a -> a) -> a -> NonEmptyVector a
+iterateN1 n f a = unsafeFromVector (V.iterateN (max n 1) f a)
 {-# INLINE iterateN1 #-}
 
 -- ---------------------------------------------------------------------- --
@@ -568,15 +567,6 @@ unfoldrN n f b = fromVector (V.unfoldrN n f b)
 {-# INLINE unfoldrN #-}
 
 -- | /O(n)/ Construct a vector with at most n elements by repeatedly
--- applying the generator function to a seed and a first element.
---
--- This function takes @max n 1@ number of repetitions.
---
-unfoldrN1 :: Int -> (b -> Maybe (a, b)) -> b -> NonEmptyVector a
-unfoldrN1 n f b = unsafeFromVector (V.unfoldrN (max n 1) f b)
-{-# INLINE unfoldrN1 #-}
-
--- | /O(n)/ Construct a vector with at most n elements by repeatedly
 -- applying the generator function to a seed. The generator function yields
 -- 'Just' the next element and the new seed or 'Nothing' if there are no
 -- more elements.
@@ -647,22 +637,6 @@ unfoldrNM n f b = fmap fromVector (V.unfoldrNM n f b)
 -- If an unfold does not create meaningful values, 'Nothing' is
 -- returned. Otherwise, 'Just' containing a non-empty vector is returned.
 --
-unfoldrN1M
-    :: Monad m
-    => Int
-    -> (b -> m (Maybe (a, b)))
-    -> b
-    -> m (NonEmptyVector a)
-unfoldrN1M n f b = fmap unsafeFromVector (V.unfoldrNM (max n 1) f b)
-{-# INLINE unfoldrN1M #-}
-
--- | /O(n)/ Construct a non-empty vector by repeatedly applying the monadic generator
--- function to a seed. The generator function yields Just the next element and
--- the new seed or Nothing if there are no more elements.
---
--- If an unfold does not create meaningful values, 'Nothing' is
--- returned. Otherwise, 'Just' containing a non-empty vector is returned.
---
 unfoldr1NM
     :: Monad m
     => Int
@@ -683,16 +657,6 @@ constructN :: Int -> (Vector a -> a) -> Maybe (NonEmptyVector a)
 constructN n f = fromVector (V.constructN n f)
 {-# INLINE constructN #-}
 
--- | /O(n)/ Construct a non-empty vector with n elements by repeatedly applying the
--- generator function to the already constructed part of the vector.
---
--- If 'constructN' does not create meaningful values, 'Nothing' is
--- returned. Otherwise, 'Just' containing a non-empty vector is returned.
---
-constructN1 :: Int -> (Vector a -> a) -> NonEmptyVector a
-constructN1 n f = unsafeFromVector (V.constructN (max n 1) f)
-{-# INLINE constructN1 #-}
-
 -- | /O(n)/ Construct a vector with n elements from right to left by repeatedly
 -- applying the generator function to the already constructed part of the vector.
 --
@@ -702,16 +666,6 @@ constructN1 n f = unsafeFromVector (V.constructN (max n 1) f)
 constructrN :: Int -> (Vector a -> a) -> Maybe (NonEmptyVector a)
 constructrN n f = fromVector (V.constructrN n f)
 {-# INLINE constructrN #-}
-
--- | /O(n)/ Construct a vector with n elements from right to left by repeatedly
--- applying the generator function to the already constructed part of the vector.
---
--- If 'constructrN' does not create meaningful values, 'Nothing' is
--- returned. Otherwise, 'Just' containing a non-empty vector is returned.
---
-constructrN1 :: Int -> (Vector a -> a) -> NonEmptyVector a
-constructrN1 n f = unsafeFromVector (V.constructrN (max n 1) f)
-{-# INLINE constructrN1 #-}
 
 -- ---------------------------------------------------------------------- --
 -- Enumeration
