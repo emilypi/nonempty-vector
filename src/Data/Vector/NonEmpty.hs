@@ -251,8 +251,6 @@ instance Read1 NonEmptyVector where
       then []
       else return (unsafeFromList as, s')
 
-
-
 instance Foldable NonEmptyVector where
     foldMap f = Foldable.foldMap f . _neVec
 
