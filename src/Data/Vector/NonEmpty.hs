@@ -185,12 +185,12 @@ module Data.Vector.NonEmpty
 ) where
 
 
-import Prelude (Bool, Eq, Ord, Show(..), Num, Enum, (.), Ordering, max, ($))
+import Prelude (Bool, Eq, Ord, Show(..), Num, Enum, (.), Ordering, max)
 
 
 import Control.Applicative
 import Control.DeepSeq hiding (force)
-import Control.Monad (Monad)
+import Control.Monad (Monad, return)
 import Control.Monad.ST
 import Control.Monad.Zip (MonadZip)
 
@@ -211,6 +211,9 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Generic as G
 import Data.Vector.Mutable (MVector)
 
+import GHC.Read
+
+import qualified Text.Read as Read
 
 -- | 'NonEmptyVector' is a thin wrapper around 'Vector' that
 -- witnesses an API requiring non-empty construction,
@@ -233,6 +236,13 @@ newtype NonEmptyVector a = NonEmptyVector
 
 instance Show a => Show (NonEmptyVector a) where
     show (NonEmptyVector v) = show v
+
+instance Read a => Read (NonEmptyVector a) where
+    readPrec = do
+      as <- Read.readPrec
+      if Foldable.null as
+      then Read.pfail
+      else return (unsafeFromList as)
 
 instance Foldable NonEmptyVector where
     foldMap f = Foldable.foldMap f . _neVec
@@ -798,9 +808,7 @@ fromNonEmptyN n a = fromVector (V.fromListN n (Foldable.toList a))
 -- takes @max n 1@ of the first n-elements of the non-empty list.
 --
 fromNonEmptyN1 :: Int -> NonEmpty a -> NonEmptyVector a
-fromNonEmptyN1 n a = unsafeFromVector
-    $ V.fromListN (max n 1)
-    $ Foldable.toList a
+fromNonEmptyN1 n = unsafeFromVector . V.fromListN (max n 1) . Foldable.toList
 {-# INLINE fromNonEmptyN1 #-}
 
 -- | /O(1)/ Convert from a non-empty vector to a vector.
