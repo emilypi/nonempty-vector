@@ -435,7 +435,7 @@ replicate n a = fromVector (V.replicate n a)
 -- | /O(n)/ Non-empty vector of the given length with the same value in
 -- each position.
 --
--- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
+-- This variant takes @max n 1@ for the supplied length parameter.
 --
 replicate1 :: Int -> a -> NonEmptyVector a
 replicate1 n a = unsafeFromVector (V.replicate (max n 1) a)
@@ -453,7 +453,7 @@ generate n f = fromVector (V.generate n f)
 -- | /O(n)/ Construct a vector of the given length by applying the function to
 -- each index.
 --
--- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
+-- This variant takes @max n 1@ for the supplied length parameter.
 --
 generate1 :: Int -> (Int -> a) -> NonEmptyVector a
 generate1 n f = unsafeFromVector (V.generate (max n 1) f)
@@ -469,7 +469,7 @@ iterateN n f a = fromVector (V.iterateN n f a)
 
 -- | /O(n)/ Apply function n times to value. Zeroth element is original value.
 --
--- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
+-- This variant takes @max n 1@ for the supplied length parameter.
 --
 iterateN1 :: Int -> (a -> a) -> a -> NonEmptyVector a
 iterateN1 n f a = unsafeFromVector (V.iterateN (max n 1) f a)
@@ -490,7 +490,7 @@ replicateM n a = fmap fromVector (V.replicateM n a)
 -- | /O(n)/ Execute the monadic action the given number of times and store
 -- the results in a vector.
 --
--- This version of @generateM@ takes @max n 1@ repetitions of the given value
+-- This variant takes @max n 1@ for the supplied length parameter.
 --
 replicate1M :: Monad m => Int -> m a -> m (NonEmptyVector a)
 replicate1M n a = fmap unsafeFromVector (V.replicateM (max n 1) a)
@@ -508,7 +508,7 @@ generateM n f = fmap fromVector (V.generateM n f)
 -- | /O(n)/ Construct a vector of the given length by applying the monadic
 -- action to each index
 --
--- This version of @generateM@ takes @max n 1@ repetitions of the given value
+-- This variant takes @max n 1@ for the supplied length parameter.
 --
 generate1M :: Monad m => Int -> (Int -> m a) -> m (NonEmptyVector a)
 generate1M n f = fmap unsafeFromVector (V.generateM (max n 1) f)
@@ -526,7 +526,7 @@ iterateNM n f a = fmap fromVector (V.iterateNM n f a)
 -- | /O(n)/ Apply monadic function n times to value. Zeroth element is
 -- original value.
 --
--- This version of @iterateNM@ takes @max n 1@ repetitions of the given value
+-- This variant takes @max n 1@ for the supplied length parameter.
 --
 iterateN1M :: Monad m => Int -> (a -> m a) -> a -> m (NonEmptyVector a)
 iterateN1M n f a = fmap unsafeFromVector (V.iterateNM (max n 1) f a)
@@ -538,7 +538,10 @@ create :: (forall s. ST s (MVector s a)) -> Maybe (NonEmptyVector a)
 create p = fromVector (G.create p)
 {-# INLINE create #-}
 
--- | Execute the monadic action and freeze the resulting non-empty vector.
+-- | Execute the monadic action and freeze the resulting non-empty vector,
+-- bypassing emptiness checks.
+--
+-- The onus is on the caller to guarantee the created vector is non-empty.
 --
 unsafeCreate :: (forall s. ST s (MVector s a)) -> NonEmptyVector a
 unsafeCreate p = unsafeFromVector (G.create p)
@@ -554,6 +557,8 @@ createT p = fmap fromVector (G.createT p)
 {-# INLINE createT #-}
 
 -- | Execute the monadic action and freeze the resulting non-empty vector.
+--
+-- The onus is on the caller to guarantee the created vector is non-empty.
 --
 unsafeCreateT
     :: Traversable t
@@ -580,6 +585,9 @@ unfoldr f b = fromVector (V.unfoldr f b)
 -- | /O(n)/ Construct a non-empty vector by repeatedly applying the
 -- generator function to a seed and a first element.
 --
+-- This variant of 'unfoldr' guarantees the resulting vector is non-
+-- empty by supplying an initial element @a@.
+--
 unfoldr1 :: (b -> Maybe (a, b)) -> a -> b -> NonEmptyVector a
 unfoldr1 f a b = cons a (unsafeFromVector (V.unfoldr f b))
 {-# INLINE unfoldr1 #-}
@@ -601,8 +609,8 @@ unfoldrN n f b = fromVector (V.unfoldrN n f b)
 -- 'Just' the next element and the new seed or 'Nothing' if there are no
 -- more elements.
 --
--- If an unfold does not create meaningful values, 'Nothing' is
--- returned. Otherwise, 'Just' containing a non-empty vector is returned.
+-- This variant of 'unfoldrN' guarantees the resulting vector is non-
+-- empty by supplying an initial element @a@.
 --
 unfoldr1N
     :: Int
@@ -632,8 +640,8 @@ unfoldrM f b = fmap fromVector (V.unfoldrM f b)
 -- function to a seed. The generator function yields Just the next element
 -- and the new seed or Nothing if there are no more elements.
 --
--- If an unfold does not create meaningful values, 'Nothing' is
--- returned. Otherwise, 'Just' containing a non-empty vector is returned.
+-- This variant of 'unfoldrM' guarantees the resulting vector is non-
+-- empty by supplying an initial element @a@.
 --
 unfoldr1M
     :: Monad m
@@ -664,8 +672,8 @@ unfoldrNM n f b = fmap fromVector (V.unfoldrNM n f b)
 -- function to a seed. The generator function yields Just the next element and
 -- the new seed or Nothing if there are no more elements.
 --
--- If an unfold does not create meaningful values, 'Nothing' is
--- returned. Otherwise, 'Just' containing a non-empty vector is returned.
+-- This variant of 'unfoldrNM' guarantees the resulting vector is non-
+-- empty by supplying an initial element @a@.
 --
 unfoldr1NM
     :: Monad m
