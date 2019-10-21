@@ -59,7 +59,8 @@ module Data.Vector.NonEmpty
 , headM, lastM, indexM, unsafeIndexM
 
   -- ** Extracting subvectors (slicing)
-, tail, slice, init, take, drop, splitAt
+, tail, slice, init, take, drop
+, uncons, unsnoc, splitAt
 , unsafeSlice, unsafeTake, unsafeDrop
 
   -- * Construction
@@ -332,6 +333,18 @@ unsafeIndexM (NonEmptyVector v) n = V.unsafeIndexM v n
 tail :: NonEmptyVector a -> Vector a
 tail = V.unsafeTail . _neVec
 {-# INLINE tail #-}
+
+-- | /O(1)/ Yield a slice of a non-empty vector without copying at
+-- the @0@th and @1@st indices.
+--
+uncons :: NonEmptyVector a -> (a, Vector a)
+uncons v = (head v, tail v)
+
+-- | /O(1)/ Yield a slice of a non-empty vector without copying at
+-- the @n-1@th and @nth@ indices
+--
+unsnoc :: NonEmptyVector a -> (Vector a, a)
+unsnoc v = (init v, last v)
 
 -- | /O(1)/ Yield a slice of the non-empty vector without copying it.
 -- The vector must contain at least i+n elements. Because this is not
