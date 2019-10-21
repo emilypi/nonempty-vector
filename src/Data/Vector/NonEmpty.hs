@@ -198,7 +198,7 @@ import Data.Data (Data)
 import Data.Foldable (Foldable)
 import qualified Data.Foldable as Foldable
 import Data.Functor
-import Data.Functor.Classes
+import Data.Functor.Classes (Eq1, Ord1, Show1, Read1(..))
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
@@ -243,6 +243,15 @@ instance Read a => Read (NonEmptyVector a) where
       if Foldable.null as
       then Read.pfail
       else return (unsafeFromList as)
+
+instance Read1 NonEmptyVector where
+    liftReadsPrec _ r _ s = do
+      (as, s') <- r s
+      if Foldable.null as
+      then []
+      else return (unsafeFromList as, s')
+
+
 
 instance Foldable NonEmptyVector where
     foldMap f = Foldable.foldMap f . _neVec
