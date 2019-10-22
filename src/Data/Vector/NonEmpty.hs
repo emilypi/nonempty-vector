@@ -356,12 +356,14 @@ tail = V.unsafeTail . _neVec
 --
 uncons :: NonEmptyVector a -> (a, Vector a)
 uncons v = (head v, tail v)
+{-# INLINE uncons #-}
 
 -- | /O(1)/ Yield a slice of a non-empty vector without copying at
 -- the @n-1@th and @nth@ indices
 --
 unsnoc :: NonEmptyVector a -> (Vector a, a)
 unsnoc v = (init v, last v)
+{-# INLINE unsnoc #-}
 
 -- | /O(1)/ Yield a slice of the non-empty vector without copying it.
 -- The vector must contain at least i+n elements. Because this is not
@@ -376,18 +378,21 @@ slice i n = V.slice i n . _neVec
 --
 init :: NonEmptyVector a -> Vector a
 init = V.unsafeInit . _neVec
+{-# INLINE init #-}
 
 -- | /O(1)/ Yield at the first n elements without copying. The non-empty vector may
 -- contain less than n elements in which case it is returned as a vector unchanged.
 --
 take :: Int -> NonEmptyVector a -> Vector a
 take n = V.take n . _neVec
+{-# INLINE take #-}
 
 -- | /O(1)/ Yield all but the first n elements without copying. The non-empty vector
 -- may contain less than n elements in which case an empty vector is returned.
 --
 drop :: Int -> NonEmptyVector a -> Vector a
 drop n = V.drop n . _neVec
+{-# INLINE drop #-}
 
 -- | /O(1)/ Yield the first n elements paired with the remainder without copying.
 --
@@ -395,24 +400,28 @@ drop n = V.drop n . _neVec
 --
 splitAt :: Int -> NonEmptyVector a -> (Vector a, Vector a)
 splitAt n = V.splitAt n . _neVec
+{-# INLINE splitAt #-}
 
 -- | /O(1)/ Yield a slice of the vector without copying. The vector must contain at
 -- least i+n elements but this is not checked.
 --
 unsafeSlice :: Int -> Int -> NonEmptyVector a -> Vector a
 unsafeSlice i n = V.unsafeSlice i n . _neVec
+{-# INLINE unsafeSlice #-}
 
 -- | /O(1)/ Yield the first n elements without copying. The vector must contain at
 -- least n elements but this is not checked.
 --
 unsafeTake :: Int -> NonEmptyVector a -> Vector a
 unsafeTake n = V.unsafeTake n . _neVec
+{-# INLINE unsafeTake #-}
 
 -- | /O(1)/ Yield all but the first n elements without copying. The vector must contain
 -- at least n elements but this is not checked.
 --
 unsafeDrop :: Int -> NonEmptyVector a -> Vector a
 unsafeDrop n = V.unsafeDrop n . _neVec
+{-# INLINE unsafeDrop #-}
 
 -- ---------------------------------------------------------------------- --
 -- Construction
@@ -963,7 +972,6 @@ accumulate
       -- ^ vector of index/value pairs (of length @n@)
     -> NonEmptyVector a
 accumulate f (NonEmptyVector v) u = NonEmptyVector (V.accumulate f v u)
-
 {-# INLINE accumulate #-}
 
 -- | /O(m+min(n1,n2))/ For each index @i@ from the index vector and the
