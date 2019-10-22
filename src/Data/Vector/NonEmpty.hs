@@ -1,9 +1,8 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE TypeFamilies #-}
 -- |
 -- Module       : Data.Vector.NonEmpty
 -- Copyright 	: (c) 2019 Emily Pillmore
@@ -245,11 +244,19 @@ instance Read a => Read (NonEmptyVector a) where
       else return (unsafeFromList as)
 
 instance Read1 NonEmptyVector where
+#if __GLASGOW_HASKELL__ > 802
+    liftReadPrec _ rl = do
+      l <- rl
+      if Foldable.null l
+      then Read.pfail
+      else return (unsafeFromList l)
+#else
     liftReadsPrec _ r _ s = do
       (as, s') <- r s
       if Foldable.null as
       then []
       else return (unsafeFromList as, s')
+#endif
 
 instance Foldable NonEmptyVector where
     foldMap f = Foldable.foldMap f . _neVec
