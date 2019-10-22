@@ -245,11 +245,11 @@ instance Read a => Read (NonEmptyVector a) where
       else return (unsafeFromList as)
 
 instance Read1 NonEmptyVector where
-    liftReadPrec _ rl = do
-      l <- rl
-      if Foldable.null l
-      then Read.pfail
-      else return (unsafeFromList l)
+    liftReadsPrec _ r _ s = do
+      (as, s') <- r s
+      if Foldable.null as
+      then []
+      else return (unsafeFromList as, s')
 
 instance Foldable NonEmptyVector where
     foldMap f = Foldable.foldMap f . _neVec
