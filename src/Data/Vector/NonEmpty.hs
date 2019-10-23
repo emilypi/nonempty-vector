@@ -85,7 +85,8 @@ module Data.Vector.NonEmpty
 , constructN, constructrN
 
   -- ** Enumeration
-, enumFromN, enumFromStepN
+, enumFromN, enumFromN1
+, enumFromStepN, enumFromStepN1
 , enumFromTo, enumFromThenTo
 
   -- ** Concatenation
@@ -735,6 +736,14 @@ enumFromN :: Num a => a -> Int -> Maybe (NonEmptyVector a)
 enumFromN a n = fromVector (V.enumFromN a n)
 {-# INLINE enumFromN #-}
 
+-- | /O(n)/ Yield a non-emptyvector of length @max n 1@ containing the
+-- values x, x+1 etc. This operation is usually more efficient than
+-- 'enumFromTo'.
+--
+enumFromN1 :: Num a => a -> Int -> NonEmptyVector a
+enumFromN1 a n = unsafeFromVector (V.enumFromN a (max n 1))
+{-# INLINE enumFromN1 #-}
+
 -- | /O(n)/ Yield a non-empty vector of the given length containing the
 -- values x, x+y, x+y+y etc. This operations is usually more efficient than
 -- 'enumFromThenTo'.
@@ -745,6 +754,14 @@ enumFromN a n = fromVector (V.enumFromN a n)
 enumFromStepN :: Num a => a -> a -> Int -> Maybe (NonEmptyVector a)
 enumFromStepN a0 a1 n = fromVector (V.enumFromStepN a0 a1 n)
 {-# INLINE enumFromStepN #-}
+
+-- | /O(n)/ Yield a non-empty vector of length @max n 1@ containing the
+-- values x, x+y, x+y+y etc. This operations is usually more efficient than
+-- 'enumFromThenTo'.
+--
+enumFromStepN1 :: Num a => a -> a -> Int -> NonEmptyVector a
+enumFromStepN1 a0 a1 n = unsafeFromVector (V.enumFromStepN a0 a1 (max n 1))
+{-# INLINE enumFromStepN1 #-}
 
 -- | /O(n)/ Enumerate values from x to y.
 --
