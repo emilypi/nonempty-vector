@@ -1,4 +1,4 @@
-cabal-version:       2.0
+cabal-version:       >=1.24
 name:                nonempty-vector
 version:             0.2.0.0
 synopsis:            Non-empty vectors
@@ -30,7 +30,7 @@ custom-setup
   setup-depends:
       base           >=4.9 && <5
     , Cabal
-    , cabal-doctest  >=1
+    , cabal-doctest
 
 
 library
