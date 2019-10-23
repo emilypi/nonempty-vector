@@ -215,6 +215,14 @@ import GHC.Read
 
 import qualified Text.Read as Read
 
+
+-- $setup
+-- >>> import Prelude (Int, String, ($), (.), (+))
+-- >>> import qualified Prelude as P
+-- >>> import qualified Data.Vector as V
+-- >>> :set -XTypeApplications
+
+
 -- | 'NonEmptyVector' is a thin wrapper around 'Vector' that
 -- witnesses an API requiring non-empty construction,
 -- initialization, and generation of non-empty vectors by design.
@@ -270,12 +278,19 @@ instance Traversable NonEmptyVector where
 
 -- | /O(1)/ Length.
 --
+-- >>> length $ unsafeFromList [1..10]
+-- 10
+--
 length :: NonEmptyVector a -> Int
 length = V.length . _neVec
 {-# INLINE length #-}
 
 -- | /O(1)/ First element. Since head is gauranteed, bounds checks
 -- are bypassed by deferring to 'unsafeHead'.
+--
+--
+-- >>> head $ unsafeFromList [1..10]
+-- 1
 --
 head :: NonEmptyVector a -> a
 head = V.unsafeHead . _neVec
@@ -284,17 +299,32 @@ head = V.unsafeHead . _neVec
 -- | /O(1)/ Last element. Since a last element is gauranteed, bounds checks
 -- are bypassed by deferring to 'unsafeLast'.
 --
+--
+-- >>> last $ unsafeFromList [1..10]
+-- 10
+--
 last :: NonEmptyVector a -> a
 last = V.unsafeLast . _neVec
 {-# INLINE last #-}
 
 -- | /O(1)/ Indexing.
 --
+--
+-- >>> (unsafeFromList [1..10]) ! 0
+-- 1
+--
 (!) :: NonEmptyVector a -> Int -> a
 (!) (NonEmptyVector as) n = as V.! n
 {-# INLINE (!) #-}
 
 -- | /O(1)/ Safe indexing.
+--
+--
+-- >>> (unsafeFromList [1..10]) !? 0
+-- Just 1
+--
+-- >>> (unsafeFromList [1..10]) !? 11
+-- Nothing
 --
 (!?) :: NonEmptyVector a -> Int -> Maybe a
 (NonEmptyVector as) !? n = as V.!? n
@@ -316,6 +346,10 @@ unsafeIndex (NonEmptyVector as) n = V.unsafeIndex as n
 --
 -- See 'V.indexM' for more details
 --
+--
+-- >>> indexM @[] (unsafeFromList [1..10]) 3
+-- [4]
+--
 indexM :: Monad m => NonEmptyVector a -> Int -> m a
 indexM (NonEmptyVector v) n = V.indexM v n
 {-# INLINE indexM #-}
@@ -327,6 +361,10 @@ indexM (NonEmptyVector v) n = V.indexM v n
 -- Note that this function defers to 'unsafeHeadM' since head is
 -- gauranteed to be safe by construction.
 --
+--
+-- >>> headM @[] (unsafeFromList [1..10])
+-- [1]
+--
 headM :: Monad m => NonEmptyVector a -> m a
 headM (NonEmptyVector v) = V.unsafeHeadM v
 {-# INLINE headM #-}
@@ -336,6 +374,10 @@ headM (NonEmptyVector v) = V.unsafeHeadM v
 --
 -- Note that this function defers to 'unsafeHeadM' since a last element is
 -- gauranteed.
+--
+--
+-- >>> lastM @[] (unsafeFromList [1..10])
+-- [10]
 --
 lastM :: Monad m => NonEmptyVector a -> m a
 lastM (NonEmptyVector v) = V.unsafeLastM v
@@ -355,6 +397,10 @@ unsafeIndexM (NonEmptyVector v) n = V.unsafeIndexM v n
 -- vector returned may be empty (i.e. input was a singleton), this function
 -- returns a normal 'Vector'
 --
+--
+-- >>> tail (unsafeFromList [1..10])
+-- [2,3,4,5,6,7,8,9,10]
+--
 tail :: NonEmptyVector a -> Vector a
 tail = V.unsafeTail . _neVec
 {-# INLINE tail #-}
@@ -362,12 +408,20 @@ tail = V.unsafeTail . _neVec
 -- | /O(1)/ Yield a slice of a non-empty vector without copying at
 -- the @0@th and @1@st indices.
 --
+--
+-- >>> uncons (unsafeFromList [1..10])
+-- (1,[2,3,4,5,6,7,8,9,10])
+--
 uncons :: NonEmptyVector a -> (a, Vector a)
 uncons v = (head v, tail v)
 {-# INLINE uncons #-}
 
 -- | /O(1)/ Yield a slice of a non-empty vector without copying at
 -- the @n-1@th and @nth@ indices
+--
+--
+-- >>> unsnoc (unsafeFromList [1..10])
+-- ([1,2,3,4,5,6,7,8,9],10)
 --
 unsnoc :: NonEmptyVector a -> (Vector a, a)
 unsnoc v = (init v, last v)
@@ -377,12 +431,20 @@ unsnoc v = (init v, last v)
 -- The vector must contain at least i+n elements. Because this is not
 -- guaranteed, this function returns a 'Vector' which could be empty
 --
+--
+-- >>> slice 0 3 (unsafeFromList [1..10])
+-- [1,2,3]
+--
 slice :: Int -> Int -> NonEmptyVector a -> Vector a
 slice i n = V.slice i n . _neVec
 
 -- | /O(1)/ Yield all but the last element without copying. Since the
 -- vector returned may be empty (i.e. input was a singleton), this function
 -- returns a normal 'Vector'
+--
+--
+-- >>> init (unsafeFromList [1..3])
+-- [1,2]
 --
 init :: NonEmptyVector a -> Vector a
 init = V.unsafeInit . _neVec
@@ -391,12 +453,20 @@ init = V.unsafeInit . _neVec
 -- | /O(1)/ Yield at the first n elements without copying. The non-empty vector may
 -- contain less than n elements in which case it is returned as a vector unchanged.
 --
+--
+-- >>> take 2 (unsafeFromList [1..3])
+-- [1,2]
+--
 take :: Int -> NonEmptyVector a -> Vector a
 take n = V.take n . _neVec
 {-# INLINE take #-}
 
 -- | /O(1)/ Yield all but the first n elements without copying. The non-empty vector
 -- may contain less than n elements in which case an empty vector is returned.
+--
+--
+-- >>> drop 2 (unsafeFromList [1..3])
+-- [3]
 --
 drop :: Int -> NonEmptyVector a -> Vector a
 drop n = V.drop n . _neVec
@@ -405,6 +475,10 @@ drop n = V.drop n . _neVec
 -- | /O(1)/ Yield the first n elements paired with the remainder without copying.
 --
 -- This function returns a pair of vectors, as one may slice a (0, n+1).
+--
+--
+-- >>> splitAt 2 (unsafeFromList [1..3])
+-- ([1,2],[3])
 --
 splitAt :: Int -> NonEmptyVector a -> (Vector a, Vector a)
 splitAt n = V.splitAt n . _neVec
@@ -436,6 +510,10 @@ unsafeDrop n = V.unsafeDrop n . _neVec
 
 -- | /O(1)/ Non-empty vector with exactly one element
 --
+--
+-- >>> singleton "lol"
+-- ["lol"]
+--
 singleton :: a -> NonEmptyVector a
 singleton = NonEmptyVector . V.singleton
 {-# INLINE singleton #-}
@@ -444,6 +522,13 @@ singleton = NonEmptyVector . V.singleton
 -- each position.
 --
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
+--
+--
+-- >>> replicate 3 "lol"
+-- Just ["lol","lol","lol"]
+--
+-- >>> replicate 0 "lol"
+-- Nothing
 --
 replicate :: Int -> a -> Maybe (NonEmptyVector a)
 replicate n a = fromVector (V.replicate n a)
@@ -454,6 +539,16 @@ replicate n a = fromVector (V.replicate n a)
 --
 -- This variant takes @max n 1@ for the supplied length parameter.
 --
+--
+-- >>> replicate1 3 "lol"
+-- ["lol","lol","lol"]
+--
+-- >>> replicate1 0 "lol"
+-- ["lol"]
+--
+-- >>> replicate1 (-1) "lol"
+-- ["lol"]
+--
 replicate1 :: Int -> a -> NonEmptyVector a
 replicate1 n a = unsafeFromVector (V.replicate (max n 1) a)
 {-# INLINE replicate1 #-}
@@ -462,6 +557,18 @@ replicate1 n a = unsafeFromVector (V.replicate (max n 1) a)
 -- each index.
 --
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
+--
+--
+-- >>> let f 0 = "lol"; f _ = "k"; f :: Int -> String
+--
+-- >>> generate 1 f
+-- Just ["lol"]
+--
+-- >>> generate 0 f
+-- Nothing
+--
+-- >>> generate 2 f
+-- Just ["lol","k"]
 --
 generate :: Int -> (Int -> a) -> Maybe (NonEmptyVector a)
 generate n f = fromVector (V.generate n f)
@@ -472,6 +579,18 @@ generate n f = fromVector (V.generate n f)
 --
 -- This variant takes @max n 1@ for the supplied length parameter.
 --
+--
+-- >>> let f 0 = "lol"; f _ = "k"; f :: Int -> String
+--
+-- >>> generate1 2 f
+-- ["lol","k"]
+--
+-- >>> generate1 0 f
+-- ["lol"]
+--
+-- >>> generate1 (-1) f
+-- ["lol"]
+--
 generate1 :: Int -> (Int -> a) -> NonEmptyVector a
 generate1 n f = unsafeFromVector (V.generate (max n 1) f)
 {-# INLINE generate1 #-}
@@ -480,6 +599,15 @@ generate1 n f = unsafeFromVector (V.generate (max n 1) f)
 --
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
 --
+-- >>> iterateN 3 (+1) 0
+-- Just [0,1,2]
+--
+-- >>> iterateN 0 (+1) 0
+-- Nothing
+--
+-- >>> iterateN (-1) (+1) 0
+-- Nothing
+--
 iterateN :: Int -> (a -> a) -> a -> Maybe (NonEmptyVector a)
 iterateN n f a = fromVector (V.iterateN n f a)
 {-# INLINE iterateN #-}
@@ -487,6 +615,16 @@ iterateN n f a = fromVector (V.iterateN n f a)
 -- | /O(n)/ Apply function n times to value. Zeroth element is original value.
 --
 -- This variant takes @max n 1@ for the supplied length parameter.
+--
+--
+-- >>> iterateN1 3 (+1) 0
+-- [0,1,2]
+--
+-- >>> iterateN1 0 (+1) 0
+-- [0]
+--
+-- >>> iterateN1 (-1) (+1) 0
+-- [0]
 --
 iterateN1 :: Int -> (a -> a) -> a -> NonEmptyVector a
 iterateN1 n f a = unsafeFromVector (V.iterateN (max n 1) f a)
@@ -500,6 +638,19 @@ iterateN1 n f a = unsafeFromVector (V.iterateN (max n 1) f a)
 --
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
 --
+--
+-- >>> replicateM @Maybe 3 (Just "lol")
+-- Just (Just ["lol","lol","lol"])
+--
+-- >>> replicateM @Maybe 3 Nothing
+-- Nothing
+--
+-- >>> replicateM @Maybe 0 (Just "lol")
+-- Just Nothing
+--
+-- >>> replicateM @Maybe (-1) (Just "lol")
+-- Just Nothing
+--
 replicateM :: Monad m => Int -> m a -> m (Maybe (NonEmptyVector a))
 replicateM n a = fmap fromVector (V.replicateM n a)
 {-# INLINE replicateM #-}
@@ -508,6 +659,19 @@ replicateM n a = fmap fromVector (V.replicateM n a)
 -- the results in a vector.
 --
 -- This variant takes @max n 1@ for the supplied length parameter.
+--
+--
+-- >>> replicate1M @Maybe 3 (Just "lol")
+-- Just ["lol","lol","lol"]
+--
+-- >>> replicate1M @Maybe 3 Nothing
+-- Nothing
+--
+-- >>> replicate1M @Maybe 0 (Just "lol")
+-- Just ["lol"]
+--
+-- >>> replicate1M @Maybe (-1) (Just "lol")
+-- Just ["lol"]
 --
 replicate1M :: Monad m => Int -> m a -> m (NonEmptyVector a)
 replicate1M n a = fmap unsafeFromVector (V.replicateM (max n 1) a)
