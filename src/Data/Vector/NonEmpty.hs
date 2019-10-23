@@ -856,7 +856,9 @@ fromNonEmptyN n a = fromVector (V.fromListN n (Foldable.toList a))
 -- takes @max n 1@ of the first n-elements of the non-empty list.
 --
 fromNonEmptyN1 :: Int -> NonEmpty a -> NonEmptyVector a
-fromNonEmptyN1 n = unsafeFromVector . V.fromListN (max n 1) . Foldable.toList
+fromNonEmptyN1 n = unsafeFromVector
+    . V.fromListN (max n 1)
+    . Foldable.toList
 {-# INLINE fromNonEmptyN1 #-}
 
 -- | /O(1)/ Convert from a non-empty vector to a vector.
