@@ -682,6 +682,18 @@ replicate1M n a = fmap unsafeFromVector (V.replicateM (max n 1) a)
 --
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
 --
+-- >>> generateM 3 (\i -> if i P.< 1 then ["lol"] else ["k"])
+-- [Just ["lol","k","k"]]
+--
+-- >>> generateM @[] @Int 3 (P.const [])
+-- []
+--
+-- >>> generateM @[] @Int 0 (P.const [1])
+-- [Nothing]
+--
+-- >>> generateM @Maybe @Int (-1) (P.const Nothing)
+-- Just Nothing
+--
 generateM :: Monad m => Int -> (Int -> m a) -> m (Maybe (NonEmptyVector a))
 generateM n f = fmap fromVector (V.generateM n f)
 {-# INLINE generateM #-}
@@ -690,6 +702,18 @@ generateM n f = fmap fromVector (V.generateM n f)
 -- action to each index
 --
 -- This variant takes @max n 1@ for the supplied length parameter.
+--
+-- >>> generate1M 3 (\i -> if i P.< 1 then Just "a" else Just "b")
+-- Just ["a","b","b"]
+--
+-- >>> generate1M @[] @Int 3 (P.const [])
+-- []
+--
+-- >>> generate1M @Maybe @Int 0 (P.const (Just 1))
+-- Just [1]
+--
+-- >>> generate1M @Maybe @Int (-1) (P.const Nothing)
+-- Nothing
 --
 generate1M :: Monad m => Int -> (Int -> m a) -> m (NonEmptyVector a)
 generate1M n f = fmap unsafeFromVector (V.generateM (max n 1) f)
