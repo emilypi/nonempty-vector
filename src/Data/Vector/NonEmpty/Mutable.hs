@@ -79,10 +79,10 @@ newtype NonEmptyMVector s a = NonEmptyMVector
     { _nemVec :: MVector s a }
     deriving (Typeable)
 
--- | NonEmptyMVector parametrized by 'PrimState'
+-- | 'NonEmptyMVector' parametrized by 'PrimState'
 type NonEmptyIOVector = NonEmptyMVector RealWorld
 
--- | NonEmptyMVector parametrized by 'ST'
+-- | 'NonEmptyMVector' parametrized by 'ST'
 type NonEmptySTVector s = NonEmptyMVector s
 
 -- ---------------------------------------------------------------------- --
