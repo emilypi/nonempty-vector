@@ -56,7 +56,7 @@ module Data.Vector.NonEmpty.Mutable
 ) where
 
 
-import Prelude (Bool, Int, Ord, (.))
+import Prelude (Bool, Int, Ord, (.), max)
 
 import Control.Monad.Primitive
 
@@ -188,7 +188,7 @@ toMVector = _nemVec
 -- make sure the mutable vector being converted is not empty.
 --
 unsafeFromMVector :: MVector s a -> NonEmptyMVector s a
-unsafeFromMVector v = _nemVec
+unsafeFromMVector = NonEmptyMVector
 {-# INLINE unsafeFromMVector #-}
 
 -- ---------------------------------------------------------------------- --
@@ -210,7 +210,7 @@ new1
     :: PrimMonad m
     => Int
     -> m (NonEmptyMVector (PrimState m) a)
-new1 n = fmap unsafeFromVector (M.new (max n 1))
+new1 n = fmap unsafeFromMVector (M.new (max n 1))
 {-# INLINE new1 #-}
 
 -- | Create a mutable vector of the given length. The memory is not initialized.
@@ -264,7 +264,7 @@ replicate1M
     -> m a
     -> m (Maybe (NonEmptyMVector (PrimState m) a))
 replicate1M n a = fmap fromMVector (M.replicateM (max n 1) a)
-{-# INLINE replicateM #-}
+{-# INLINE replicate1M #-}
 
 -- | Create a copy of a mutable vector.
 --
