@@ -30,10 +30,13 @@ module Data.Vector.NonEmpty.Mutable
 , overlaps
 
   -- ** Conversions
-, fromMVector, toMVector
+, fromMVector, toMVector, unsafeFromMVector
 
   -- ** Initialisation
-, new, unsafeNew, replicate, replicateM, clone
+, new, new1, unsafeNew
+, replicate, replicate1
+, replicateM, replicate1M
+, clone
 
   -- ** Growing
 , grow, unsafeGrow
@@ -78,6 +81,7 @@ newtype NonEmptyMVector s a = NonEmptyMVector
 
 -- | NonEmptyMVector parametrized by 'PrimState'
 type NonEmptyIOVector = NonEmptyMVector RealWorld
+
 -- | NonEmptyMVector parametrized by 'ST'
 type NonEmptySTVector s = NonEmptyMVector s
 
@@ -177,10 +181,19 @@ fromMVector v = if M.null v then Nothing else Just (NonEmptyMVector v)
 toMVector :: NonEmptyMVector s a -> MVector s a
 toMVector = _nemVec
 
+-- | Convert a mutable vector to a non-empty mutable vector
+--
+-- /Warning:/ this function is unsafe and can result in empty non-empty
+-- mutable vectors. If you call this function, the onus is on you to
+-- make sure the mutable vector being converted is not empty.
+--
+unsafeFromMVector :: MVector s a -> NonEmptyMVector s a
+unsafeFromMVector v = _nemVec
+{-# INLINE unsafeFromMVector #-}
+
 -- ---------------------------------------------------------------------- --
 -- Initialisation
 
--- |
 -- | Create a mutable vector of the given length.
 --
 new
@@ -189,6 +202,16 @@ new
     -> m (Maybe (NonEmptyMVector (PrimState m) a))
 new = fmap fromMVector . M.new
 {-# INLINE new #-}
+
+-- | Create a mutable vector of the given length which is
+-- @max n 1@.
+--
+new1
+    :: PrimMonad m
+    => Int
+    -> m (NonEmptyMVector (PrimState m) a)
+new1 n = fmap unsafeFromVector (M.new (max n 1))
+{-# INLINE new1 #-}
 
 -- | Create a mutable vector of the given length. The memory is not initialized.
 --
@@ -210,6 +233,17 @@ replicate
 replicate n a = fmap fromMVector (M.replicate n a)
 {-# INLINE replicate #-}
 
+-- | Create a mutable vector of the length @max n 1@ for a given length,
+-- and fill it with an initial value.
+--
+replicate1
+    :: PrimMonad m
+    => Int
+    -> a
+    -> m (NonEmptyMVector (PrimState m) a)
+replicate1 n a = fmap unsafeFromMVector (M.replicate (max n 1) a)
+{-# INLINE replicate1 #-}
+
 -- | Create a mutable vector of the given length (0 if the length is negative)
 -- and fill it with values produced by repeatedly executing the monadic action.
 --
@@ -219,6 +253,17 @@ replicateM
     -> m a
     -> m (Maybe (NonEmptyMVector (PrimState m) a))
 replicateM  n a = fmap fromMVector (M.replicateM n a)
+{-# INLINE replicateM #-}
+
+-- | Create a mutable vector of the length @max n 1@ for a given length,
+-- and fill it with values produced by repeatedly executing the monadic action.
+--
+replicate1M
+    :: PrimMonad m
+    => Int
+    -> m a
+    -> m (Maybe (NonEmptyMVector (PrimState m) a))
+replicate1M n a = fmap fromMVector (M.replicateM (max n 1) a)
 {-# INLINE replicateM #-}
 
 -- | Create a copy of a mutable vector.
