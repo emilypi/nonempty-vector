@@ -1251,6 +1251,12 @@ force (NonEmptyVector a) = NonEmptyVector (V.force a)
 -- | /O(m+n)/ For each pair (i,a) from the list, replace the non-empty vector
 -- element at position i by a.
 --
+-- >>> unsafeFromList [1..3] // [(2,4)]
+-- [1,2,4]
+--
+-- >>> unsafeFromList [1..3] // []
+-- [1,2,3]
+--
 (//) :: NonEmptyVector a -> [(Int, a)] -> NonEmptyVector a
 NonEmptyVector v // us = NonEmptyVector (v V.// us)
 {-# INLINE (//) #-}
