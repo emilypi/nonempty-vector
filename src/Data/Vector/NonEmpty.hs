@@ -150,7 +150,8 @@ module Data.Vector.NonEmpty
   -- * Working with predicates
 
   -- ** Filtering
-, filter, ifilter, uniq, mapMaybe, imapMaybe, filterM
+, uniq, mapMaybe, imapMaybe
+, filter, ifilter, filterM, ifilterM
 , takeWhile, dropWhile
 
   -- * Partitioning
@@ -185,7 +186,8 @@ module Data.Vector.NonEmpty
 ) where
 
 
-import Prelude (Bool, Eq, Ord, Show(..), Num, Enum, (.), Ordering, max)
+import Prelude ( Bool, Eq, Ord, Show(..), Num, Enum
+               , (.), Ordering, max, uncurry, snd)
 
 
 import Control.Applicative
@@ -217,7 +219,9 @@ import qualified Text.Read as Read
 
 
 -- $setup
--- >>> import Prelude (Int, String, ($), (.), (+), (==), const)
+-- >>> import Prelude (Int, String, ($), (.), (+), const)
+-- >>> import Data.Bool
+-- >>> import Data.Eq
 -- >>> import qualified Prelude as P
 -- >>> import qualified Data.Vector as V
 -- >>> import Data.List.NonEmpty (NonEmpty(..))
@@ -1598,8 +1602,8 @@ forM_ (NonEmptyVector v) f = V.forM_ v f
 
 -- | /O(min(m,n))/ Zip two non-empty vectors with the given function.
 --
--- >>> zipWith (,) (unsafeFromList [1..3]) (unsafeFromList ["a","b","c"])
--- [(1,"a"),(2,"b"),(3,"c")]
+-- >>> zipWith (+) (unsafeFromList [1..3]) (unsafeFromList [1..3])
+-- [2,4,6]
 --
 zipWith
     :: (a -> b -> c)
@@ -1613,6 +1617,7 @@ zipWith f a b = NonEmptyVector (V.zipWith f a' b')
 {-# INLINE zipWith #-}
 
 -- | Zip three non-empty vectors with the given function.
+--
 --
 zipWith3
     :: (a -> b -> c -> d)
@@ -1771,7 +1776,8 @@ izipWith6 k a b c d e f = NonEmptyVector (V.izipWith6 k a' b' c' d' e' f')
     f' = _neVec f
 {-# INLINE izipWith6 #-}
 
--- | /O(min(n,m))/ Elementwise pairing of non-empty vector elements.
+-- | /O(min(n,m))/ Elementwise pairing of non-empty vector elements. This is a special case
+-- of 'zipWith' where the function argument is '(,)'
 --
 zip :: NonEmptyVector a -> NonEmptyVector b -> NonEmptyVector (a, b)
 zip a b = NonEmptyVector (V.zip a' b')
@@ -1995,6 +2001,12 @@ unzip6 (NonEmptyVector v) = case V.unzip6 v of
 --
 -- If no elements satisfy the predicate, the resulting vector may be empty.
 --
+-- >>> filter (\a -> if a == 2 then False else True) (unsafeFromList [1..3])
+-- [1,3]
+--
+-- >>> filter (const False) (unsafeFromList [1..3])
+-- []
+--
 filter :: (a -> Bool) -> NonEmptyVector a -> Vector a
 filter f = V.filter f . _neVec
 {-# INLINE filter #-}
@@ -2003,6 +2015,12 @@ filter f = V.filter f . _neVec
 -- applied to values and their indices.
 --
 -- If no elements satisfy the predicate, the resulting vector may be empty.
+--
+-- >>> ifilter (\i a -> if a == 2 || i == 0 then False else True) (unsafeFromList [1..3])
+-- [3]
+--
+-- >>> ifilter (\_ _ -> False) (unsafeFromList [1..3])
+-- []
 --
 ifilter
     :: (Int -> a -> Bool)
@@ -2015,6 +2033,15 @@ ifilter f = V.ifilter f . _neVec
 --
 -- If no elements satisfy the predicate, the resulting vector may be empty.
 --
+-- >>> filterM (\a -> if a == 2 then Just False else Just True) (unsafeFromList [1..3])
+-- Just [1,3]
+--
+-- >>> filterM (\a -> if a == 2 then Nothing else Just True) (unsafeFromList [1..3])
+-- Nothing
+--
+-- >>> filterM (const $ Just False) (unsafeFromList [1..3])
+-- Just []
+--
 filterM
     :: Monad m
     => (a -> m Bool)
@@ -2023,7 +2050,37 @@ filterM
 filterM f = V.filterM f . _neVec
 {-# INLINE filterM #-}
 
+-- | /O(n)/ Drop elements that do not satisfy the monadic predicate that is
+-- a function of index and value.
+--
+-- If no elements satisfy the predicate, the resulting vector may be empty.
+--
+-- TODO: this should be a more efficient function in `vector`.
+--
+-- >>> ifilterM (\i a -> if a == 2 || i == 0 then Just False else Just True) (unsafeFromList [1..3])
+-- Just [3]
+--
+-- >>> ifilterM (\i a -> if a == 2 || i == 0 then Nothing else Just True) (unsafeFromList [1..3])
+-- Nothing
+--
+-- >>> ifilterM (\_ _ -> Just False) (unsafeFromList [1..3])
+-- Just []
+--
+ifilterM
+    :: Monad m
+    => (Int -> a -> m Bool)
+    -> NonEmptyVector a
+    -> m (Vector a)
+ifilterM f = fmap (V.map snd)
+    . V.filterM (uncurry f)
+    . V.indexed
+    . _neVec
+{-# INLINE ifilterM #-}
+
 -- | /O(n)/ Drop repeated adjacent elements.
+--
+-- >>> uniq $ unsafeFromList [1,1,2,2,3,3,1]
+-- [1,2,3,1]
 --
 uniq :: Eq a => NonEmptyVector a -> NonEmptyVector a
 uniq = NonEmptyVector . V.uniq . _neVec
@@ -2032,6 +2089,9 @@ uniq = NonEmptyVector . V.uniq . _neVec
 -- | /O(n)/ Drop elements when predicate returns Nothing
 --
 -- If no elements satisfy the predicate, the resulting vector may be empty.
+--
+-- >>> mapMaybe (\a -> if a == 2 then Nothing else Just a) (unsafeFromList [1..3])
+-- [1,3]
 --
 mapMaybe
     :: (a -> Maybe b)
@@ -2043,6 +2103,9 @@ mapMaybe f = V.mapMaybe f . _neVec
 -- | /O(n)/ Drop elements when predicate, applied to index and value, returns Nothing
 --
 -- If no elements satisfy the predicate, the resulting vector may be empty.
+--
+-- >>> imapMaybe (\i a -> if a == 2 || i == 2 then Nothing else Just a) (unsafeFromList [1..3])
+-- [1]
 --
 imapMaybe
     :: (Int -> a -> Maybe b)
@@ -2056,6 +2119,9 @@ imapMaybe f = V.imapMaybe f . _neVec
 --
 -- If no elements satisfy the predicate, the resulting vector may be empty.
 --
+-- >>> takeWhile (/= 3) (unsafeFromList [1..3])
+-- [1,2]
+--
 takeWhile :: (a -> Bool) -> NonEmptyVector a -> Vector a
 takeWhile f = V.takeWhile f . _neVec
 {-# INLINE takeWhile #-}
@@ -2064,6 +2130,9 @@ takeWhile f = V.takeWhile f . _neVec
 -- without copying.
 --
 -- If all elements satisfy the predicate, the resulting vector may be empty.
+--
+-- >>> dropWhile (/= 3) (unsafeFromList [1..3])
+-- [3]
 --
 dropWhile :: (a -> Bool) -> NonEmptyVector a -> Vector a
 dropWhile f = V.dropWhile f . _neVec
