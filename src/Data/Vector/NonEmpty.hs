@@ -219,7 +219,7 @@ import qualified Text.Read as Read
 
 
 -- $setup
--- >>> import Prelude (Int, String, ($), (.), (+), const)
+-- >>> import Prelude (Int, String, ($), (.), (+), (<), const)
 -- >>> import Data.Bool
 -- >>> import Data.Eq
 -- >>> import qualified Prelude as P
@@ -2150,6 +2150,9 @@ dropWhile f = V.dropWhile f . _neVec
 -- If all or no elements satisfy the predicate, one of the resulting vectors
 -- may be empty.
 --
+-- >>> partition (< 3) (unsafeFromList [1..5])
+-- ([1,2],[3,4,5])
+--
 partition :: (a -> Bool) -> NonEmptyVector a -> (Vector a, Vector a)
 partition f = V.partition f . _neVec
 {-# INLINE partition #-}
@@ -2175,6 +2178,9 @@ unstablePartition f = V.unstablePartition f . _neVec
 -- If all or no elements satisfy the predicate, one of the resulting vectors
 -- may be empty.
 --
+-- >>> span (== 1) (unsafeFromList [1,1,2,3,1])
+-- ([1,1],[2,3,1])
+--
 span :: (a -> Bool) -> NonEmptyVector a -> (Vector a, Vector a)
 span f = V.span f . _neVec
 {-# INLINE span #-}
@@ -2185,6 +2191,9 @@ span f = V.span f . _neVec
 -- If all or no elements satisfy the predicate, one of the resulting vectors
 -- may be empty.
 --
+-- >>> break (== 2) (unsafeFromList [1,1,2,3,1])
+-- ([1,1],[2,3,1])
+--
 break :: (a -> Bool) -> NonEmptyVector a -> (Vector a, Vector a)
 break f = V.break f . _neVec
 {-# INLINE break #-}
@@ -2194,12 +2203,23 @@ break f = V.break f . _neVec
 
 -- | /O(n)/ Check if the non-empty vector contains an element
 --
+-- >>> elem 1 $ unsafeFromList [1..3]
+-- True
+-- >>> elem 4 $ unsafeFromList [1..3]
+-- False
+--
 elem :: Eq a => a -> NonEmptyVector a -> Bool
 elem a = V.elem a . _neVec
 {-# INLINE elem #-}
 
 -- | /O(n)/ Check if the non-empty vector does not contain an element
 -- (inverse of 'elem')
+--
+-- >>> notElem 1 $ unsafeFromList [1..3]
+-- False
+--
+-- >>> notElem 4 $ unsafeFromList [1..3]
+-- True
 --
 notElem :: Eq a => a -> NonEmptyVector a -> Bool
 notElem a = V.notElem a . _neVec
@@ -2208,6 +2228,12 @@ notElem a = V.notElem a . _neVec
 -- | /O(n)/ Yield 'Just' the first element matching the predicate or
 -- 'Nothing' if no such element exists.
 --
+-- >>> find (< 2) $ unsafeFromList [1..3]
+-- Just 1
+--
+-- >>> find (< 0) $ unsafeFromList [1..3]
+-- Nothing
+--
 find :: (a -> Bool) -> NonEmptyVector a -> Maybe a
 find f = V.find f . _neVec
 {-# INLINE find #-}
@@ -2215,12 +2241,24 @@ find f = V.find f . _neVec
 -- | /O(n)/ Yield 'Just' the index of the first element matching the
 -- predicate or 'Nothing' if no such element exists.
 --
+-- >>> findIndex (< 2) $ unsafeFromList [1..3]
+-- Just 0
+--
+-- >>> findIndex (< 0) $ unsafeFromList [1..3]
+-- Nothing
+--
 findIndex :: (a -> Bool) -> NonEmptyVector a -> Maybe Int
 findIndex f = V.findIndex f . _neVec
 {-# INLINE findIndex #-}
 
 -- | /O(n)/ Yield the indices of elements satisfying the predicate in
 -- ascending order.
+--
+-- >>> findIndices (< 3) $ unsafeFromList [1..3]
+-- [0,1]
+--
+-- >>> findIndices (< 0) $ unsafeFromList [1..3]
+-- []
 --
 findIndices :: (a -> Bool) -> NonEmptyVector a -> Vector Int
 findIndices f = V.findIndices f . _neVec
@@ -2230,12 +2268,24 @@ findIndices f = V.findIndices f . _neVec
 -- element or 'Nothing' if the non-empty vector does not contain the
 -- element. This is a specialised version of 'findIndex'.
 --
+-- >>> elemIndex 1 $ unsafeFromList [1..3]
+-- Just 0
+--
+-- >>> elemIndex 0 $ unsafeFromList [1..3]
+-- Nothing
+--
 elemIndex :: Eq a => a -> NonEmptyVector a -> Maybe Int
 elemIndex a = V.elemIndex a . _neVec
 {-# INLINE elemIndex #-}
 
 -- | /O(n)/ Yield the indices of all occurences of the given element in
 -- ascending order. This is a specialised version of 'findIndices'.
+--
+-- >>> elemIndices 1 $ unsafeFromList [1,2,3,1]
+-- [0,3]
+--
+-- >>> elemIndices 0 $ unsafeFromList [1..3]
+-- []
 --
 elemIndices :: Eq a => a -> NonEmptyVector a -> Vector Int
 elemIndices a = V.elemIndices a . _neVec
