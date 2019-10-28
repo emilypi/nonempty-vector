@@ -217,7 +217,7 @@ import qualified Text.Read as Read
 
 
 -- $setup
--- >>> import Prelude (Int, String, ($), (.), (+), const)
+-- >>> import Prelude (Int, String, ($), (.), (+), (==), const)
 -- >>> import qualified Prelude as P
 -- >>> import qualified Data.Vector as V
 -- >>> import Data.List.NonEmpty (NonEmpty(..))
@@ -1264,6 +1264,12 @@ NonEmptyVector v // us = NonEmptyVector (v V.// us)
 -- | O(m+n) For each pair (i,a) from the vector of index/value pairs,
 -- replace the vector element at position i by a.
 --
+-- >>> unsafeFromList [1..3] `update` V.fromList [(2,4)]
+-- [1,2,4]
+--
+-- >>> unsafeFromList [1..3] `update` V.empty
+-- [1,2,3]
+--
 update :: NonEmptyVector a -> Vector (Int, a) -> NonEmptyVector a
 update (NonEmptyVector v) v' = NonEmptyVector (V.update v v')
 {-# INLINE update #-}
@@ -1271,6 +1277,13 @@ update (NonEmptyVector v) v' = NonEmptyVector (V.update v v')
 -- | /O(m+min(n1,n2))/ For each index i from the index vector and the
 -- corresponding value a from the value vector, replace the element of
 -- the initial vector at position i by a.
+--
+--
+-- >>> update_ (unsafeFromList [1..3]) (V.fromList [2]) (V.fromList [4])
+-- [1,2,4]
+--
+-- >>> update_ (unsafeFromList [1..3]) V.empty V.empty
+-- [1,2,3]
 --
 update_ :: NonEmptyVector a -> Vector Int -> Vector a -> NonEmptyVector a
 update_ (NonEmptyVector v) is as = NonEmptyVector (V.update_ v is as)
@@ -1300,6 +1313,13 @@ unsafeUpdate_ (NonEmptyVector v) is as = NonEmptyVector (V.unsafeUpdate_ v is as
 -- | /O(m+n)/ For each pair @(i,b)@ from the non-empty list, replace the
 -- non-empty vector element @a@ at position @i@ by @f a b@.
 --
+--
+-- >>> accum (+) (unsafeFromList [1..3]) [(2,10)]
+-- [1,2,13]
+--
+-- >>> accum (+) (unsafeFromList [1..3]) []
+-- [1,2,3]
+--
 accum
     :: (a -> b -> a)
       -- ^ accumulating function @f@
@@ -1315,6 +1335,12 @@ accum f (NonEmptyVector v) u = NonEmptyVector (V.accum f v u)
 -- | /O(m+n)/ For each pair @(i,b)@ from the vector of pairs, replace the
 -- non-empty vector element @a@ at position @i@ by @f a b@.
 --
+-- >>> accumulate (+) (unsafeFromList [1..3]) (V.fromList [(2,10)])
+-- [1,2,13]
+--
+-- >>> accumulate (+) (unsafeFromList [1..3]) V.empty
+-- [1,2,3]
+--
 accumulate
     :: (a -> b -> a)
       -- ^ accumulating function @f@
@@ -1329,6 +1355,12 @@ accumulate f (NonEmptyVector v) u = NonEmptyVector (V.accumulate f v u)
 -- | /O(m+min(n1,n2))/ For each index @i@ from the index vector and the
 -- corresponding value @b@ from the the value vector, replace the element
 -- of the initial non-empty vector at position @i@ by @f a b@.
+--
+-- >>> accumulate_ (+) (unsafeFromList [1..3]) (V.fromList [2]) (V.fromList [10])
+-- [1,2,13]
+--
+-- >>> accumulate_ (+) (unsafeFromList [1..3]) V.empty V.empty
+-- [1,2,3]
 --
 accumulate_
     :: (a -> b -> a)
@@ -1393,6 +1425,9 @@ unsafeAccumulate_ f v i b = NonEmptyVector (V.unsafeAccumulate_ f v' i b)
 
 -- | /O(n)/ Reverse a non-empty vector
 --
+-- >>> reverse $ unsafeFromList [1..3]
+-- [3,2,1]
+--
 reverse :: NonEmptyVector a -> NonEmptyVector a
 reverse = NonEmptyVector . V.reverse . _neVec
 {-# INLINE reverse #-}
@@ -1400,6 +1435,9 @@ reverse = NonEmptyVector . V.reverse . _neVec
 -- | /O(n)/ Yield the non-empty vector obtained by replacing each element
 -- @i@ of the non-empty index vector by @xs'!'i@. This is equivalent to
 -- @'map' (xs'!') is@ but is often much more efficient.
+--
+-- >>> backpermute (unsafeFromList [1..3]) (unsafeFromList [2,0])
+-- [3,1]
 --
 backpermute :: NonEmptyVector a -> NonEmptyVector Int -> NonEmptyVector a
 backpermute (NonEmptyVector v) (NonEmptyVector i)
@@ -1435,6 +1473,9 @@ modify p (NonEmptyVector v) = NonEmptyVector (V.modify p v)
 
 -- | /O(n)/ Pair each element in a vector with its index.
 --
+-- >>> indexed $ unsafeFromList ["a","b","c"]
+-- [(0,"a"),(1,"b"),(2,"c")]
+--
 indexed :: NonEmptyVector a -> NonEmptyVector (Int, a)
 indexed = NonEmptyVector . V.indexed . _neVec
 {-# INLINE indexed #-}
@@ -1444,6 +1485,9 @@ indexed = NonEmptyVector . V.indexed . _neVec
 
 -- | /O(n)/ Map a function over a non-empty vector.
 --
+-- >>> map (+1) $ unsafeFromList [1..3]
+-- [2,3,4]
+--
 map :: (a -> b) -> NonEmptyVector a -> NonEmptyVector b
 map f = NonEmptyVector . V.map f . _neVec
 {-# INLINE map #-}
@@ -1451,11 +1495,17 @@ map f = NonEmptyVector . V.map f . _neVec
 -- | /O(n)/ Apply a function to every element of a non-empty vector and
 -- its index.
 --
+-- >>> imap (\i a -> if i == 2 then a+1 else a+0) $ unsafeFromList [1..3]
+-- [1,2,4]
+--
 imap :: (Int -> a -> b) -> NonEmptyVector a -> NonEmptyVector b
 imap f = NonEmptyVector . V.imap f . _neVec
 {-# INLINE imap #-}
 
 -- | Map a function over a vector and concatenate the results.
+--
+-- >>> concatMap (\a -> unsafeFromList [a,a]) (unsafeFromList [1,2,3])
+-- [1,1,2,2,3,3]
 --
 concatMap
     :: (a -> NonEmptyVector b)
@@ -1470,12 +1520,24 @@ concatMap f = NonEmptyVector . V.concatMap (_neVec . f) . _neVec
 -- | /O(n)/ Apply the monadic action to all elements of the non-empty
 -- vector, yielding non-empty vector of results.
 --
+-- >>> mapM Just (unsafeFromList [1..3])
+-- Just [1,2,3]
+--
+-- >>> mapM (const Nothing) (unsafeFromList [1..3])
+-- Nothing
+--
 mapM :: Monad m => (a -> m b) -> NonEmptyVector a -> m (NonEmptyVector b)
 mapM f = fmap NonEmptyVector . V.mapM f . _neVec
 {-# INLINE mapM #-}
 
 -- | /O(n)/ Apply the monadic action to every element of a non-empty
 -- vector and its index, yielding a non-empty vector of results.
+--
+-- >>> imapM (\i a -> if i == 1 then Just a else Just 0) (unsafeFromList [1..3])
+-- Just [0,2,0]
+--
+-- >>> imapM (\_ _ -> Nothing) (unsafeFromList [1..3])
+-- Nothing
 --
 imapM
     :: Monad m
@@ -1488,12 +1550,26 @@ imapM f = fmap NonEmptyVector . V.imapM f . _neVec
 -- | /O(n)/ Apply the monadic action to all elements of a non-empty vector
 -- and ignore the results.
 --
+-- >>> mapM_ (const $ Just ()) (unsafeFromList [1..3])
+-- Just ()
+--
+-- >>> mapM_ (const Nothing) (unsafeFromList [1..3])
+-- Nothing
+--
 mapM_ :: Monad m => (a -> m b) -> NonEmptyVector a -> m ()
 mapM_ f = V.mapM_ f . _neVec
 {-# INLINE mapM_ #-}
 
 -- | /O(n)/ Apply the monadic action to every element of a non-emptpy
 -- vector and its index, ignoring the results
+--
+-- >>> imapM_ (\i a -> if i == 1 then P.print a else P.putStrLn "0") (unsafeFromList [1..3])
+-- 0
+-- 2
+-- 0
+--
+-- >>> imapM_ (\_ _ -> Nothing) (unsafeFromList [1..3])
+-- Nothing
 --
 imapM_ :: Monad m => (Int -> a -> m b) -> NonEmptyVector a -> m ()
 imapM_ f = V.imapM_ f . _neVec
@@ -1521,6 +1597,9 @@ forM_ (NonEmptyVector v) f = V.forM_ v f
 -- Zipping
 
 -- | /O(min(m,n))/ Zip two non-empty vectors with the given function.
+--
+-- >>> zipWith (,) (unsafeFromList [1..3]) (unsafeFromList ["a","b","c"])
+-- [(1,"a"),(2,"b"),(3,"c")]
 --
 zipWith
     :: (a -> b -> c)
