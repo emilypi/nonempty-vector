@@ -217,10 +217,13 @@ import qualified Text.Read as Read
 
 
 -- $setup
--- >>> import Prelude (Int, String, ($), (.), (+))
+-- >>> import Prelude (Int, String, ($), (.), (+), const)
 -- >>> import qualified Prelude as P
 -- >>> import qualified Data.Vector as V
+-- >>> import Data.List.NonEmpty (NonEmpty(..))
+-- >>> import qualified Data.List.NonEmpty as NEL
 -- >>> :set -XTypeApplications
+-- >>> :set -XScopedTypeVariables
 
 
 -- | 'NonEmptyVector' is a thin wrapper around 'Vector' that
@@ -511,8 +514,8 @@ unsafeDrop n = V.unsafeDrop n . _neVec
 -- | /O(1)/ Non-empty vector with exactly one element
 --
 --
--- >>> singleton "lol"
--- ["lol"]
+-- >>> singleton "a"
+-- ["a"]
 --
 singleton :: a -> NonEmptyVector a
 singleton = NonEmptyVector . V.singleton
@@ -524,10 +527,10 @@ singleton = NonEmptyVector . V.singleton
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
 --
 --
--- >>> replicate 3 "lol"
--- Just ["lol","lol","lol"]
+-- >>> replicate 3 "a"
+-- Just ["a","a","a"]
 --
--- >>> replicate 0 "lol"
+-- >>> replicate 0 "a"
 -- Nothing
 --
 replicate :: Int -> a -> Maybe (NonEmptyVector a)
@@ -540,14 +543,14 @@ replicate n a = fromVector (V.replicate n a)
 -- This variant takes @max n 1@ for the supplied length parameter.
 --
 --
--- >>> replicate1 3 "lol"
--- ["lol","lol","lol"]
+-- >>> replicate1 3 "a"
+-- ["a","a","a"]
 --
--- >>> replicate1 0 "lol"
--- ["lol"]
+-- >>> replicate1 0 "a"
+-- ["a"]
 --
--- >>> replicate1 (-1) "lol"
--- ["lol"]
+-- >>> replicate1 (-1) "a"
+-- ["a"]
 --
 replicate1 :: Int -> a -> NonEmptyVector a
 replicate1 n a = unsafeFromVector (V.replicate (max n 1) a)
@@ -559,16 +562,16 @@ replicate1 n a = unsafeFromVector (V.replicate (max n 1) a)
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
 --
 --
--- >>> let f 0 = "lol"; f _ = "k"; f :: Int -> String
+-- >>> let f 0 = "a"; f _ = "k"; f :: Int -> String
 --
 -- >>> generate 1 f
--- Just ["lol"]
+-- Just ["a"]
 --
 -- >>> generate 0 f
 -- Nothing
 --
 -- >>> generate 2 f
--- Just ["lol","k"]
+-- Just ["a","k"]
 --
 generate :: Int -> (Int -> a) -> Maybe (NonEmptyVector a)
 generate n f = fromVector (V.generate n f)
@@ -580,16 +583,16 @@ generate n f = fromVector (V.generate n f)
 -- This variant takes @max n 1@ for the supplied length parameter.
 --
 --
--- >>> let f 0 = "lol"; f _ = "k"; f :: Int -> String
+-- >>> let f 0 = "a"; f _ = "k"; f :: Int -> String
 --
 -- >>> generate1 2 f
--- ["lol","k"]
+-- ["a","k"]
 --
 -- >>> generate1 0 f
--- ["lol"]
+-- ["a"]
 --
 -- >>> generate1 (-1) f
--- ["lol"]
+-- ["a"]
 --
 generate1 :: Int -> (Int -> a) -> NonEmptyVector a
 generate1 n f = unsafeFromVector (V.generate (max n 1) f)
@@ -639,16 +642,16 @@ iterateN1 n f a = unsafeFromVector (V.iterateN (max n 1) f a)
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
 --
 --
--- >>> replicateM @Maybe 3 (Just "lol")
--- Just (Just ["lol","lol","lol"])
+-- >>> replicateM @Maybe 3 (Just "a")
+-- Just (Just ["a","a","a"])
 --
 -- >>> replicateM @Maybe 3 Nothing
 -- Nothing
 --
--- >>> replicateM @Maybe 0 (Just "lol")
+-- >>> replicateM @Maybe 0 (Just "a")
 -- Just Nothing
 --
--- >>> replicateM @Maybe (-1) (Just "lol")
+-- >>> replicateM @Maybe (-1) (Just "a")
 -- Just Nothing
 --
 replicateM :: Monad m => Int -> m a -> m (Maybe (NonEmptyVector a))
@@ -661,17 +664,17 @@ replicateM n a = fmap fromVector (V.replicateM n a)
 -- This variant takes @max n 1@ for the supplied length parameter.
 --
 --
--- >>> replicate1M @Maybe 3 (Just "lol")
--- Just ["lol","lol","lol"]
+-- >>> replicate1M @Maybe 3 (Just "a")
+-- Just ["a","a","a"]
 --
 -- >>> replicate1M @Maybe 3 Nothing
 -- Nothing
 --
--- >>> replicate1M @Maybe 0 (Just "lol")
--- Just ["lol"]
+-- >>> replicate1M @Maybe 0 (Just "a")
+-- Just ["a"]
 --
--- >>> replicate1M @Maybe (-1) (Just "lol")
--- Just ["lol"]
+-- >>> replicate1M @Maybe (-1) (Just "a")
+-- Just ["a"]
 --
 replicate1M :: Monad m => Int -> m a -> m (NonEmptyVector a)
 replicate1M n a = fmap unsafeFromVector (V.replicateM (max n 1) a)
@@ -682,16 +685,16 @@ replicate1M n a = fmap unsafeFromVector (V.replicateM (max n 1) a)
 --
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
 --
--- >>> generateM 3 (\i -> if i P.< 1 then ["lol"] else ["k"])
--- [Just ["lol","k","k"]]
+-- >>> generateM 3 (\i -> if i P.< 1 then ["a"] else ["b"])
+-- [Just ["a","b","b"]]
 --
--- >>> generateM @[] @Int 3 (P.const [])
+-- >>> generateM @[] @Int 3 (const [])
 -- []
 --
--- >>> generateM @[] @Int 0 (P.const [1])
+-- >>> generateM @[] @Int 0 (const [1])
 -- [Nothing]
 --
--- >>> generateM @Maybe @Int (-1) (P.const Nothing)
+-- >>> generateM @Maybe @Int (-1) (const Nothing)
 -- Just Nothing
 --
 generateM :: Monad m => Int -> (Int -> m a) -> m (Maybe (NonEmptyVector a))
@@ -706,13 +709,13 @@ generateM n f = fmap fromVector (V.generateM n f)
 -- >>> generate1M 3 (\i -> if i P.< 1 then Just "a" else Just "b")
 -- Just ["a","b","b"]
 --
--- >>> generate1M @[] @Int 3 (P.const [])
+-- >>> generate1M 3 (const [])
 -- []
 --
--- >>> generate1M @Maybe @Int 0 (P.const (Just 1))
+-- >>> generate1M 0 (const $ Just 1)
 -- Just [1]
 --
--- >>> generate1M @Maybe @Int (-1) (P.const Nothing)
+-- >>> generate1M (-1) (const Nothing)
 -- Nothing
 --
 generate1M :: Monad m => Int -> (Int -> m a) -> m (NonEmptyVector a)
@@ -724,6 +727,16 @@ generate1M n f = fmap unsafeFromVector (V.generateM (max n 1) f)
 --
 -- When given a index n <= 0, then 'Nothing' is returned, otherwise 'Just'.
 --
+--
+-- >>> iterateNM @Maybe 3 return "a"
+-- Just (Just ["a","a","a"])
+--
+-- >>> iterateNM @Maybe 3 (const Nothing) "a"
+-- Nothing
+--
+-- >>> iterateNM @Maybe 0 return "a"
+-- Just Nothing
+--
 iterateNM :: Monad m => Int -> (a -> m a) -> a -> m (Maybe (NonEmptyVector a))
 iterateNM n f a = fmap fromVector (V.iterateNM n f a)
 {-# INLINE iterateNM #-}
@@ -732,6 +745,19 @@ iterateNM n f a = fmap fromVector (V.iterateNM n f a)
 -- original value.
 --
 -- This variant takes @max n 1@ for the supplied length parameter.
+--
+--
+-- >>> iterateN1M @Maybe 3 return "a"
+-- Just ["a","a","a"]
+--
+-- >>> iterateN1M @Maybe 3 (const Nothing) "a"
+-- Nothing
+--
+-- >>> iterateN1M @Maybe 0 return "a"
+-- Just ["a"]
+--
+-- >>> iterateN1M @Maybe (-1) return "a"
+-- Just ["a"]
 --
 iterateN1M :: Monad m => Int -> (a -> m a) -> a -> m (NonEmptyVector a)
 iterateN1M n f a = fmap unsafeFromVector (V.iterateNM (max n 1) f a)
@@ -783,6 +809,13 @@ unsafeCreateT p = fmap unsafeFromVector (G.createT p)
 -- If an unfold does not create meaningful values, 'Nothing' is
 -- returned. Otherwise, 'Just' containing a non-empty vector is returned.
 --
+--
+-- >>> unfoldr (\b -> case b of "a" -> Just ("a", "b"); _ ->  Nothing) "a"
+-- Just ["a"]
+--
+-- >>> unfoldr (const Nothing) "a"
+-- Nothing
+--
 unfoldr :: (b -> Maybe (a, b)) -> b -> Maybe (NonEmptyVector a)
 unfoldr f b = fromVector (V.unfoldr f b)
 {-# INLINE unfoldr #-}
@@ -792,6 +825,13 @@ unfoldr f b = fromVector (V.unfoldr f b)
 --
 -- This variant of 'unfoldr' guarantees the resulting vector is non-
 -- empty by supplying an initial element @a@.
+--
+--
+-- >>> unfoldr1 (\b -> case b of "a" -> Just ("a", "b"); _ ->  Nothing) "first" "a"
+-- ["first","a"]
+--
+-- >>> unfoldr1 (const Nothing) "first" "a"
+-- ["first"]
 --
 unfoldr1 :: (b -> Maybe (a, b)) -> a -> b -> NonEmptyVector a
 unfoldr1 f a b = cons a (unsafeFromVector (V.unfoldr f b))
@@ -805,6 +845,16 @@ unfoldr1 f a b = cons a (unsafeFromVector (V.unfoldr f b))
 -- If an unfold does not create meaningful values, 'Nothing' is
 -- returned. Otherwise, 'Just' containing a non-empty vector is returned.
 --
+--
+-- >>> unfoldrN 3 (\b -> Just (b+1, b+1)) 0
+-- Just [1,2,3]
+--
+-- >>> unfoldrN 3 (const Nothing) 0
+-- Nothing
+--
+-- >>> unfoldrN 0 (\b -> Just (b+1, b+1)) 0
+-- Nothing
+--
 unfoldrN :: Int -> (b -> Maybe (a, b)) -> b -> Maybe (NonEmptyVector a)
 unfoldrN n f b = fromVector (V.unfoldrN n f b)
 {-# INLINE unfoldrN #-}
@@ -816,6 +866,16 @@ unfoldrN n f b = fromVector (V.unfoldrN n f b)
 --
 -- This variant of 'unfoldrN' guarantees the resulting vector is non-
 -- empty by supplying an initial element @a@.
+--
+--
+-- >>> unfoldr1N 3 (\b -> Just (b+1, b+1)) 0 0
+-- [0,1,2,3]
+--
+-- >>> unfoldr1N 3 (const Nothing) 0 0
+-- [0]
+--
+-- >>> unfoldr1N 0 (\b -> Just (b+1, b+1)) 0 0
+-- [0]
 --
 unfoldr1N
     :: Int
@@ -980,17 +1040,26 @@ enumFromThenTo a0 a1 a2 = fromVector (V.enumFromThenTo a0 a1 a2)
 
 -- | /O(n)/ Prepend an element
 --
+-- >>> cons 1 (unsafeFromList [2,3])
+-- [1,2,3]
+--
 cons :: a -> NonEmptyVector a -> NonEmptyVector a
 cons a (NonEmptyVector as) = NonEmptyVector (V.cons a as)
 {-# INLINE cons #-}
 
 -- | /O(n)/ Append an element
 --
+-- >>> snoc (unsafeFromList [1,2]) 3
+-- [1,2,3]
+--
 snoc :: NonEmptyVector a -> a -> NonEmptyVector a
 snoc (NonEmptyVector as) a = NonEmptyVector (V.snoc as a)
 {-# INLINE snoc #-}
 
 -- | /O(m+n)/ Concatenate two non-empty vectors
+--
+-- >>> (unsafeFromList [1..3]) ++ (unsafeFromList [4..6])
+-- [1,2,3,4,5,6]
 --
 (++) :: NonEmptyVector a -> NonEmptyVector a -> NonEmptyVector a
 NonEmptyVector v ++ NonEmptyVector v' = NonEmptyVector (v <> v')
@@ -1001,12 +1070,18 @@ NonEmptyVector v ++ NonEmptyVector v' = NonEmptyVector (v <> v')
 -- If list is empty, 'Nothing' is returned, otherwise 'Just'
 -- containing the concatenated non-empty vectors
 --
+-- >>> concat [(unsafeFromList [1..3]), (unsafeFromList [4..6])]
+-- Just [1,2,3,4,5,6]
+--
 concat :: [NonEmptyVector a] -> Maybe (NonEmptyVector a)
 concat [] = Nothing
 concat (a:as) = Just (concat1 (a :| as))
 {-# INLINE concat #-}
 
 -- | O(n) Concatenate all non-empty vectors in a non-empty list.
+--
+-- >>> concat1 ((unsafeFromList [1..3]) :| [(unsafeFromList [4..6])])
+-- [1,2,3,4,5,6]
 --
 concat1 :: NonEmpty (NonEmptyVector a) -> NonEmptyVector a
 concat1 = NonEmptyVector . Foldable.foldl' go V.empty
@@ -1019,11 +1094,17 @@ concat1 = NonEmptyVector . Foldable.foldl' go V.empty
 
 -- | /O(n)/ Convert a non-empty vector to a non-empty list.
 --
+-- >>> toNonEmpty (unsafeFromList [1..3])
+-- 1 :| [2,3]
+--
 toNonEmpty :: NonEmptyVector a -> NonEmpty a
 toNonEmpty = NonEmpty.fromList . V.toList . _neVec
 {-# INLINE toNonEmpty #-}
 
 -- | O(n) Convert from a non-empty list to a non-empty vector.
+--
+-- >>> fromNonEmpty (1 :| [2,3])
+-- [1,2,3]
 --
 fromNonEmpty :: NonEmpty a -> NonEmptyVector a
 fromNonEmpty = NonEmptyVector . V.fromList . Foldable.toList
@@ -1035,6 +1116,12 @@ fromNonEmpty = NonEmptyVector . V.fromList . Foldable.toList
 -- Returns 'Nothing' if indices are <= 0, otherwise 'Just' containing
 -- the non-empty vector.
 --
+-- >>> fromNonEmptyN 3 (1 :| [2..5])
+-- Just [1,2,3]
+--
+-- >>> fromNonEmptyN 0 (1 :| [2..5])
+-- Nothing
+--
 fromNonEmptyN :: Int -> NonEmpty a -> Maybe (NonEmptyVector a)
 fromNonEmptyN n a = fromVector (V.fromListN n (Foldable.toList a))
 {-# INLINE fromNonEmptyN #-}
@@ -1042,6 +1129,13 @@ fromNonEmptyN n a = fromVector (V.fromListN n (Foldable.toList a))
 -- | O(n) Convert from the first n-elements of a non-empty list to a
 -- non-empty vector. This is a safe version of `fromNonEmptyN` which
 -- takes @max n 1@ of the first n-elements of the non-empty list.
+--
+--
+-- >>> fromNonEmptyN1 3 (1 :| [2..5])
+-- [1,2,3]
+--
+-- >>> fromNonEmptyN1 0 (1 :| [2..5])
+-- [1]
 --
 fromNonEmptyN1 :: Int -> NonEmpty a -> NonEmptyVector a
 fromNonEmptyN1 n = unsafeFromVector
@@ -1051,7 +1145,11 @@ fromNonEmptyN1 n = unsafeFromVector
 
 -- | /O(1)/ Convert from a non-empty vector to a vector.
 --
-toVector :: NonEmptyVector a -> V.Vector a
+--
+-- >>> let nev :: NonEmptyVector Int = unsafeFromList [1..3] in toVector nev
+-- [1,2,3]
+--
+toVector :: NonEmptyVector a -> Vector a
 toVector = _neVec
 {-# INLINE toVector #-}
 
@@ -1059,6 +1157,12 @@ toVector = _neVec
 --
 -- If the vector is empty, then 'Nothing' is returned,
 -- otherwise 'Just' containing the non-empty vector.
+--
+-- >>> fromVector $ V.fromList [1..3]
+-- Just [1,2,3]
+--
+-- >>> fromVector $ V.fromList []
+-- Nothing
 --
 fromVector :: Vector a -> Maybe (NonEmptyVector a)
 fromVector v = if V.null v then Nothing else Just (NonEmptyVector v)
@@ -1070,17 +1174,32 @@ fromVector v = if V.null v then Nothing else Just (NonEmptyVector v)
 -- /Warning/: the onus is on the user to ensure that their vector
 -- is not empty, otherwise all bets are off!
 --
+--
+-- >>> unsafeFromVector $ V.fromList [1..3]
+-- [1,2,3]
+--
 unsafeFromVector :: Vector a -> NonEmptyVector a
 unsafeFromVector = NonEmptyVector
 {-# INLINE unsafeFromVector #-}
 
 -- | /O(n)/ Convert from a non-empty vector to a list.
 --
+--
+-- >>> let nev :: NonEmptyVector Int = unsafeFromList [1..3] in toList nev
+-- [1,2,3]
+--
 toList :: NonEmptyVector a -> [a]
 toList = V.toList . _neVec
 {-# INLINE toList #-}
 
 -- | /O(n)/ Convert from a list to a non-empty vector.
+--
+--
+-- >>> fromList [1..3]
+-- Just [1,2,3]
+--
+-- >>> fromList []
+-- Nothing
 --
 fromList :: [a] -> Maybe (NonEmptyVector a)
 fromList = fromVector . V.fromList
@@ -1090,6 +1209,10 @@ fromList = fromVector . V.fromList
 --
 -- /Warning/: the onus is on the user to ensure that their vector
 -- is not empty, otherwise all bets are off!
+--
+-- >>> unsafeFromList [1..3]
+-- [1,2,3]
+--
 unsafeFromList :: [a] -> NonEmptyVector a
 unsafeFromList = unsafeFromVector . V.fromList
 {-# INLINE unsafeFromList #-}
@@ -1098,6 +1221,15 @@ unsafeFromList = unsafeFromVector . V.fromList
 --
 -- If the list is empty or <= 0 elements are chosen, 'Nothing' is
 -- returned, otherwise 'Just' containing the non-empty vector
+--
+-- >>> fromListN 3 [1..5]
+-- Just [1,2,3]
+--
+-- >>> fromListN 3 []
+-- Nothing
+--
+-- >>> fromListN 0 [1..5]
+-- Nothing
 --
 fromListN :: Int -> [a] -> Maybe (NonEmptyVector a)
 fromListN n as = fromVector (V.fromListN n as)
