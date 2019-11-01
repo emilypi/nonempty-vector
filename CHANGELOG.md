@@ -10,6 +10,10 @@
 
 * Added `unsafeFromList`, `unsafeFromVector`, and `fromNonEmptyN1`
 
+* Add `ifilterM`
+
+* Add doctests for all new functions + many familiar ones
+
 ## 0.1.0.0
 
 * Remove `MonadFail` instance for the sake of backcompat with LTS < 13
