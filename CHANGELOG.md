@@ -1,5 +1,10 @@
 # Revision history for nonempty-vector
 
+## 0.2.0.1
+
+* Missed a strictness tick in `postscanl'`
+* INLINE pragma for slice
+
 ## 0.2.0.0
 
 * Remove naughty `Generic`, and `Alternative` instances as they can construct empty `NonEmptyVector`s
