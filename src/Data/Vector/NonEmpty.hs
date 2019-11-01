@@ -444,6 +444,7 @@ unsnoc v = (init v, last v)
 --
 slice :: Int -> Int -> NonEmptyVector a -> Vector a
 slice i n = V.slice i n . _neVec
+{-# INLINE slice #-}
 
 -- | /O(1)/ Yield all but the last element without copying. Since the
 -- vector returned may be empty (i.e. input was a singleton), this function
@@ -2627,7 +2628,7 @@ prescanr f b = NonEmptyVector . V.prescanr f b . _neVec
 -- | /O(n)/ Right-to-left prescan with strict accumulator
 --
 prescanr' :: (a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
-prescanr' f b = NonEmptyVector . V.prescanr f b . _neVec
+prescanr' f b = NonEmptyVector . V.prescanr' f b . _neVec
 {-# INLINE prescanr' #-}
 
 -- | /O(n)/ Right-to-left scan
