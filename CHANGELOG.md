@@ -3,6 +3,7 @@
 ## 0.2.0.1
 
 * Missed a strictness tick in `postscanl'`
+
 * INLINE pragma for slice
 
 ## 0.2.0.0
