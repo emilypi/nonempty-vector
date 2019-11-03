@@ -1334,7 +1334,6 @@ accum
       -- ^ list of index/value pairs (of length @n@)
     -> NonEmptyVector a
 accum f (NonEmptyVector v) u = NonEmptyVector (V.accum f v u)
-
 {-# INLINE accum #-}
 
 -- | /O(m+n)/ For each pair @(i,b)@ from the vector of pairs, replace the
