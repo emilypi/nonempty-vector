@@ -1,11 +1,8 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE Rank2Types #-}
 -- |
 -- Module       : Data.Vector.NonEmpty
 -- Copyright 	: (c) 2019 Emily Pillmore
@@ -13,7 +10,7 @@
 --
 -- Maintainer	: Emily Pillmore <emilypi@cohomolo.gy>
 -- Stability	: Experimental
--- Portability	: DataTypeable, CPP, RankNTypes, TypeFamilies, FlexibleInstances, MPTC
+-- Portability	: DataTypeable, CPP
 --
 -- A library for non-empty boxed vectors (that is, polymorphic arrays capable of
 -- holding any Haskell value). Non-empty vectors come in two flavors:
@@ -44,9 +41,8 @@
 --
 -- Credit to Roman Leshchinskiy for the original Vector library  upon which this is based.
 --
-module Data.Vector.NonEmpty
+module Data.Vector.NonEmpty.Storable
 ( -- * Boxed non-empty vectors
-  -- $general
   NonEmptyVector
 
   -- * Accessors
@@ -110,8 +106,7 @@ module Data.Vector.NonEmpty
 , toVector, fromVector, unsafeFromVector
 
   -- ** To/from list
-, toList, fromList, fromListN, fromListN1
-, unsafeFromlist, unsafeFromListN
+, toList, fromList, fromListN
 
   -- * Modifying non-empty vectors
 
@@ -199,12 +194,13 @@ import Control.Applicative
 import Control.DeepSeq hiding (force)
 import Control.Monad (Monad, return)
 import Control.Monad.ST
+import Control.Monad.Zip (MonadZip)
 
 import Data.Data (Data)
 import Data.Foldable (Foldable)
 import qualified Data.Foldable as Foldable
 import Data.Functor
-import Data.Functor.Classes (Read1(..))
+import Data.Functor.Classes (Eq1, Ord1, Show1, Read1(..))
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
@@ -215,11 +211,8 @@ import Data.Typeable (Typeable)
 import Data.Vector (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Generic as G
-import qualified Data.Vector.Generic.Base as G
-import Data.Vector.Mutable (MVector(..))
-import Data.Vector.NonEmpty.Internal (NonEmptyVector(..), NonEmptyMVector(..))
+import Data.Vector.Mutable (MVector)
 
-import GHC.Exts (IsList(..))
 import GHC.Read
 
 import qualified Text.Read as Read
@@ -237,14 +230,24 @@ import qualified Text.Read as Read
 -- >>> :set -XScopedTypeVariables
 
 
--- $general 'NonEmptyVector' is a thin wrapper around 'Vector' that
+-- | 'NonEmptyVector' is a thin wrapper around 'Vector' that
 -- witnesses an API requiring non-empty construction,
 -- initialization, and generation of non-empty vectors by design.
 --
 -- A newtype wrapper was chosen so that no new pointer indirection
 -- is introduced when working with 'Vector's, and all performance
 -- characteristics inherited from the 'Vector' API still apply.
-
+--
+newtype NonEmptyVector a = NonEmptyVector
+    { _neVec :: V.Vector a
+    } deriving
+      ( Eq, Ord
+      , Eq1, Ord1, Show1
+      , Data, Typeable, NFData
+      , Functor, Applicative, Monad
+      , MonadZip
+      , Semigroup
+      )
 
 instance Show a => Show (NonEmptyVector a) where
     show (NonEmptyVector v) = show v
@@ -277,40 +280,6 @@ instance Foldable NonEmptyVector where
 instance Traversable NonEmptyVector where
     traverse f = fmap NonEmptyVector . traverse f . _neVec
 
-#if __GLASGOW_HASKELL__ > 802
-instance IsList (NonEmptyVector a) where
-    type Item (NonEmptyVector a) = a
-    fromList = Data.Vector.NonEmpty.unsafeFromList
-
-    fromListN = Data.Vector.NonEmpty.unsafeFromListN
-    toList = Data.Vector.NonEmpty.toList
-#endif
-
--- ---------------------------------------------------------------------- --
--- Vector
-
-type instance G.Mutable NonEmptyVector = NonEmptyMVector
-
-instance G.Vector NonEmptyVector a where
-    basicUnsafeFreeze = fmap NonEmptyVector . G.basicUnsafeFreeze . _nemVec
-    {-# INLINE basicUnsafeFreeze #-}
-
-    basicUnsafeThaw = fmap NonEmptyMVector . G.basicUnsafeThaw . _neVec
-    {-# INLINE basicUnsafeThaw #-}
-
-    basicLength = G.basicLength . _neVec
-    {-# INLINE basicLength #-}
-
-    basicUnsafeSlice i n = NonEmptyVector . G.basicUnsafeSlice i n . _neVec
-    {-# INLINE basicUnsafeSlice #-}
-
-    basicUnsafeIndexM (NonEmptyVector v) i = G.basicUnsafeIndexM v i
-    {-# INLINE basicUnsafeIndexM #-}
-
-    basicUnsafeCopy (NonEmptyMVector mv) (NonEmptyVector v) =
-      G.basicUnsafeCopy mv v
-    {-# INLINE basicUnsafeCopy #-}
-
 -- ---------------------------------------------------------------------- --
 -- Accessors + Indexing
 
@@ -324,7 +293,7 @@ length = V.length . _neVec
 {-# INLINE length #-}
 
 -- | /O(1)/ First element. Since head is gauranteed, bounds checks
--- are bypassed by deferring to unsafeHead.
+-- are bypassed by deferring to 'unsafeHead'.
 --
 --
 -- >>> head $ unsafeFromList [1..10]
@@ -1243,7 +1212,7 @@ fromList = fromVector . V.fromList
 
 -- | /O(n)/ Convert from a list to a non-empty vector.
 --
--- /Warning/: the onus is on the user to ensure that their list
+-- /Warning/: the onus is on the user to ensure that their vector
 -- is not empty, otherwise all bets are off!
 --
 -- >>> unsafeFromList [1..3]
@@ -1268,26 +1237,8 @@ unsafeFromList = unsafeFromVector . V.fromList
 -- Nothing
 --
 fromListN :: Int -> [a] -> Maybe (NonEmptyVector a)
-fromListN n = fromVector . V.fromListN n
+fromListN n as = fromVector (V.fromListN n as)
 {-# INLINE fromListN #-}
-
--- | /O(n)/ Convert the first n elements of a list to a non-empty vector.
---
--- /Warning/: the onus is on the user to ensure that their list
--- is not empty, otherwise all bets are off!
---
--- >>> fromListN 3 [1..5]
--- Just [1,2,3]
---
--- >>> fromListN 3 []
--- Nothing
---
--- >>> fromListN 0 [1..5]
--- Nothing
---
-unsafeFromListN :: Int -> [a] -> NonEmptyVector a
-unsafeFromListN n = unsafeFromVector . V.fromListN n
-{-# INLINE unsafeFromListN #-}
 
 -- ---------------------------------------------------------------------- --
 -- Restricting memory usage

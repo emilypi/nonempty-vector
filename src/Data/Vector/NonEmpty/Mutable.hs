@@ -64,26 +64,50 @@ import Data.Functor
 import Data.Maybe (Maybe(..))
 import Data.Typeable (Typeable)
 import Data.Vector.Mutable (MVector)
+import Data.Vector (MVector)
+import qualified Data.Vector.Generic as G
 import qualified Data.Vector.Mutable as M
+import Data.Vector.NonEmpty.Internal (NonEmptyMVector(..))
 
 
--- | 'NonEmptyMVector' is a thin wrapper around 'MVector' that
+-- $general 'NonEmptyMVector' is a thin wrapper around 'MVector' that
 -- witnesses an API requiring non-empty construction,
 -- initialization, and generation of non-empty vectors by design.
 --
 -- A newtype wrapper was chosen so that no new pointer indirection
 -- is introduced when working with 'MVector's, and all performance
 -- characteristics inherited from the 'MVector' API still apply.
---
-newtype NonEmptyMVector s a = NonEmptyMVector
-    { _nemVec :: MVector s a }
-    deriving (Typeable)
 
 -- | 'NonEmptyMVector' parametrized by 'PrimState'
 type NonEmptyIOVector = NonEmptyMVector RealWorld
 
 -- | 'NonEmptyMVector' parametrized by 'ST'
 type NonEmptySTVector s = NonEmptyMVector s
+
+-- ---------------------------------------------------------------------- --
+-- Vector instance
+
+instance MVector NonEmptyMVector a where
+  basicLength = G.basicLength . _nemVec
+  {-# INLINE basicLength #-}
+
+  basicUnsafeSlice i j =
+    NonEmptyMVector . M.unsafeSlice i j . _nemVec
+
+  basicOverlaps (NonEmptyMVector m) (NonEmptyMVector m') =
+    G.basicOverlaps m m'
+
+  basicUnsafeNew n = NonEmptyMVector <$> M.unsafeNew n
+
+  basicInitialize (NonEmptyMVector mv) = G.basicInitialize mv
+
+  basicUnsafeReplicate n a = NonEmptyMVector (G.replicate n a)
+
+  basicUnsafeRead (NonEmptyMVector mv) i = G.unsafeRead mv i
+
+  basicUnsafeWrite (NonEmptyMVector mv) i a = G.basicUnsafeWrite mv i a
+
+
 
 -- ---------------------------------------------------------------------- --
 -- Length information

@@ -34,6 +34,8 @@ custom-setup
 
 
 library
+  other-modules:       Data.Vector.NonEmpty.Internal
+
   exposed-modules:     Data.Vector.NonEmpty
                      , Data.Vector.NonEmpty.Mutable
 
