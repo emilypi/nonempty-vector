@@ -3,8 +3,7 @@ name:               nonempty-vector
 version:            0.2.0.2
 synopsis:           Non-empty vectors
 description:
-  Performant non-empty mutable and immutable vectors. These vectors strive to implement
-  the common APIs seen in `vector` without any additional performance cost.
+  Performant non-empty mutable and immutable vectors.
 
 homepage:           https://github.com/emilypi/nonempty-vector
 bug-reports:        https://github.com/emilypi/nonempty-vector/issues
