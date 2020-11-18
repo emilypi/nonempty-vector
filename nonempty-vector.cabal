@@ -1,4 +1,4 @@
-cabal-version:   2.0
+cabal-version:   1.24
 name:            nonempty-vector
 version:         0.2.0.2
 synopsis:        Non-empty vectors
@@ -44,7 +44,7 @@ library
       base       >=4.9  && <5
     , deepseq
     , primitive  >=0.6  && <0.8
-    , vector     ^>=0.12
+    , vector     >=0.12 && <0.13
 
   hs-source-dirs:   src
   default-language: Haskell2010
