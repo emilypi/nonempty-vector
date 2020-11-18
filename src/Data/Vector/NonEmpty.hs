@@ -90,7 +90,7 @@ module Data.Vector.NonEmpty
 , enumFromTo, enumFromThenTo
 
   -- ** Concatenation
-, cons, snoc, (++), concat, concat1
+, cons, consV, snoc, snocV, (++), concat, concat1
 
   -- ** Restricting memory usage
 , force
@@ -1049,8 +1049,17 @@ enumFromThenTo a0 a1 a2 = fromVector (V.enumFromThenTo a0 a1 a2)
 -- [1,2,3]
 --
 cons :: a -> NonEmptyVector a -> NonEmptyVector a
-cons a (NonEmptyVector as) = NonEmptyVector (V.cons a as)
+cons a (NonEmptyVector as) = consV a as
 {-# INLINE cons #-}
+
+-- | /O(n)/ Prepend an element to a Vector
+--
+-- >>> consV 1 (V.fromList [2,3])
+-- [1,2,3]
+--
+consV :: a -> Vector a -> NonEmptyVector a
+consV a = NonEmptyVector . V.cons a
+{-# INLINE consV #-}
 
 -- | /O(n)/ Append an element
 --
@@ -1058,8 +1067,17 @@ cons a (NonEmptyVector as) = NonEmptyVector (V.cons a as)
 -- [1,2,3]
 --
 snoc :: NonEmptyVector a -> a -> NonEmptyVector a
-snoc (NonEmptyVector as) a = NonEmptyVector (V.snoc as a)
+snoc (NonEmptyVector as) = snocV as
 {-# INLINE snoc #-}
+
+-- | /O(n)/ Append an element to a Vector
+--
+-- >>> snocV (V.fromList [1,2]) 3
+-- [1,2,3]
+--
+snocV :: Vector a -> a -> NonEmptyVector a
+snocV as = NonEmptyVector . V.snoc as
+{-# INLINE snocV #-}
 
 -- | /O(m+n)/ Concatenate two non-empty vectors
 --
