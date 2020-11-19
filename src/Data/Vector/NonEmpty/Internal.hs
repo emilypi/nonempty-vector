@@ -123,4 +123,6 @@ type NonEmptyIOVector = NonEmptyMVector RealWorld
 
 -- | 'NonEmptyMVector' parametrized by 'ST'
 --
+-- @since 0.2.1.0
+--
 type NonEmptySTVector s = NonEmptyMVector s
