@@ -19,7 +19,7 @@
 -- module, you take on the risks that you break the non-emptiness
 -- invariants of the main modules. Use at your own risk.
 --
--- @since 0.2.0.3
+-- @since 0.2.1.0
 --
 module Data.Vector.NonEmpty.Internal
 ( -- * Immutable boxed vectors
@@ -57,7 +57,7 @@ import qualified Text.Read as Read
 -- is introduced when working with 'Vector's, and all performance
 -- characteristics inherited from the 'Vector' API still apply.
 --
--- @since 0.2.0.3
+-- @since 0.2.1.0
 --
 newtype NonEmptyVector a = NonEmptyVector
     { _neVec :: V.Vector a
@@ -112,7 +112,7 @@ instance Traversable NonEmptyVector where
 -- is introduced when working with 'MVector's, and all performance
 -- characteristics inherited from the 'MVector' API still apply.
 --
--- @since 0.2.0.3
+-- @since 0.2.1.0
 --
 newtype NonEmptyMVector s a = NonEmptyMVector
     { _nemVec :: MVector s a }
@@ -120,7 +120,7 @@ newtype NonEmptyMVector s a = NonEmptyMVector
 
 -- | 'NonEmptyMVector' parametrized by 'PrimState'
 --
--- @since 0.2.0.3
+-- @since 0.2.1.0
 --
 type NonEmptyIOVector = NonEmptyMVector RealWorld
 

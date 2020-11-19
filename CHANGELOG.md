@@ -1,9 +1,12 @@
 # Revision history for nonempty-vector
 
-## 0.2.0.3
+## 0.2.1.0
 
-* Added `consV` and `snocV` primitives for consing a vector to create a nonempty one.
+* Added `consV` and `snocV` primitives for consing a vector to create a nonempty one. [(#8)](https://github.com/emilypi/nonempty-vector/pull/8) - Thanks @AlistairB!
 * Updated CI and cabal support
+* Expose constructors in new `Data.Vector.NonEmpty.Internal` module
+* Modules are now marked trustworthy
+* `@since` annotations have been added.
 
 ## 0.2.0.2
 
