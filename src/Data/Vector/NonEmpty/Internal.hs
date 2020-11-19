@@ -2,6 +2,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE Trustworthy #-}
 -- |
 -- Module      : Data.Vector.NonEmpty.Internal
 -- Copyright   : (c) 2019-2020 Emily Pillmore
@@ -13,6 +14,12 @@
 --
 -- Internal module exposing the constructors for
 -- 'NonEmptyVector' and 'NonEmptyMVector'.
+--
+-- /Warning/: Since the constructors are exposed here, by using this
+-- module, you take on the risks that you break the non-emptiness
+-- invariants of the main modules. Use at your own risk.
+--
+-- @since 0.2.0.3
 --
 module Data.Vector.NonEmpty.Internal
 ( -- * Immutable boxed vectors
@@ -49,6 +56,8 @@ import qualified Text.Read as Read
 -- A newtype wrapper was chosen so that no new pointer indirection
 -- is introduced when working with 'Vector's, and all performance
 -- characteristics inherited from the 'Vector' API still apply.
+--
+-- @since 0.2.0.3
 --
 newtype NonEmptyVector a = NonEmptyVector
     { _neVec :: V.Vector a
@@ -103,11 +112,15 @@ instance Traversable NonEmptyVector where
 -- is introduced when working with 'MVector's, and all performance
 -- characteristics inherited from the 'MVector' API still apply.
 --
+-- @since 0.2.0.3
+--
 newtype NonEmptyMVector s a = NonEmptyMVector
     { _nemVec :: MVector s a }
     deriving (Typeable)
 
 -- | 'NonEmptyMVector' parametrized by 'PrimState'
+--
+-- @since 0.2.0.3
 --
 type NonEmptyIOVector = NonEmptyMVector RealWorld
 

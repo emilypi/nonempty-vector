@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE Trustworthy #-}
 -- |
 -- Module      : Data.Vector.NonEmpty.Mutable
 -- Copyright   : (c) 2019-2020 Emily Pillmore

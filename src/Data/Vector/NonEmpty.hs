@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE Trustworthy #-}
 -- |
 -- Module       : Data.Vector.NonEmpty
 -- Copyright 	: (c) 2019-2020 Emily Pillmore
@@ -205,7 +206,7 @@ import Data.Vector.NonEmpty.Internal
 
 
 -- $setup
--- >>> import Prelude (Int, String, ($), (.), (+), (<), const)
+-- >>> import Prelude (Int, String, ($), (.), (+), (<), const, return)
 -- >>> import Data.Bool
 -- >>> import Data.Eq
 -- >>> import qualified Prelude as P
