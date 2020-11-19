@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE Trustworthy #-}
 -- |
 -- Module      : Data.Vector.NonEmpty.Internal
@@ -76,25 +77,19 @@ instance Show a => Show (NonEmptyVector a) where
     show (NonEmptyVector v) = show v
 
 instance Read a => Read (NonEmptyVector a) where
-    readPrec = do
-      as <- Read.readPrec
-      if Foldable.null as
-      then Read.pfail
-      else return (NonEmptyVector $ V.fromList as)
+    readPrec = Read.readPrec >>= \case
+      [] -> Read.pfail
+      as -> return (NonEmptyVector $ V.fromList as)
 
 instance Read1 NonEmptyVector where
 #if __GLASGOW_HASKELL__ > 802
-    liftReadPrec _ rl = do
-      l <- rl
-      if Foldable.null l
-      then Read.pfail
-      else return (NonEmptyVector $ V.fromList l)
+    liftReadPrec _ rl = rl >>= \case
+      [] -> Read.pfail
+      as -> return (NonEmptyVector $ V.fromList as)
 #else
-    liftReadsPrec _ r _ s = do
-      (as, s') <- r s
-      if Foldable.null as
-      then []
-      else return (NonEmptyVector $ V.fromList as, s')
+    liftReadsPrec _ r _ s = r s >>= \case
+      ([], _) -> []
+      (as, s') -> return (NonEmptyVector $ V.fromList as, s')
 #endif
 
 instance Foldable NonEmptyVector where
