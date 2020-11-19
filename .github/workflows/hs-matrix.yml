@@ -1,62 +1,46 @@
-name: Cabal Build
 
-# Trigger the workflow on push or pull request, but only for the master branch
+name: CI
 on:
   pull_request:
   push:
-    branches: [master]
+    branches:
+      - master
 
 jobs:
-  cabal:
-    name: ${{ matrix.os }} / ghc ${{ matrix.ghc }}
+  build:
     runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
-        cabal: ["3.2"]
-        ghc:
-          - "8.0.2"
-          - "8.2.2"
-          - "8.4.4"
-          - "8.6.5"
-          - "8.8.4"
-          - "8.10.2"
-        exclude:
-          - os: macOS-latest
-            ghc: 8.8.3
-          - os: macOS-latest
-            ghc: 8.6.5
-          - os: windows-latest
-            ghc: 8.8.3
-          - os: windows-latest
-            ghc: 8.6.5
+    strategy: false
+    matrix:
+      ghc: ['8.0.2','8.2.2','8.4.4','8.6.5', '8.8.3','8.10.2','latest']
+      cabal: ['3.2.0.0', 'latest']
+      os: [ubuntu-latest]
+
+    name: CI-${{ matrix.ghc }}
+
+    env:
+      CONFIG: "-O0 --enable-tests"
 
     steps:
-    - uses: actions/checkout@v2
-      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'
+      - uses: actions/checkout@v2
+      - name: Setup
+        uses: actions/setup-haskell@v1
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
 
-    - uses: actions/setup-haskell@v1.1.1
-      id: setup-haskell-cabal
-      name: Setup Haskell
-      with:
-        ghc-version: ${{ matrix.ghc }}
-        cabal-version: ${{ matrix.cabal }}
+      - run: cabal update
+      - run: cabal clean
+      - run: cabal configure $CONFIG
+      - run: cabal freeze $CONFIG
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/cabal.store
+            dist-newstyle
 
-    - name: Freeze
-      run: |
-        cabal freeze
-
-    - uses: actions/cache@v1
-      name: Cache ~/.cabal/store
-      with:
-        path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-        key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
-
-    - name: Build
-      run: |
-        cabal configure --enable-tests --test-show-details=direct
-        cabal build all
-
-    - name: Test
-      run: |
-        cabal test all
+          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.ghc }}
+      - run: cabal build
+      - run: cabal test
+      - run: cabal check
