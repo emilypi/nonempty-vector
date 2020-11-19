@@ -1,4 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -41,7 +40,7 @@ import qualified Data.Foldable as Foldable
 import Data.Functor.Classes (Eq1, Ord1, Show1, Read1(..))
 import qualified Data.Vector as V
 #if __GLASGOW_HASKELL__ < 802
-import Data.Semigroup (Semigroup(..), (<>))
+import Data.Semigroup (Semigroup(..))
 #endif
 import Data.Typeable (Typeable)
 import Data.Vector.Mutable (MVector)
