@@ -1,11 +1,8 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE Rank2Types #-}
 -- |
 -- Module       : Data.Vector.NonEmpty
--- Copyright 	: (c) 2019 Emily Pillmore
+-- Copyright 	: (c) 2019-2020 Emily Pillmore
 -- License	: BSD-style
 --
 -- Maintainer	: Emily Pillmore <emilypi@cohomolo.gy>
@@ -186,36 +183,25 @@ module Data.Vector.NonEmpty
 ) where
 
 
-import Prelude ( Bool, Eq, Ord, Show(..), Num, Enum
+import Prelude ( Bool, Eq, Ord, Num, Enum
                , (.), Ordering, max, uncurry, snd)
 
-
-import Control.Applicative
-import Control.DeepSeq hiding (force)
-import Control.Monad (Monad, return)
+import Control.Monad (Monad)
 import Control.Monad.ST
-import Control.Monad.Zip (MonadZip)
 
-import Data.Data (Data)
-import Data.Foldable (Foldable)
 import qualified Data.Foldable as Foldable
 import Data.Functor
-import Data.Functor.Classes (Eq1, Ord1, Show1, Read1(..))
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
 import Data.Maybe (Maybe(..))
 import Data.Semigroup (Semigroup(..), (<>))
-import Data.Traversable (Traversable, traverse)
-import Data.Typeable (Typeable)
+import Data.Traversable (Traversable)
 import Data.Vector (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Generic as G
 import Data.Vector.Mutable (MVector)
-
-import GHC.Read
-
-import qualified Text.Read as Read
+import Data.Vector.NonEmpty.Internal
 
 
 -- $setup
@@ -228,57 +214,6 @@ import qualified Text.Read as Read
 -- >>> import qualified Data.List.NonEmpty as NEL
 -- >>> :set -XTypeApplications
 -- >>> :set -XScopedTypeVariables
-
-
--- | 'NonEmptyVector' is a thin wrapper around 'Vector' that
--- witnesses an API requiring non-empty construction,
--- initialization, and generation of non-empty vectors by design.
---
--- A newtype wrapper was chosen so that no new pointer indirection
--- is introduced when working with 'Vector's, and all performance
--- characteristics inherited from the 'Vector' API still apply.
---
-newtype NonEmptyVector a = NonEmptyVector
-    { _neVec :: V.Vector a
-    } deriving
-      ( Eq, Ord
-      , Eq1, Ord1, Show1
-      , Data, Typeable, NFData
-      , Functor, Applicative, Monad
-      , MonadZip
-      , Semigroup
-      )
-
-instance Show a => Show (NonEmptyVector a) where
-    show (NonEmptyVector v) = show v
-
-instance Read a => Read (NonEmptyVector a) where
-    readPrec = do
-      as <- Read.readPrec
-      if Foldable.null as
-      then Read.pfail
-      else return (unsafeFromList as)
-
-instance Read1 NonEmptyVector where
-#if __GLASGOW_HASKELL__ > 802
-    liftReadPrec _ rl = do
-      l <- rl
-      if Foldable.null l
-      then Read.pfail
-      else return (unsafeFromList l)
-#else
-    liftReadsPrec _ r _ s = do
-      (as, s') <- r s
-      if Foldable.null as
-      then []
-      else return (unsafeFromList as, s')
-#endif
-
-instance Foldable NonEmptyVector where
-    foldMap f = Foldable.foldMap f . _neVec
-
-instance Traversable NonEmptyVector where
-    traverse f = fmap NonEmptyVector . traverse f . _neVec
 
 -- ---------------------------------------------------------------------- --
 -- Accessors + Indexing

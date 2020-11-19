@@ -1,4 +1,1 @@
 packages: .
-
-package nonempty-vector
-    tests: True

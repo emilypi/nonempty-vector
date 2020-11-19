@@ -1,5 +1,14 @@
 # Revision history for nonempty-vector
 
+## 0.2.0.3
+
+* Added `consV` and `snocV` primitives for consing a vector to create a nonempty one.
+* Updated CI and cabal support
+
+## 0.2.0.2
+
+* Removed spurious dependency on `semigroups`
+
 ## 0.2.0.1
 
 * Missed a strictness tick in `postscanl'`
