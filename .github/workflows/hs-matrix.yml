@@ -1,55 +1,64 @@
-on: [push, pull_request]
-name: build
+name: Cabal Build
+
+name: CI
+
+# Trigger the workflow on push or pull request, but only for the master branch
+on:
+  pull_request:
+  push:
+    branches: [master]
+
 jobs:
-  build:
+  cabal:
+    name: ${{ matrix.os }} / ghc ${{ matrix.ghc }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        ghc:  ['8.0.2','8.2.2','8.6.5', '8.8.3','8.10.2','latest']
-        cabal: ['1.24.0.0']
-
         os: [ubuntu-latest, macOS-latest, windows-latest]
-
-        include:
-      # for the matrix leg matching the os and version
-          - os: windows-latest
-            ghc: latest
-            cabal: latest
+        cabal: ["3.2"]
+        ghc:
+          - "8.0.2"
+          - "8.2.2"
+          - "8.4.4"
+          - "8.6.5"
+          - "8.8.4"
+          - "8.10.2"
+        exclude:
           - os: macOS-latest
-            ghc: latest
-            cabal: latest
-          - os: ubuntu-latest
-            ghc: latest
-            cabal: latest
-    name: Haskell GHC ${{ matrix.ghc }} and cabal ${{matrix.cabal}} on ${{matrix.os}}
-    env:
-      CONFIG: "--enable-tests"
+            ghc: 8.8.3
+          - os: macOS-latest
+            ghc: 8.6.5
+          - os: windows-latest
+            ghc: 8.8.3
+          - os: windows-latest
+            ghc: 8.6.5
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Haskell
-        uses: actions/setup-haskell@v1.1.3 # the .3 is a bug fix?
-        with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: ${{ matrix.cabal }}
-      - run: cabal update
-      - run: cabal clean
-      - run: cabal configure $CONFIG
-      - run: cabal freeze $CONFIG
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cabal/store
-            dist-newstyle
+    - uses: actions/checkout@v2
+      if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.ref == 'refs/heads/master'
 
+    - uses: actions/setup-haskell@v1.1.1
+      id: setup-haskell-cabal
+      name: Setup Haskell
+      with:
+        ghc-version: ${{ matrix.ghc }}
+        cabal-version: ${{ matrix.cabal }}
 
-          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
-          # restore keys is a fall back when the freeze plan is different
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.ghc }}-
-      - run: cabal build
-      - run: cabal test
-      - run: cabal bench
-      - run: cabal sdist -o `pwd`
-      - run: cabal check
-      - run: cabal v1-install ralist*.tar.gz
+    - name: Freeze
+      run: |
+        cabal freeze
+
+    - uses: actions/cache@v1
+      name: Cache ~/.cabal/store
+      with:
+        path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
+        key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
+
+    - name: Build
+      run: |
+        cabal configure --enable-tests --test-show-details=direct
+        cabal build all
+
+    - name: Test
+      run: |
+        cabal test all
