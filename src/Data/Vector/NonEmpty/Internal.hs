@@ -40,8 +40,11 @@ import Data.Data (Data)
 import qualified Data.Foldable as Foldable
 import Data.Functor.Classes (Eq1, Ord1, Show1, Read1(..))
 import qualified Data.Vector as V
-import Data.Vector.Mutable (MVector)
+#if __GLASGOW_HASKELL__ < 802
+import Data.Semigroup (Semigroup(..), (<>))
+#endif
 import Data.Typeable (Typeable)
+import Data.Vector.Mutable (MVector)
 
 import qualified Text.Read as Read
 
