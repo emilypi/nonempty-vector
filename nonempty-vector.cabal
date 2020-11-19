@@ -1,6 +1,6 @@
 cabal-version:   1.24
 name:            nonempty-vector
-version:         0.2.0.2
+version:         0.2.1.0
 synopsis:        Non-empty vectors
 description:     Performant, non-empty mutable and immutable vectors
 homepage:        https://github.com/emilypi/nonempty-vector
@@ -38,6 +38,7 @@ custom-setup
 library
   exposed-modules:
     Data.Vector.NonEmpty
+    Data.Vector.NonEmpty.Internal
     Data.Vector.NonEmpty.Mutable
 
   build-depends:

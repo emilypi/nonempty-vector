@@ -1,9 +1,10 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE Trustworthy #-}
 -- |
 -- Module      : Data.Vector.NonEmpty.Mutable
--- Copyright   : (c) 2019 Emily Pillmore
+-- Copyright   : (c) 2019-2020 Emily Pillmore
 -- License     : BSD-style
 --
 -- Maintainer  : Emily Pillmore <emilypi@cohomolo.gy>
@@ -62,28 +63,10 @@ import Control.Monad.Primitive
 
 import Data.Functor
 import Data.Maybe (Maybe(..))
-import Data.Typeable (Typeable)
 import Data.Vector.Mutable (MVector)
 import qualified Data.Vector.Mutable as M
+import Data.Vector.NonEmpty.Internal
 
-
--- | 'NonEmptyMVector' is a thin wrapper around 'MVector' that
--- witnesses an API requiring non-empty construction,
--- initialization, and generation of non-empty vectors by design.
---
--- A newtype wrapper was chosen so that no new pointer indirection
--- is introduced when working with 'MVector's, and all performance
--- characteristics inherited from the 'MVector' API still apply.
---
-newtype NonEmptyMVector s a = NonEmptyMVector
-    { _nemVec :: MVector s a }
-    deriving (Typeable)
-
--- | 'NonEmptyMVector' parametrized by 'PrimState'
-type NonEmptyIOVector = NonEmptyMVector RealWorld
-
--- | 'NonEmptyMVector' parametrized by 'ST'
-type NonEmptySTVector s = NonEmptyMVector s
 
 -- ---------------------------------------------------------------------- --
 -- Length information
