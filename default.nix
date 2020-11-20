@@ -5,16 +5,14 @@ let
   inherit (nixpkgs) pkgs;
 
   f = { mkDerivation, base, Cabal, cabal-doctest, deepseq, doctest
-      , primitive, semigroups, stdenv, vector
+      , primitive, stdenv, vector
       }:
       mkDerivation {
         pname = "nonempty-vector";
-        version = "0.2.0.1";
+        version = "0.2.1.0";
         src = ./.;
         setupHaskellDepends = [ base Cabal cabal-doctest ];
-        libraryHaskellDepends = [
-          base deepseq primitive semigroups vector
-        ];
+        libraryHaskellDepends = [ base deepseq primitive vector ];
         testHaskellDepends = [ base doctest ];
         homepage = "https://github.com/emilypi/nonempty-vector";
         description = "Non-empty vectors";
