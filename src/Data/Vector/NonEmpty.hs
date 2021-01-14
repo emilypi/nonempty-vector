@@ -153,7 +153,7 @@ module Data.Vector.NonEmpty
 , takeWhile, dropWhile
 
   -- * Partitioning
-, partition, unstablePartition, span, break
+, partition, partitionWith, unstablePartition, span, break
 
   -- * Searching
 , elem, notElem, find, findIndex, findIndices, elemIndex
@@ -191,6 +191,7 @@ import Control.Monad (Monad)
 import Control.Monad.ST
 
 import qualified Data.Foldable as Foldable
+import Data.Either (Either(..))
 import Data.Functor
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
@@ -2110,6 +2111,20 @@ dropWhile f = V.dropWhile f . _neVec
 partition :: (a -> Bool) -> NonEmptyVector a -> (Vector a, Vector a)
 partition f = V.partition f . _neVec
 {-# INLINE partition #-}
+
+-- | /O(n)/ Split the non-empty vector in two parts, the first one
+-- containing the Left elements and the second containing the
+-- Right elements. The relative order of the elements is preserved.
+--
+-- If all elements produce a Left (or Right), one of the
+-- resulting vectors may be empty.
+--
+-- >>> partitionWith (\a -> if a < 3 then Left a else Right (P.show a)) (unsafeFromList [1..5])
+-- ([1,2],["3","4","5"])
+--
+partitionWith :: (a -> Either b c) -> NonEmptyVector a -> (Vector b, Vector c)
+partitionWith f = V.partitionWith f . _neVec
+{-# INLINE partitionWith #-}
 
 -- | /O(n)/ Split the non-empty vector in two parts, the first one
 -- containing those elements that satisfy the predicate and the second
