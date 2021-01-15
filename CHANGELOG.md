@@ -1,5 +1,9 @@
 # Revision history for nonempty-vector
 
+## Unreleased
+
+* Added `partitionWith` from `vector`. [(#11)](https://github.com/emilypi/nonempty-vector/pull/11) - Thanks @AlistairB!
+
 ## 0.2.1.0
 
 * Added `consV` and `snocV` primitives for consing a vector to create a nonempty one. [(#8)](https://github.com/emilypi/nonempty-vector/pull/8) - Thanks @AlistairB!
