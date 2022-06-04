@@ -40,6 +40,8 @@ library
     Data.Vector.NonEmpty
     Data.Vector.NonEmpty.Internal
     Data.Vector.NonEmpty.Mutable
+    Data.Vector.NonEmpty.Unboxed
+    Data.Vector.NonEmpty.Unboxed.Internal
 
   build-depends:
       base       >=4.9  && <5
