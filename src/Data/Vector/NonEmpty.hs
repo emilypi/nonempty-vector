@@ -207,7 +207,7 @@ import Data.Vector.NonEmpty.Internal
 
 
 -- $setup
--- >>> import Prelude (Int, String, ($), (.), (+), (<), const, return)
+-- >>> import Prelude (Int, String, ($), (.), (+), (<), const, return, Maybe(..), Either(..))
 -- >>> import Data.Bool
 -- >>> import Data.Eq
 -- >>> import qualified Prelude as P
