@@ -2,10 +2,9 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE Trustworthy #-}
 -- |
 -- Module      : Data.Vector.NonEmpty.Internal
--- Copyright   : (c) 2019-2020 Emily Pillmore
+-- Copyright   : (c) 2019-2023 Emily Pillmore
 -- License     : BSD-style
 --
 -- Maintainer  : Emily Pillmore <emilypi@cohomolo.gy>
@@ -40,9 +39,6 @@ import Data.Data (Data)
 import qualified Data.Foldable as Foldable
 import Data.Functor.Classes (Eq1, Ord1, Show1, Read1(..))
 import qualified Data.Vector as V
-#if __GLASGOW_HASKELL__ < 804
-import Data.Semigroup (Semigroup(..))
-#endif
 import Data.Typeable (Typeable)
 import Data.Vector.Mutable (MVector)
 
@@ -82,15 +78,9 @@ instance Read a => Read (NonEmptyVector a) where
       as -> return (NonEmptyVector $ V.fromList as)
 
 instance Read1 NonEmptyVector where
-#if __GLASGOW_HASKELL__ > 802
     liftReadPrec _ rl = rl >>= \case
       [] -> Read.pfail
       as -> return (NonEmptyVector $ V.fromList as)
-#else
-    liftReadsPrec _ r _ s = r s >>= \case
-      ([], _) -> []
-      (as, s') -> return (NonEmptyVector $ V.fromList as, s')
-#endif
 
 instance Foldable NonEmptyVector where
     foldMap f = Foldable.foldMap f . _neVec
