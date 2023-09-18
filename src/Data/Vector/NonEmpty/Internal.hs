@@ -37,6 +37,10 @@ import Control.Monad.Zip (MonadZip)
 
 import Data.Data (Data)
 import qualified Data.Foldable as Foldable
+#if MIN_VERSION_base(4,18,0)
+import Data.Foldable1 (Foldable1)
+import qualified Data.Foldable1 as Foldable1
+#endif
 import Data.Functor.Classes (Eq1, Ord1, Show1, Read1(..))
 import qualified Data.Vector as V
 import Data.Typeable (Typeable)
@@ -84,6 +88,21 @@ instance Read1 NonEmptyVector where
 
 instance Foldable NonEmptyVector where
     foldMap f = Foldable.foldMap f . _neVec
+
+#if MIN_VERSION_base(4,18,0)
+instance Foldable1 NonEmptyVector where
+    foldMap1 f vne =
+          let x = V.unsafeHead $ _neVec vne
+              xs = V.unsafeTail $ _neVec vne
+          in  go (f x) xs
+      where go y vec =
+              let z = V.unsafeHead vec
+                  zs = V.unsafeTail vec
+              in if V.null zs then
+                  y <> (f z)
+                else
+                  y <> go (f z) zs
+#endif
 
 instance Traversable NonEmptyVector where
     traverse f = fmap NonEmptyVector . traverse f . _neVec
