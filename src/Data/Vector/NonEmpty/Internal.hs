@@ -91,20 +91,21 @@ instance Foldable NonEmptyVector where
 
 #if MIN_VERSION_base(4,18,0)
 instance Foldable1 NonEmptyVector where
-    foldMap1 f vne =
-          let x = V.unsafeHead $ _neVec vne
-              xs = V.unsafeTail $ _neVec vne
-          in  if V.null xs then
-                f x
-              else
-                go (f x) xs
-      where go y vec =
-              let z = V.unsafeHead vec
-                  zs = V.unsafeTail vec
-              in if V.null zs then
-                  y <> (f z)
-                else
-                  y <> go (f z) zs
+    foldMap1 f (NonEmptyVector v) =
+        let
+          h = V.unsafeHead v -- gauranteed head (nonemptiness)
+          t = V.unsafeTail v -- gauranteed possibly empty tail
+        in go (f h) t -- therefore this is a sound call
+      where
+        go x xs
+          -- when xs is empty, vector is exhausted, return x
+          | V.null xs = x
+          | otherwise =
+          -- if xs is not empty, then there are at least 2 elements in the list. Hence, h and t are sound calls to make.
+            let
+              h = V.unsafeHead xs
+              t = V.unsafeTail xs
+            in x <> go (f h) t
 #endif
 
 instance Traversable NonEmptyVector where
