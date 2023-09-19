@@ -94,7 +94,10 @@ instance Foldable1 NonEmptyVector where
     foldMap1 f vne =
           let x = V.unsafeHead $ _neVec vne
               xs = V.unsafeTail $ _neVec vne
-          in  go (f x) xs
+          in  if V.null xs then
+                f x
+              else
+                go (f x) xs
       where go y vec =
               let z = V.unsafeHead vec
                   zs = V.unsafeTail vec
