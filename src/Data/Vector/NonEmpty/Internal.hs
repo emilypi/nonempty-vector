@@ -37,6 +37,10 @@ import Control.Monad.Zip (MonadZip)
 
 import Data.Data (Data)
 import qualified Data.Foldable as Foldable
+#if MIN_VERSION_base(4,18,0)
+import Data.Foldable1 (Foldable1)
+import qualified Data.Foldable1 as Foldable1
+#endif
 import Data.Functor.Classes (Eq1, Ord1, Show1, Read1(..))
 import qualified Data.Vector as V
 import Data.Typeable (Typeable)
@@ -84,6 +88,25 @@ instance Read1 NonEmptyVector where
 
 instance Foldable NonEmptyVector where
     foldMap f = Foldable.foldMap f . _neVec
+
+#if MIN_VERSION_base(4,18,0)
+instance Foldable1 NonEmptyVector where
+    foldMap1 f (NonEmptyVector v) =
+        let
+          h = V.unsafeHead v -- gauranteed head (nonemptiness)
+          t = V.unsafeTail v -- gauranteed possibly empty tail
+        in go (f h) t -- therefore this is a sound call
+      where
+        go x xs
+          -- when xs is empty, vector is exhausted, return x
+          | V.null xs = x
+          | otherwise =
+          -- if xs is not empty, then there are at least 2 elements in the list. Hence, h and t are sound calls to make.
+            let
+              h = V.unsafeHead xs
+              t = V.unsafeTail xs
+            in x <> go (f h) t
+#endif
 
 instance Traversable NonEmptyVector where
     traverse f = fmap NonEmptyVector . traverse f . _neVec
