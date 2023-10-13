@@ -1,5 +1,9 @@
 # Revision history for nonempty-vector
 
+## 0.2.3
+
+* Support GHC 9.8.x
+
 ## 0.2.2.0
 
 * Drop support for GHC<8.10, update CI, bump bounds for `primitive`.
