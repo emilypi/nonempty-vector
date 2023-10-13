@@ -1,6 +1,6 @@
 cabal-version:   3.0
 name:            nonempty-vector
-version:         0.2.2.0
+version:         0.2.3
 synopsis:        Non-empty vectors
 description:     Performant, non-empty mutable and immutable vectors
 homepage:        https://github.com/emilypi/nonempty-vector
