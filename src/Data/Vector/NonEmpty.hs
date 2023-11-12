@@ -180,6 +180,9 @@ module Data.Vector.NonEmpty
 , scanl, scanl', scanl1, scanl1', iscanl, iscanl'
 , prescanr, prescanr', postscanr, postscanr'
 , scanr, scanr', scanr1, scanr1', iscanr, iscanr'
+
+  -- * ??
+, intersperse
 ) where
 
 
@@ -2646,3 +2649,17 @@ iscanr f b = NonEmptyVector . V.iscanr f b . _neVec
 iscanr' :: (Int -> a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
 iscanr' f b = NonEmptyVector . V.iscanr' f b . _neVec
 {-# INLINE iscanr' #-}
+
+-- | \(\mathcal{O}(n)\). The 'intersperse' function takes an element and a NonEmptyVector
+-- and \`intersperses\' that element between the elements of the NonEmptyVector.
+--
+intersperse :: a -> NonEmptyVector a -> NonEmptyVector a
+intersperse sep vne =
+  let (h, t) = uncons vne
+  in  consV h (prependToAll sep t)
+{-# INLINE intersperse #-}
+
+prependToAll :: a -> Vector a -> Vector a
+prependToAll sep vec = case V.uncons vec of
+  Nothing -> V.empty
+  Just (h, t) -> V.cons sep (V.cons h (prependToAll sep t))
