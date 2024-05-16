@@ -35,7 +35,7 @@ library
     Data.Vector.NonEmpty.Mutable
 
   build-depends:
-      base       >=4.14  && <4.20
+      base       >=4.14  && <4.21
     , deepseq
     , primitive  >=0.6  && <0.10
     , vector     >=0.12 && <0.14
@@ -49,7 +49,7 @@ test-suite tasty
   type:              exitcode-stdio-1.0
   main-is:           Main.hs
   build-depends:
-      base     >=4.14 && <4.20
+      base     >=4.14 && <4.21
     , nonempty-vector
     , QuickCheck
     , tasty
