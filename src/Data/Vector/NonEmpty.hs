@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 -- |
 -- Module       : Data.Vector.NonEmpty
--- Copyright 	: (c) 2019-2023 Emily Pillmore
+-- Copyright 	: (c) 2019-2024 Emily Pillmore
 -- License	: BSD-style
 --
 -- Maintainer	: Emily Pillmore <emilypi@cohomolo.gy>

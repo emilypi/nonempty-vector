@@ -1,6 +1,6 @@
 cabal-version:   3.0
 name:            nonempty-vector
-version:         0.2.3
+version:         0.2.4
 synopsis:        Non-empty vectors
 description:     Performant, non-empty mutable and immutable vectors
 homepage:        https://github.com/emilypi/nonempty-vector
@@ -9,7 +9,7 @@ license:         BSD-3-Clause
 license-file:    LICENSE
 author:          Emily Pillmore
 maintainer:      emilypi@cohomolo.gy
-copyright:       (c) 2019-2023 Emily Pillmore <emilypi@cohomolo.gy>
+copyright:       (c) 2019-2024 Emily Pillmore <emilypi@cohomolo.gy>
 category:        Data
 build-type:      Simple
 extra-doc-files:
