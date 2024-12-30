@@ -17,13 +17,11 @@ extra-doc-files:
   README.md
 
 tested-with:
-  GHC ==8.10.7
-   || ==9.0.2
-   || ==9.2.6
-   || ==9.4.4
-   || ==9.6.4
-   || ==9.8.1
+  GHC ==9.4.4
+   || ==9.6.6
+   || ==9.8.4
    || ==9.10.1
+   || ==9.12.1
 
 source-repository head
   type:     git
@@ -36,7 +34,7 @@ library
     Data.Vector.NonEmpty.Mutable
 
   build-depends:
-      base       >=4.14  && <4.21
+      base       >=4.16  && <4.22
     , deepseq
     , primitive  >=0.6  && <0.10
     , vector     >=0.12 && <0.14
@@ -50,7 +48,7 @@ test-suite tasty
   type:              exitcode-stdio-1.0
   main-is:           Main.hs
   build-depends:
-      base     >=4.14 && <4.21
+      base     >=4.16 && <4.22
     , nonempty-vector
     , QuickCheck
     , tasty

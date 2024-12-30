@@ -43,7 +43,9 @@ import qualified Data.Foldable1 as Foldable1
 #endif
 import Data.Functor.Classes (Eq1, Ord1, Show1, Read1(..))
 import qualified Data.Vector as V
+#if __GLASGOW_HASKELL__ < 912
 import Data.Typeable (Typeable)
+#endif
 import Data.Vector.Mutable (MVector)
 
 import qualified Text.Read as Read
@@ -67,7 +69,10 @@ newtype NonEmptyVector a = NonEmptyVector
     } deriving
       ( Eq, Ord
       , Eq1, Ord1, Show1
-      , Data, Typeable, NFData
+      , Data, NFData
+#if __GLASGOW_HASKELL__ < 912
+      , Typeable
+#endif
       , Functor, Applicative, Monad
       , MonadZip
       , Semigroup
@@ -126,7 +131,9 @@ instance Traversable NonEmptyVector where
 --
 newtype NonEmptyMVector s a = NonEmptyMVector
     { _nemVec :: MVector s a }
+#if __GLASGOW_HASKELL__ < 912
     deriving (Typeable)
+#endif
 
 -- | 'NonEmptyMVector' parametrized by 'PrimState'
 --
