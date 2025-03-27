@@ -21,7 +21,7 @@ jobs:
         - os: macOS-latest
           ghc: 'latest'
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install libncurses5 and libtinfo
       if: runner.os == 'Linux' && (matrix.ghc == '8.0' || matrix.ghc == '8.2')
       run: |
@@ -32,13 +32,15 @@ jobs:
         ghc-version: ${{ matrix.ghc }}
     - name: Update cabal package database
       run: cabal update
-    - uses: actions/cache@v2
+    - uses: actions/cache@v4
       name: Cache cabal stuff
       with:
         path: |
           ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
           dist-newstyle
-        key: ${{ runner.os }}-${{ matrix.ghc }}
+        key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('**/*.cabal', 'cabal.project') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.ghc }}-
     - name: Test
       run: |
         cabal sdist -z -o .
@@ -59,19 +61,21 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: haskell/actions/setup@v2
       id: setup-haskell-cabal
       with:
         ghc-version: 'latest'
     - name: Update cabal package database
       run: cabal update
-    - uses: actions/cache@v2
+    - uses: actions/cache@v4
       name: Cache cabal stuff
       with:
         path: |
           ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
           dist-newstyle
-        key: ${{ runner.os }}-latest
+        key: ${{ runner.os }}-latest-${{ hashFiles('**/*.cabal', 'cabal.project') }}
+        restore-keys: |
+          ${{ runner.os }}-latest-
     - name: Test
       run: cabal test --ghc-options='-fcheck-prim-bounds -fno-ignore-asserts'
