@@ -1,13 +1,13 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes #-}
 -- |
--- Module       : Data.Vector.NonEmpty
--- Copyright 	: (c) 2019-2024 Emily Pillmore
--- License	: BSD-style
+-- Module   : Data.Vector.NonEmpty
+-- Copyright: (c) 2019-2025 Emily Pillmore
+-- License  : BSD-style
 --
--- Maintainer	: Emily Pillmore <emilypi@cohomolo.gy>
--- Stability	: Experimental
--- Portability	: DataTypeable, CPP
+-- Maintainer : Emily Pillmore <emilypi@cohomolo.gy>
+-- Stability  : Experimental
+-- Portability: DataTypeable, CPP
 --
 -- A library for non-empty boxed vectors (that is, polymorphic arrays capable of
 -- holding any Haskell value). Non-empty vectors come in two flavors:
@@ -180,11 +180,15 @@ module Data.Vector.NonEmpty
 , scanl, scanl', scanl1, scanl1', iscanl, iscanl'
 , prescanr, prescanr', postscanr, postscanr'
 , scanr, scanr', scanr1, scanr1', iscanr, iscanr'
+
+  -- ** Transformations
+, intersperse
 ) where
 
 
 import Prelude ( Bool, Eq, Ord, Num, Enum
-               , (.), Ordering, max, uncurry, snd)
+               , (.), Ordering, max, uncurry, snd
+               , pure, (+), otherwise, (>=), (-), (*), ($), (<=))
 
 import Control.Monad (Monad)
 import Control.Monad.ST
@@ -201,7 +205,7 @@ import Data.Traversable (Traversable)
 import Data.Vector (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Generic as G
-import Data.Vector.Mutable (MVector)
+import Data.Vector.Mutable (MVector, unsafeWrite)
 import Data.Vector.NonEmpty.Internal
 
 
@@ -2646,3 +2650,35 @@ iscanr f b = NonEmptyVector . V.iscanr f b . _neVec
 iscanr' :: (Int -> a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
 iscanr' f b = NonEmptyVector . V.iscanr' f b . _neVec
 {-# INLINE iscanr' #-}
+
+-- | /O(n)/ The 'intersperse' function takes an element and a NonEmptyVector
+-- and 'intersperses' that element between the elements of the NonEmptyVector.
+--
+-- >>> intersperse 0 (unsafeFromList [1,2,3])
+-- [1,0,2,0,3]
+--
+-- >>> intersperse 0 (singleton 1)
+-- [1]
+--
+intersperse :: a -> NonEmptyVector a -> NonEmptyVector a
+intersperse sep nev@(NonEmptyVector v)
+    | V.length v <= 1 = nev
+    | otherwise = unsafeCreate $ do
+        let n = V.length v
+        let newLen = 2*n - 1
+        mv <- V.unsafeThaw $ V.replicate newLen (V.unsafeHead v)  -- Create mutable vector
+        
+        -- Fill the first element
+        unsafeWrite mv 0 (V.unsafeIndex v 0)
+        
+        -- Fill remaining elements with separators
+        let go i j
+              | j >= n    = pure ()
+              | otherwise = do
+                  unsafeWrite mv i sep
+                  unsafeWrite mv (i+1) (V.unsafeIndex v j)
+                  go (i+2) (j+1)
+        
+        go 1 1
+        pure mv
+{-# INLINE intersperse #-}
