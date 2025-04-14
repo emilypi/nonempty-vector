@@ -12,7 +12,7 @@
 -- Portability : non-portable
 --
 -- Internal module exposing the constructors for
--- 'NonEmptyVector' and 'NonEmptyMVector'.
+-- t'NonEmptyVector' and t'NonEmptyMVector'.
 --
 -- /Warning/: Since the constructors are exposed here, by using this
 -- module, you take on the risks that you break the non-emptiness
@@ -54,7 +54,7 @@ import qualified Text.Read as Read
 -- ---------------------------------------------------------------------- --
 -- Non-empty immutable vectors
 
--- | 'NonEmptyVector' is a thin wrapper around 'Data.Vector.Vector' that
+-- | t'NonEmptyVector' is a thin wrapper around 'Data.Vector.Vector' that
 -- witnesses an API requiring non-empty construction,
 -- initialization, and generation of non-empty vectors by design.
 --
@@ -119,7 +119,7 @@ instance Traversable NonEmptyVector where
 -- ---------------------------------------------------------------------- --
 -- Non-empty mutable vectors
 
--- | 'NonEmptyMVector' is a thin wrapper around 'MVector' that
+-- | t'NonEmptyMVector' is a thin wrapper around 'MVector' that
 -- witnesses an API requiring non-empty construction,
 -- initialization, and generation of non-empty vectors by design.
 --
@@ -135,13 +135,13 @@ newtype NonEmptyMVector s a = NonEmptyMVector
     deriving (Typeable)
 #endif
 
--- | 'NonEmptyMVector' parametrized by t'Control.Monad.Primitive.PrimState' 'IO'.
+-- | t'NonEmptyMVector' parametrized by 'Control.Monad.Primitive.PrimState' 'IO'.
 --
 -- @since 0.2.1.0
 --
 type NonEmptyIOVector = NonEmptyMVector RealWorld
 
--- | 'NonEmptyMVector' parametrized by @t'Control.Monad.Primitive.PrimState' ('ST' s)@.
+-- | t'NonEmptyMVector' parametrized by @t'Control.Monad.Primitive.PrimState' ('ST' s)@.
 --
 -- @since 0.2.1.0
 --

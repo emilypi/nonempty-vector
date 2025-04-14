@@ -22,7 +22,7 @@
 -- it is safe to make use of the 'unsafe-*' 'Vector' operations and semigroupal
 -- folds available in the API in lieu of the standard implementations.
 --
--- In contrast, some operations such as 'filter' may "break out" of a 'NonEmptyVector'
+-- In contrast, some operations such as 'filter' may "break out" of a t'NonEmptyVector'
 -- due to the fact that there are no guarantees that may be made on the types of
 -- 'Bool'-valued functions passed in, hence one could write the following:
 --
@@ -31,10 +31,10 @@
 -- @
 --
 -- which always produces an empty vector. Thus, some operations must return either
--- a 'Maybe' containing a 'NonEmptyVector' or a 'Vector' whenever appropriate. Generally
+-- a 'Maybe' containing a t'NonEmptyVector' or a 'Vector' whenever appropriate. Generally
 -- The former is used in initialization and generation operations, and the latter
 -- is used in iterative operations where the intent is not to create an instance
--- of 'NonEmptyVector'.
+-- of t'NonEmptyVector'.
 --
 -- Credit to Roman Leshchinskiy for the original Vector library  upon which this is based.
 --
