@@ -54,13 +54,13 @@ import qualified Text.Read as Read
 -- ---------------------------------------------------------------------- --
 -- Non-empty immutable vectors
 
--- | 'NonEmptyVector' is a thin wrapper around 'Vector' that
+-- | 'NonEmptyVector' is a thin wrapper around 'Data.Vector.Vector' that
 -- witnesses an API requiring non-empty construction,
 -- initialization, and generation of non-empty vectors by design.
 --
 -- A newtype wrapper was chosen so that no new pointer indirection
--- is introduced when working with 'Vector's, and all performance
--- characteristics inherited from the 'Vector' API still apply.
+-- is introduced when working with 'Data.Vector.Vector's, and all performance
+-- characteristics inherited from the "Data.Vector" API still apply.
 --
 -- @since 0.2.1.0
 --
@@ -135,13 +135,13 @@ newtype NonEmptyMVector s a = NonEmptyMVector
     deriving (Typeable)
 #endif
 
--- | 'NonEmptyMVector' parametrized by 'PrimState'
+-- | 'NonEmptyMVector' parametrized by t'Control.Monad.Primitive.PrimState' 'IO'.
 --
 -- @since 0.2.1.0
 --
 type NonEmptyIOVector = NonEmptyMVector RealWorld
 
--- | 'NonEmptyMVector' parametrized by 'ST'
+-- | 'NonEmptyMVector' parametrized by @t'Control.Monad.Primitive.PrimState' ('ST' s)@.
 --
 -- @since 0.2.1.0
 --

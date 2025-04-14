@@ -233,7 +233,7 @@ length = V.length . _neVec
 {-# INLINE length #-}
 
 -- | /O(1)/ First element. Since head is guaranteed, bounds checks
--- are bypassed by deferring to 'unsafeHead'.
+-- are bypassed by deferring to 'Data.Vector.unsafeHead'.
 --
 --
 -- >>> head $ unsafeFromList [1..10]
@@ -244,7 +244,7 @@ head = V.unsafeHead . _neVec
 {-# INLINE head #-}
 
 -- | /O(1)/ Last element. Since a last element is guaranteed, bounds checks
--- are bypassed by deferring to 'unsafeLast'.
+-- are bypassed by deferring to 'Data.Vector.unsafeLast'.
 --
 --
 -- >>> last $ unsafeFromList [1..10]
@@ -291,7 +291,7 @@ unsafeIndex (NonEmptyVector as) n = V.unsafeIndex as n
 -- The monad allows operations to be strict in the non-empty vector when
 -- necessary.
 --
--- See 'V.indexM' for more details
+-- See 'Data.Vector.indexM' for more details
 --
 --
 -- >>> indexM @[] (unsafeFromList [1..10]) 3
@@ -303,9 +303,9 @@ indexM (NonEmptyVector v) n = V.indexM v n
 
 -- | /O(1)/ First element of a non-empty vector in a monad.
 --
--- See 'V.indexM' for an explanation of why this is useful.
+-- See 'Data.Vector.indexM' for an explanation of why this is useful.
 --
--- Note that this function defers to 'unsafeHeadM' since head is
+-- Note that this function defers to 'Data.Vector.unsafeHeadM' since head is
 -- guaranteed to be safe by construction.
 --
 --
@@ -316,10 +316,10 @@ headM :: Monad m => NonEmptyVector a -> m a
 headM (NonEmptyVector v) = V.unsafeHeadM v
 {-# INLINE headM #-}
 
--- | /O(1)/ Last element of a non-empty vector in a monad. See 'V.indexM' for an
--- explanation of why this is useful.
+-- | /O(1)/ Last element of a non-empty vector in a monad. See 'Data.Vector.indexM'
+-- for an explanation of why this is useful.
 --
--- Note that this function defers to 'unsafeHeadM' since a last element is
+-- Note that this function defers to 'Data.Vector.unsafeLastM' since a last element is
 -- guaranteed.
 --
 --
@@ -1735,7 +1735,7 @@ izipWith6 k a b c d e f = NonEmptyVector (V.izipWith6 k a' b' c' d' e' f')
 {-# INLINE izipWith6 #-}
 
 -- | /O(min(n,m))/ Elementwise pairing of non-empty vector elements. This is a special case
--- of 'zipWith' where the function argument is '(,)'
+-- of 'zipWith' where the function argument is @(,)@
 --
 zip :: NonEmptyVector a -> NonEmptyVector b -> NonEmptyVector (a, b)
 zip a b = NonEmptyVector (V.zip a' b')
@@ -2013,7 +2013,7 @@ filterM f = V.filterM f . _neVec
 --
 -- If no elements satisfy the predicate, the resulting vector may be empty.
 --
--- TODO: this should be a more efficient function in `vector`.
+-- TODO: this should be a more efficient function in @vector@.
 --
 -- >>> ifilterM (\i a -> if a == 2 || i == 0 then Just False else Just True) (unsafeFromList [1..3])
 -- Just [3]
@@ -2651,8 +2651,8 @@ iscanr' :: (Int -> a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
 iscanr' f b = NonEmptyVector . V.iscanr' f b . _neVec
 {-# INLINE iscanr' #-}
 
--- | /O(n)/ The 'intersperse' function takes an element and a NonEmptyVector
--- and 'intersperses' that element between the elements of the NonEmptyVector.
+-- | /O(n)/ The 'intersperse' function takes an element and a 'NonEmptyVector'
+-- and "intersperses" that element between the elements of the 'NonEmptyVector'.
 --
 -- >>> intersperse 0 (unsafeFromList [1,2,3])
 -- [1,0,2,0,3]
