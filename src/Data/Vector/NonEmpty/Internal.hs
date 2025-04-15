@@ -98,8 +98,8 @@ instance Foldable NonEmptyVector where
 instance Foldable1 NonEmptyVector where
     foldMap1 f (NonEmptyVector v) =
         let
-          h = V.unsafeHead v -- gauranteed head (nonemptiness)
-          t = V.unsafeTail v -- gauranteed possibly empty tail
+          h = V.unsafeHead v -- guaranteed head (nonemptiness)
+          t = V.unsafeTail v -- guaranteed possibly empty tail
         in go (f h) t -- therefore this is a sound call
       where
         go x xs

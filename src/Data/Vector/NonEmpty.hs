@@ -18,7 +18,7 @@
 --
 -- This library attempts to provide support for all standard 'Vector' operations
 -- in the API, with some slight variation in types and implementation. For example,
--- since 'head' and 'foldr' are always gauranteed to be over a non-empty 'Vector',
+-- since 'head' and 'foldr' are always guaranteed to be over a non-empty 'Vector',
 -- it is safe to make use of the 'unsafe-*' 'Vector' operations and semigroupal
 -- folds available in the API in lieu of the standard implementations.
 --
@@ -232,7 +232,7 @@ length :: NonEmptyVector a -> Int
 length = V.length . _neVec
 {-# INLINE length #-}
 
--- | /O(1)/ First element. Since head is gauranteed, bounds checks
+-- | /O(1)/ First element. Since head is guaranteed, bounds checks
 -- are bypassed by deferring to 'unsafeHead'.
 --
 --
@@ -243,7 +243,7 @@ head :: NonEmptyVector a -> a
 head = V.unsafeHead . _neVec
 {-# INLINE head #-}
 
--- | /O(1)/ Last element. Since a last element is gauranteed, bounds checks
+-- | /O(1)/ Last element. Since a last element is guaranteed, bounds checks
 -- are bypassed by deferring to 'unsafeLast'.
 --
 --
@@ -306,7 +306,7 @@ indexM (NonEmptyVector v) n = V.indexM v n
 -- See 'V.indexM' for an explanation of why this is useful.
 --
 -- Note that this function defers to 'unsafeHeadM' since head is
--- gauranteed to be safe by construction.
+-- guaranteed to be safe by construction.
 --
 --
 -- >>> headM @[] (unsafeFromList [1..10])
@@ -320,7 +320,7 @@ headM (NonEmptyVector v) = V.unsafeHeadM v
 -- explanation of why this is useful.
 --
 -- Note that this function defers to 'unsafeHeadM' since a last element is
--- gauranteed.
+-- guaranteed.
 --
 --
 -- >>> lastM @[] (unsafeFromList [1..10])
