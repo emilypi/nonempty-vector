@@ -1,6 +1,8 @@
 cabal-version:   3.0
 name:            nonempty-vector
 version:         0.2.4
+-- Delete the x-revision field when you bump the version
+x-revision:      1
 synopsis:        Non-empty vectors
 description:     Performant, non-empty mutable and immutable vectors
 homepage:        https://github.com/emilypi/nonempty-vector
@@ -17,11 +19,11 @@ extra-doc-files:
   README.md
 
 tested-with:
-  GHC ==9.4.4
-   || ==9.6.6
+  GHC ==9.4.8
+   || ==9.6.7
    || ==9.8.4
-   || ==9.10.1
-   || ==9.12.1
+   || ==9.10.3
+   || ==9.12.4
    || ==9.14.1
 
 source-repository head
