@@ -16,6 +16,7 @@ import qualified Test.Data.Vector.NonEmpty.Construction as Construction
 import qualified Test.Data.Vector.NonEmpty.Conversion as Conversion
 import qualified Test.Data.Vector.NonEmpty.Elementwise as Elementwise
 import qualified Test.Data.Vector.NonEmpty.Folds as Folds
+import qualified Test.Data.Vector.NonEmpty.Grouping as Grouping
 import qualified Test.Data.Vector.NonEmpty.Instances as Instances
 import qualified Test.Data.Vector.NonEmpty.Modification as Modification
 import qualified Test.Data.Vector.NonEmpty.Mutable as Mutable
@@ -33,6 +34,7 @@ main = defaultMain $ testGroup "NonEmptyVector tests"
     , Modification.tests
     , Elementwise.tests
     , Predicates.tests
+    , Grouping.tests
     , Folds.tests
     , Scans.tests
     , Instances.tests
