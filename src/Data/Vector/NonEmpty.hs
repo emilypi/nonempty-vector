@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE CPP #-}
 -- |
 -- Module       : Data.Vector.NonEmpty
 -- Copyright 	: (c) 2019-2026 Emily Pillmore
