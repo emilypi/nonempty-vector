@@ -194,7 +194,7 @@ import Control.Monad.ST
 
 import qualified Data.Foldable as Foldable
 import Data.Either (Either(..))
-import Data.Functor hiding (unzip)
+import Data.Functor
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
