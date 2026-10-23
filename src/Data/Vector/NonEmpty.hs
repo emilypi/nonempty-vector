@@ -2745,6 +2745,6 @@ groupBy f = go
            Nothing -> v :| []
            Just n ->
              let
-               z = NonEmptyVector $ take (n+1) v
-               x = NonEmptyVector $ drop (n+1) v
+               z = NonEmptyVector $ unsafeTake (n+1) v
+               x = NonEmptyVector $ unsafeDrop (n+1) v
              in z <| go x
