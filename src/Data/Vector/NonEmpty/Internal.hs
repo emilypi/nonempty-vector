@@ -12,7 +12,7 @@
 -- Portability : non-portable
 --
 -- Internal module exposing the constructors for
--- 'NonEmptyVector' and 'NonEmptyMVector'.
+-- t'NonEmptyVector' and t'NonEmptyMVector'.
 --
 -- /Warning/: Since the constructors are exposed here, by using this
 -- module, you take on the risks that you break the non-emptiness
@@ -54,13 +54,13 @@ import qualified Text.Read as Read
 -- ---------------------------------------------------------------------- --
 -- Non-empty immutable vectors
 
--- | 'NonEmptyVector' is a thin wrapper around 'Vector' that
+-- | t'NonEmptyVector' is a thin wrapper around 'Data.Vector.Vector' that
 -- witnesses an API requiring non-empty construction,
 -- initialization, and generation of non-empty vectors by design.
 --
 -- A newtype wrapper was chosen so that no new pointer indirection
--- is introduced when working with 'Vector's, and all performance
--- characteristics inherited from the 'Vector' API still apply.
+-- is introduced when working with 'Data.Vector.Vector's, and all performance
+-- characteristics inherited from the "Data.Vector" API still apply.
 --
 -- @since 0.2.1.0
 --
@@ -98,8 +98,8 @@ instance Foldable NonEmptyVector where
 instance Foldable1 NonEmptyVector where
     foldMap1 f (NonEmptyVector v) =
         let
-          h = V.unsafeHead v -- gauranteed head (nonemptiness)
-          t = V.unsafeTail v -- gauranteed possibly empty tail
+          h = V.unsafeHead v -- guaranteed head (nonemptiness)
+          t = V.unsafeTail v -- guaranteed possibly empty tail
         in go (f h) t -- therefore this is a sound call
       where
         go x xs
@@ -119,7 +119,7 @@ instance Traversable NonEmptyVector where
 -- ---------------------------------------------------------------------- --
 -- Non-empty mutable vectors
 
--- | 'NonEmptyMVector' is a thin wrapper around 'MVector' that
+-- | t'NonEmptyMVector' is a thin wrapper around 'MVector' that
 -- witnesses an API requiring non-empty construction,
 -- initialization, and generation of non-empty vectors by design.
 --
@@ -135,13 +135,13 @@ newtype NonEmptyMVector s a = NonEmptyMVector
     deriving (Typeable)
 #endif
 
--- | 'NonEmptyMVector' parametrized by 'PrimState'
+-- | t'NonEmptyMVector' parametrized by 'Control.Monad.Primitive.PrimState' 'IO'.
 --
 -- @since 0.2.1.0
 --
 type NonEmptyIOVector = NonEmptyMVector RealWorld
 
--- | 'NonEmptyMVector' parametrized by 'ST'
+-- | t'NonEmptyMVector' parametrized by @t'Control.Monad.Primitive.PrimState' ('ST' s)@.
 --
 -- @since 0.2.1.0
 --

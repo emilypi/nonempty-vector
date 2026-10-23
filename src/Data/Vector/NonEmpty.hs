@@ -1,13 +1,19 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes #-}
 -- |
+<<<<<<< HEAD
 -- Module       : Data.Vector.NonEmpty
 -- Copyright 	: (c) 2019-2026 Emily Pillmore
 -- License	: BSD-style
+=======
+-- Module   : Data.Vector.NonEmpty
+-- Copyright: (c) 2019-2025 Emily Pillmore
+-- License  : BSD-style
+>>>>>>> c14b83811e1a215c03df7e5db594839f75199b06
 --
--- Maintainer	: Emily Pillmore <emilypi@cohomolo.gy>
--- Stability	: Experimental
--- Portability	: DataTypeable, CPP
+-- Maintainer : Emily Pillmore <emilypi@cohomolo.gy>
+-- Stability  : Experimental
+-- Portability: DataTypeable, CPP
 --
 -- A library for non-empty boxed vectors (that is, polymorphic arrays capable of
 -- holding any Haskell value). Non-empty vectors come in two flavors:
@@ -18,11 +24,11 @@
 --
 -- This library attempts to provide support for all standard 'Vector' operations
 -- in the API, with some slight variation in types and implementation. For example,
--- since 'head' and 'foldr' are always gauranteed to be over a non-empty 'Vector',
+-- since 'head' and 'foldr' are always guaranteed to be over a non-empty 'Vector',
 -- it is safe to make use of the 'unsafe-*' 'Vector' operations and semigroupal
 -- folds available in the API in lieu of the standard implementations.
 --
--- In contrast, some operations such as 'filter' may "break out" of a 'NonEmptyVector'
+-- In contrast, some operations such as 'filter' may "break out" of a t'NonEmptyVector'
 -- due to the fact that there are no guarantees that may be made on the types of
 -- 'Bool'-valued functions passed in, hence one could write the following:
 --
@@ -31,10 +37,10 @@
 -- @
 --
 -- which always produces an empty vector. Thus, some operations must return either
--- a 'Maybe' containing a 'NonEmptyVector' or a 'Vector' whenever appropriate. Generally
+-- a 'Maybe' containing a t'NonEmptyVector' or a 'Vector' whenever appropriate. Generally
 -- The former is used in initialization and generation operations, and the latter
 -- is used in iterative operations where the intent is not to create an instance
--- of 'NonEmptyVector'.
+-- of t'NonEmptyVector'.
 --
 -- Credit to Roman Leshchinskiy for the original Vector library  upon which this is based.
 --
@@ -180,11 +186,15 @@ module Data.Vector.NonEmpty
 , scanl, scanl', scanl1, scanl1', iscanl, iscanl'
 , prescanr, prescanr', postscanr, postscanr'
 , scanr, scanr', scanr1, scanr1', iscanr, iscanr'
+
+  -- ** Transformations
+, intersperse
 ) where
 
 
 import Prelude ( Bool, Eq, Ord, Num, Enum
-               , (.), Ordering, max, uncurry, snd)
+               , (.), Ordering, max, uncurry, snd
+               , pure, (+), otherwise, (>=), (-), (*), ($), (<=))
 
 import Control.Monad (Monad)
 import Control.Monad.ST
@@ -201,7 +211,7 @@ import Data.Traversable (Traversable)
 import Data.Vector (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Generic as G
-import Data.Vector.Mutable (MVector)
+import Data.Vector.Mutable (MVector, unsafeWrite)
 import Data.Vector.NonEmpty.Internal
 
 
@@ -228,8 +238,8 @@ length :: NonEmptyVector a -> Int
 length = V.length . _neVec
 {-# INLINE length #-}
 
--- | /O(1)/ First element. Since head is gauranteed, bounds checks
--- are bypassed by deferring to 'unsafeHead'.
+-- | /O(1)/ First element. Since head is guaranteed, bounds checks
+-- are bypassed by deferring to 'Data.Vector.unsafeHead'.
 --
 --
 -- >>> head $ unsafeFromList [1..10]
@@ -239,8 +249,8 @@ head :: NonEmptyVector a -> a
 head = V.unsafeHead . _neVec
 {-# INLINE head #-}
 
--- | /O(1)/ Last element. Since a last element is gauranteed, bounds checks
--- are bypassed by deferring to 'unsafeLast'.
+-- | /O(1)/ Last element. Since a last element is guaranteed, bounds checks
+-- are bypassed by deferring to 'Data.Vector.unsafeLast'.
 --
 --
 -- >>> last $ unsafeFromList [1..10]
@@ -287,7 +297,7 @@ unsafeIndex (NonEmptyVector as) n = V.unsafeIndex as n
 -- The monad allows operations to be strict in the non-empty vector when
 -- necessary.
 --
--- See 'V.indexM' for more details
+-- See 'Data.Vector.indexM' for more details
 --
 --
 -- >>> indexM @[] (unsafeFromList [1..10]) 3
@@ -299,10 +309,10 @@ indexM (NonEmptyVector v) n = V.indexM v n
 
 -- | /O(1)/ First element of a non-empty vector in a monad.
 --
--- See 'V.indexM' for an explanation of why this is useful.
+-- See 'Data.Vector.indexM' for an explanation of why this is useful.
 --
--- Note that this function defers to 'unsafeHeadM' since head is
--- gauranteed to be safe by construction.
+-- Note that this function defers to 'Data.Vector.unsafeHeadM' since head is
+-- guaranteed to be safe by construction.
 --
 --
 -- >>> headM @[] (unsafeFromList [1..10])
@@ -312,11 +322,11 @@ headM :: Monad m => NonEmptyVector a -> m a
 headM (NonEmptyVector v) = V.unsafeHeadM v
 {-# INLINE headM #-}
 
--- | /O(1)/ Last element of a non-empty vector in a monad. See 'V.indexM' for an
--- explanation of why this is useful.
+-- | /O(1)/ Last element of a non-empty vector in a monad. See 'Data.Vector.indexM'
+-- for an explanation of why this is useful.
 --
--- Note that this function defers to 'unsafeHeadM' since a last element is
--- gauranteed.
+-- Note that this function defers to 'Data.Vector.unsafeLastM' since a last element is
+-- guaranteed.
 --
 --
 -- >>> lastM @[] (unsafeFromList [1..10])
@@ -1731,7 +1741,7 @@ izipWith6 k a b c d e f = NonEmptyVector (V.izipWith6 k a' b' c' d' e' f')
 {-# INLINE izipWith6 #-}
 
 -- | /O(min(n,m))/ Elementwise pairing of non-empty vector elements. This is a special case
--- of 'zipWith' where the function argument is '(,)'
+-- of 'zipWith' where the function argument is @(,)@
 --
 zip :: NonEmptyVector a -> NonEmptyVector b -> NonEmptyVector (a, b)
 zip a b = NonEmptyVector (V.zip a' b')
@@ -2009,7 +2019,7 @@ filterM f = V.filterM f . _neVec
 --
 -- If no elements satisfy the predicate, the resulting vector may be empty.
 --
--- TODO: this should be a more efficient function in `vector`.
+-- TODO: this should be a more efficient function in @vector@.
 --
 -- >>> ifilterM (\i a -> if a == 2 || i == 0 then Just False else Just True) (unsafeFromList [1..3])
 -- Just [3]
@@ -2646,3 +2656,35 @@ iscanr f b = NonEmptyVector . V.iscanr f b . _neVec
 iscanr' :: (Int -> a -> b -> b) -> b -> NonEmptyVector a -> NonEmptyVector b
 iscanr' f b = NonEmptyVector . V.iscanr' f b . _neVec
 {-# INLINE iscanr' #-}
+
+-- | /O(n)/ The 'intersperse' function takes an element and a 'NonEmptyVector'
+-- and "intersperses" that element between the elements of the 'NonEmptyVector'.
+--
+-- >>> intersperse 0 (unsafeFromList [1,2,3])
+-- [1,0,2,0,3]
+--
+-- >>> intersperse 0 (singleton 1)
+-- [1]
+--
+intersperse :: a -> NonEmptyVector a -> NonEmptyVector a
+intersperse sep nev@(NonEmptyVector v)
+    | V.length v <= 1 = nev
+    | otherwise = unsafeCreate $ do
+        let n = V.length v
+        let newLen = 2*n - 1
+        mv <- V.unsafeThaw $ V.replicate newLen (V.unsafeHead v)  -- Create mutable vector
+        
+        -- Fill the first element
+        unsafeWrite mv 0 (V.unsafeIndex v 0)
+        
+        -- Fill remaining elements with separators
+        let go i j
+              | j >= n    = pure ()
+              | otherwise = do
+                  unsafeWrite mv i sep
+                  unsafeWrite mv (i+1) (V.unsafeIndex v j)
+                  go (i+2) (j+1)
+        
+        go 1 1
+        pure mv
+{-# INLINE intersperse #-}
