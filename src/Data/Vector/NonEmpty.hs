@@ -1,19 +1,13 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE CPP #-}
 -- |
-<<<<<<< HEAD
 -- Module       : Data.Vector.NonEmpty
 -- Copyright 	: (c) 2019-2026 Emily Pillmore
 -- License	: BSD-style
-=======
--- Module   : Data.Vector.NonEmpty
--- Copyright: (c) 2019-2025 Emily Pillmore
--- License  : BSD-style
->>>>>>> c14b83811e1a215c03df7e5db594839f75199b06
---
--- Maintainer : Emily Pillmore <emilypi@cohomolo.gy>
--- Stability  : Experimental
--- Portability: DataTypeable, CPP
+-- Maintainer   : Emily Pillmore <emilypi@cohomolo.gy>
+-- Stability    : Experimental
+-- Portability  : DataTypeable, CPP
 --
 -- A library for non-empty boxed vectors (that is, polymorphic arrays capable of
 -- holding any Haskell value). Non-empty vectors come in two flavors:
@@ -201,7 +195,12 @@ import Control.Monad.ST
 
 import qualified Data.Foldable as Foldable
 import Data.Either (Either(..))
+#if MIN_VERSION_base(4,19,0)
+-- This import will only execute if compiling with base >= 4.19.0.0 (GHC 9.8+)
 import Data.Functor hiding (unzip)
+#else
+import Data.Functor
+#endif
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
@@ -2673,10 +2672,10 @@ intersperse sep nev@(NonEmptyVector v)
         let n = V.length v
         let newLen = 2*n - 1
         mv <- V.unsafeThaw $ V.replicate newLen (V.unsafeHead v)  -- Create mutable vector
-        
+
         -- Fill the first element
         unsafeWrite mv 0 (V.unsafeIndex v 0)
-        
+
         -- Fill remaining elements with separators
         let go i j
               | j >= n    = pure ()
@@ -2684,7 +2683,7 @@ intersperse sep nev@(NonEmptyVector v)
                   unsafeWrite mv i sep
                   unsafeWrite mv (i+1) (V.unsafeIndex v j)
                   go (i+2) (j+1)
-        
+
         go 1 1
         pure mv
 {-# INLINE intersperse #-}
