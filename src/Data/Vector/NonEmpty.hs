@@ -183,12 +183,18 @@ module Data.Vector.NonEmpty
 
   -- ** Transformations
 , intersperse
+
+  -- ** Grouping
+, group
+, groupBy
+
 ) where
 
 
 import Prelude ( Bool, Eq, Ord, Num, Enum
                , (.), Ordering, max, uncurry, snd
-               , pure, (+), otherwise, (>=), (-), (*), ($), (<=))
+               , pure, (+), otherwise, (>=), (-), (*), ($), (<=)
+               , (==), not)
 
 import Control.Monad (Monad)
 import Control.Monad.ST
@@ -202,7 +208,7 @@ import Data.Functor hiding (unzip)
 import Data.Functor
 #endif
 import Data.Int
-import Data.List.NonEmpty (NonEmpty(..))
+import Data.List.NonEmpty (NonEmpty(..), (<|))
 import qualified Data.List.NonEmpty as NonEmpty
 import Data.Maybe (Maybe(..))
 import Data.Semigroup (Semigroup(..), (<>))
@@ -2687,3 +2693,58 @@ intersperse sep nev@(NonEmptyVector v)
         go 1 1
         pure mv
 {-# INLINE intersperse #-}
+
+-- | /O(n)/ Split a vector into a list of slices of the input vector.
+--
+-- The concatenation of this list of slices is equal to the argument vector,
+-- and each slice contains only equal elements. Returns nothing if no equal
+-- elements are found.
+--
+-- This is the equivalent of 'groupBy (==)'.
+--
+-- >>> import qualified Data.NonEmptyVector as NEV
+-- >>> NEV.group (NEV.unsafeFromList "Mississippi")
+-- "M" :| ["i","ss","i","ss","i","pp","i"]
+--
+-- See also 'Data.Vector.group'.
+--
+-- @since 0.3
+--
+group :: Eq a => NonEmptyVector a -> NonEmpty (NonEmptyVector a)
+group = groupBy (==)
+
+-- | /O(n)/ Split a vector into a list of slices.
+--
+--
+-- The concatenation of this list of slices is equal to the argument vector,
+-- and each slice contains only equal elements, as determined by the equality
+-- predicate function.
+--
+
+-- >>> import qualified Data.NonEmptyVector as NEV
+-- >>> import Data.Char (isUpper)
+-- >>> NEV.groupBy (\a b -> isUpper a == isUpper b) (NEV.unsafeFromList "Mississippi River")
+-- "M" :| ["ississippi ","R","iver"]
+--
+-- See also 'Data.Vector.groupBy'.
+--
+-- @since 0.3
+--
+groupBy
+    :: Eq a
+    => (a -> a -> Bool)
+    -> NonEmptyVector a
+    -> NonEmpty (NonEmptyVector a)
+groupBy f = go
+  where
+    go v =
+      let
+        h = head v
+        t = NonEmptyVector $ tail v
+      in case findIndex (not . f h) t of
+           Nothing -> v :| []
+           Just n ->
+             let
+               z = NonEmptyVector $ take (n+1) v
+               x = NonEmptyVector $ drop (n+1) v
+             in z <| go x
