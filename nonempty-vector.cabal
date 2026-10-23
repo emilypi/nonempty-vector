@@ -50,8 +50,22 @@ test-suite tasty
   default-language:  Haskell2010
   type:              exitcode-stdio-1.0
   main-is:           Main.hs
+  other-modules:
+    Test.Data.Vector.NonEmpty.Accessors
+    Test.Data.Vector.NonEmpty.Construction
+    Test.Data.Vector.NonEmpty.Conversion
+    Test.Data.Vector.NonEmpty.Elementwise
+    Test.Data.Vector.NonEmpty.Folds
+    Test.Data.Vector.NonEmpty.Instances
+    Test.Data.Vector.NonEmpty.Modification
+    Test.Data.Vector.NonEmpty.Mutable
+    Test.Data.Vector.NonEmpty.Predicates
+    Test.Data.Vector.NonEmpty.Scans
+    Test.Data.Vector.NonEmpty.Util
+
   build-depends:
       base     >=4.16 && <4.23
+    , deepseq
     , nonempty-vector
     , QuickCheck
     , tasty
