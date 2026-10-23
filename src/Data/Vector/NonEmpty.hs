@@ -194,7 +194,12 @@ import Control.Monad.ST
 
 import qualified Data.Foldable as Foldable
 import Data.Either (Either(..))
+#if MIN_VERSION_base(4,19,0)
+-- This import will only execute if compiling with base >= 4.19.0.0 (GHC 9.8+)
+import Data.Functor hiding (unzip)
+#else
 import Data.Functor
+#endif
 import Data.Int
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty
