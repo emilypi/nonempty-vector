@@ -1,5 +1,14 @@
 # Revision history for nonempty-vector
 
+## 0.3
+
+* Add `group` and `groupBy`, returning non-empty lists of non-empty vector slices.
+* Add `intersperse`.
+* Expand property tests across the immutable and mutable APIs, including grouping,
+  construction, conversions, folds, scans, and type class instances.
+* Support GHC 9.14 and `base < 4.23`; update the CI matrix for GHC 9.4–9.14.
+* Fix Haddock references and restore the BSD-3-Clause license text.
+
 ## 0.2.3
 
 * Support GHC 9.8.x
