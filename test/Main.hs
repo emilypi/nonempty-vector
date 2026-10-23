@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 -- |
 -- Module       : Main (tests)
--- Copyright 	: 2019-2023 (c) Emily Pillmore
+-- Copyright 	: (c) 2019-2026 Emily Pillmore
 -- License	: BSD
 --
 -- Maintainer	: Emily Pillmore <emilypi@cohomolo.gy>
