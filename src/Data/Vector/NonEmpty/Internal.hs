@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
 -- |
@@ -37,6 +38,7 @@ import Control.Monad.Zip (MonadZip)
 
 import Data.Data (Data)
 import qualified Data.Foldable as Foldable
+import Data.List.NonEmpty (NonEmpty((:|)))
 #if MIN_VERSION_base(4,18,0)
 import Data.Foldable1 (Foldable1)
 import qualified Data.Foldable1 as Foldable1
@@ -76,6 +78,7 @@ newtype NonEmptyVector a = NonEmptyVector
       , Functor, Applicative, Monad
       , MonadZip
       , Semigroup
+      , Traversable
       )
 
 instance Show a => Show (NonEmptyVector a) where
@@ -93,28 +96,46 @@ instance Read1 NonEmptyVector where
 
 instance Foldable NonEmptyVector where
     foldMap f = Foldable.foldMap f . _neVec
+    foldr f x = Foldable.foldr f x . _neVec
+    foldl f x = Foldable.foldl f x . _neVec
+    foldr1 f = Foldable.foldr1 f . _neVec
+    foldl1 f = Foldable.foldl1 f . _neVec
+    foldr' f x = Foldable.foldr' f x . _neVec
+    foldl' f x = Foldable.foldl' f x . _neVec
+    toList = Foldable.toList . _neVec
+    length = Foldable.length . _neVec
+    null = const False
+    elem x = Foldable.elem x . _neVec
+    maximum = Foldable.maximum . _neVec
+    minimum = Foldable.minimum . _neVec
+    sum = Foldable.sum . _neVec
+    product = Foldable.product . _neVec
 
 #if MIN_VERSION_base(4,18,0)
 instance Foldable1 NonEmptyVector where
-    foldMap1 f (NonEmptyVector v) =
-        let
-          h = V.unsafeHead v -- guaranteed head (nonemptiness)
-          t = V.unsafeTail v -- guaranteed possibly empty tail
-        in go (f h) t -- therefore this is a sound call
-      where
-        go x xs
-          -- when xs is empty, vector is exhausted, return x
-          | V.null xs = x
-          | otherwise =
-          -- if xs is not empty, then there are at least 2 elements in the list. Hence, h and t are sound calls to make.
-            let
-              h = V.unsafeHead xs
-              t = V.unsafeTail xs
-            in x <> go (f h) t
+    foldMap1 f (NonEmptyVector v) = 
+        let 
+          projected = fmap f v
+          h = V.unsafeHead projected -- guaranteed head (nonemptiness)
+          t = V.unsafeTail projected -- guaranteed possibly empty tail
+        -- Defer to `Vector`'s underlying folding mechanism.
+        -- Direction doesn't matter since we're associative anyway.
+        in foldl (<>) h t
+    foldMap1' f (NonEmptyVector v) = 
+        let 
+          projected = fmap f v
+          h = V.unsafeHead projected
+          t = V.unsafeTail projected
+        in foldl' (<>) h t
+    toNonEmpty (NonEmptyVector v) = 
+        let h = V.unsafeHead v
+            t = V.unsafeTail v
+        in h :| V.toList t
+    maximum = V.maximum . _neVec
+    minimum = V.minimum . _neVec
+    head = V.unsafeHead . _neVec
+    last (NonEmptyVector v) = V.unsafeIndex v (V.length v - 1)
 #endif
-
-instance Traversable NonEmptyVector where
-    traverse f = fmap NonEmptyVector . traverse f . _neVec
 
 -- ---------------------------------------------------------------------- --
 -- Non-empty mutable vectors
