@@ -120,13 +120,13 @@ instance Foldable1 NonEmptyVector where
           t = V.unsafeTail projected -- guaranteed possibly empty tail
         -- Defer to `Vector`'s underlying folding mechanism.
         -- Direction doesn't matter since we're associative anyway.
-        in foldl (<>) h t
+        in V.foldl (<>) h t
     foldMap1' f (NonEmptyVector v) = 
         let 
           projected = fmap f v
           h = V.unsafeHead projected
           t = V.unsafeTail projected
-        in foldl' (<>) h t
+        in V.foldl' (<>) h t
     toNonEmpty (NonEmptyVector v) = 
         let h = V.unsafeHead v
             t = V.unsafeTail v
