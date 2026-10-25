@@ -60,10 +60,11 @@ import qualified Text.Read as Read
 -- @since 0.3.0.0
 --
 newtype NonEmptyUVector a = NonEmptyUVector
-    { _neVec :: V.Vector a
+    { _neUvec :: V.Vector a
     } deriving
       ( Eq, Ord
       , Data, NFData
+      , Semigroup
 #if __GLASGOW_HASKELL__ < 912
       , Typeable
 #endif
@@ -91,7 +92,7 @@ instance (V.Unbox a, Read a) => Read (NonEmptyUVector a) where
 -- @since 0.3.0.0
 --
 newtype NonEmptyMUVector s a = NonEmptyMUVector
-    { _nemVec :: MVector s a }
+    { _nemUvec :: MVector s a }
 #if __GLASGOW_HASKELL__ < 912
     deriving (Typeable)
 #endif

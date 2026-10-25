@@ -240,7 +240,7 @@ import Data.Vector.NonEmpty.InternalU
 -- 10
 --
 length :: V.Unbox a => NonEmptyUVector a -> Int
-length = V.length . _neVec
+length = V.length . _neUvec
 {-# INLINE length #-}
 
 -- | /O(1)/ First element. Since head is guaranteed, bounds checks
@@ -251,7 +251,7 @@ length = V.length . _neVec
 -- 1
 --
 head :: V.Unbox a => NonEmptyUVector a -> a
-head = V.unsafeHead . _neVec
+head = V.unsafeHead . _neUvec
 {-# INLINE head #-}
 
 -- | /O(1)/ Last element. Since a last element is guaranteed, bounds checks
@@ -262,7 +262,7 @@ head = V.unsafeHead . _neVec
 -- 10
 --
 last :: V.Unbox a => NonEmptyUVector a -> a
-last = V.unsafeLast . _neVec
+last = V.unsafeLast . _neUvec
 {-# INLINE last #-}
 
 -- | /O(1)/ Indexing.
@@ -360,7 +360,7 @@ unsafeIndexM (NonEmptyUVector v) n = V.unsafeIndexM v n
 -- [2,3,4,5,6,7,8,9,10]
 --
 tail :: V.Unbox a => NonEmptyUVector a -> Vector a
-tail = V.unsafeTail . _neVec
+tail = V.unsafeTail . _neUvec
 {-# INLINE tail #-}
 
 -- | /O(1)/ Yield a slice of a non-empty vector without copying at
@@ -394,7 +394,7 @@ unsnoc v = (init v, last v)
 -- [1,2,3]
 --
 slice :: V.Unbox a => Int -> Int -> NonEmptyUVector a -> Vector a
-slice i n = V.slice i n . _neVec
+slice i n = V.slice i n . _neUvec
 {-# INLINE slice #-}
 
 -- | /O(1)/ Yield all but the last element without copying. Since the
@@ -406,7 +406,7 @@ slice i n = V.slice i n . _neVec
 -- [1,2]
 --
 init :: V.Unbox a => NonEmptyUVector a -> Vector a
-init = V.unsafeInit . _neVec
+init = V.unsafeInit . _neUvec
 {-# INLINE init #-}
 
 -- | /O(1)/ Yield at the first n elements without copying. The non-empty vector may
@@ -417,7 +417,7 @@ init = V.unsafeInit . _neVec
 -- [1,2]
 --
 take :: V.Unbox a => Int -> NonEmptyUVector a -> Vector a
-take n = V.take n . _neVec
+take n = V.take n . _neUvec
 {-# INLINE take #-}
 
 -- | /O(1)/ Yield all but the first n elements without copying. The non-empty vector
@@ -428,7 +428,7 @@ take n = V.take n . _neVec
 -- [3]
 --
 drop :: V.Unbox a => Int -> NonEmptyUVector a -> Vector a
-drop n = V.drop n . _neVec
+drop n = V.drop n . _neUvec
 {-# INLINE drop #-}
 
 -- | /O(1)/ Yield the first n elements paired with the remainder without copying.
@@ -440,28 +440,28 @@ drop n = V.drop n . _neVec
 -- ([1,2],[3])
 --
 splitAt :: V.Unbox a => Int -> NonEmptyUVector a -> (Vector a, Vector a)
-splitAt n = V.splitAt n . _neVec
+splitAt n = V.splitAt n . _neUvec
 {-# INLINE splitAt #-}
 
 -- | /O(1)/ Yield a slice of the vector without copying. The vector must contain at
 -- least i+n elements but this is not checked.
 --
 unsafeSlice :: V.Unbox a => Int -> Int -> NonEmptyUVector a -> Vector a
-unsafeSlice i n = V.unsafeSlice i n . _neVec
+unsafeSlice i n = V.unsafeSlice i n . _neUvec
 {-# INLINE unsafeSlice #-}
 
 -- | /O(1)/ Yield the first n elements without copying. The vector must contain at
 -- least n elements but this is not checked.
 --
 unsafeTake :: V.Unbox a => Int -> NonEmptyUVector a -> Vector a
-unsafeTake n = V.unsafeTake n . _neVec
+unsafeTake n = V.unsafeTake n . _neUvec
 {-# INLINE unsafeTake #-}
 
 -- | /O(1)/ Yield all but the first n elements without copying. The vector must contain
 -- at least n elements but this is not checked.
 --
 unsafeDrop :: V.Unbox a => Int -> NonEmptyUVector a -> Vector a
-unsafeDrop n = V.unsafeDrop n . _neVec
+unsafeDrop n = V.unsafeDrop n . _neUvec
 {-# INLINE unsafeDrop #-}
 
 -- ---------------------------------------------------------------------- --
@@ -1073,7 +1073,7 @@ concat1 = NonEmptyUVector . Foldable.foldl' go V.empty
 -- 1 :| [2,3]
 --
 toNonEmpty :: V.Unbox a => NonEmptyUVector a -> NonEmpty a
-toNonEmpty = NonEmpty.fromList . V.toList . _neVec
+toNonEmpty = NonEmpty.fromList . V.toList . _neUvec
 {-# INLINE toNonEmpty #-}
 
 -- | O(n) Convert from a non-empty list to a non-empty vector.
@@ -1125,7 +1125,7 @@ fromNonEmptyN1 n = unsafeFromVector
 -- [1,2,3]
 --
 toVector :: V.Unbox a => NonEmptyUVector a -> Vector a
-toVector = _neVec
+toVector = _neUvec
 {-# INLINE toVector #-}
 
 -- | /O(1)/ Convert from a vector to a non-empty vector.
@@ -1164,7 +1164,7 @@ unsafeFromVector = NonEmptyUVector
 -- [1,2,3]
 --
 toList :: V.Unbox a => NonEmptyUVector a -> [a]
-toList = V.toList . _neVec
+toList = V.toList . _neUvec
 {-# INLINE toList #-}
 
 -- | /O(n)/ Convert from a list to a non-empty vector.
@@ -1379,7 +1379,7 @@ unsafeAccumulate
     -> NonEmptyUVector a
 unsafeAccumulate f v u = NonEmptyUVector (V.unsafeAccumulate f v' u)
   where
-    v' = _neVec v
+    v' = _neUvec v
 {-# INLINE unsafeAccumulate #-}
 
 -- | Same as 'accumulate_' but without bounds checking.
@@ -1397,7 +1397,7 @@ unsafeAccumulate_
     -> NonEmptyUVector a
 unsafeAccumulate_ f v i b = NonEmptyUVector (V.unsafeAccumulate_ f v' i b)
   where
-    v' = _neVec v
+    v' = _neUvec v
 {-# INLINE unsafeAccumulate_ #-}
 
 -- ---------------------------------------------------------------------- --
@@ -1409,7 +1409,7 @@ unsafeAccumulate_ f v i b = NonEmptyUVector (V.unsafeAccumulate_ f v' i b)
 -- [3,2,1]
 --
 reverse :: V.Unbox a => NonEmptyUVector a -> NonEmptyUVector a
-reverse = NonEmptyUVector . V.reverse . _neVec
+reverse = NonEmptyUVector . V.reverse . _neUvec
 {-# INLINE reverse #-}
 
 -- | /O(n)/ Yield the non-empty vector obtained by replacing each element
@@ -1459,7 +1459,7 @@ modify p (NonEmptyUVector v) = NonEmptyUVector (V.modify p v)
 -- [(0,"a"),(1,"b"),(2,"c")]
 --
 indexed :: (V.Unbox a) => NonEmptyUVector a -> NonEmptyUVector (Int, a)
-indexed = NonEmptyUVector . V.indexed . _neVec
+indexed = NonEmptyUVector . V.indexed . _neUvec
 {-# INLINE indexed #-}
 
 -- ---------------------------------------------------------------------- --
@@ -1471,7 +1471,7 @@ indexed = NonEmptyUVector . V.indexed . _neVec
 -- [2,3,4]
 --
 map :: (V.Unbox a, V.Unbox b) => (a -> b) -> NonEmptyUVector a -> NonEmptyUVector b
-map f = NonEmptyUVector . V.map f . _neVec
+map f = NonEmptyUVector . V.map f . _neUvec
 {-# INLINE map #-}
 
 -- | /O(n)/ Apply a function to every element of a non-empty vector and
@@ -1481,7 +1481,7 @@ map f = NonEmptyUVector . V.map f . _neVec
 -- [1,2,4]
 --
 imap :: (V.Unbox a, V.Unbox b) => (Int -> a -> b) -> NonEmptyUVector a -> NonEmptyUVector b
-imap f = NonEmptyUVector . V.imap f . _neVec
+imap f = NonEmptyUVector . V.imap f . _neUvec
 {-# INLINE imap #-}
 
 -- | Map a function over a vector and concatenate the results.
@@ -1494,7 +1494,7 @@ concatMap
     => (a -> NonEmptyUVector b)
     -> NonEmptyUVector a
     -> NonEmptyUVector b
-concatMap f = NonEmptyUVector . V.concatMap (_neVec . f) . _neVec
+concatMap f = NonEmptyUVector . V.concatMap (_neUvec . f) . _neUvec
 {-# INLINE concatMap #-}
 
 -- ---------------------------------------------------------------------- --
@@ -1510,7 +1510,7 @@ concatMap f = NonEmptyUVector . V.concatMap (_neVec . f) . _neVec
 -- Nothing
 --
 mapM :: (V.Unbox a, V.Unbox b, Monad m) => (a -> m b) -> NonEmptyUVector a -> m (NonEmptyUVector b)
-mapM f = fmap NonEmptyUVector . V.mapM f . _neVec
+mapM f = fmap NonEmptyUVector . V.mapM f . _neUvec
 {-# INLINE mapM #-}
 
 -- | /O(n)/ Apply the monadic action to every element of a non-empty
@@ -1527,7 +1527,7 @@ imapM
     => (Int -> a -> m b)
     -> NonEmptyUVector a
     -> m (NonEmptyUVector b)
-imapM f = fmap NonEmptyUVector . V.imapM f . _neVec
+imapM f = fmap NonEmptyUVector . V.imapM f . _neUvec
 {-# INLINE imapM #-}
 
 -- | /O(n)/ Apply the monadic action to all elements of a non-empty vector
@@ -1540,7 +1540,7 @@ imapM f = fmap NonEmptyUVector . V.imapM f . _neVec
 -- Nothing
 --
 mapM_ :: (V.Unbox a, Monad m) => (a -> m b) -> NonEmptyUVector a -> m ()
-mapM_ f = V.mapM_ f . _neVec
+mapM_ f = V.mapM_ f . _neUvec
 {-# INLINE mapM_ #-}
 
 -- | /O(n)/ Apply the monadic action to every element of a non-emptpy
@@ -1555,7 +1555,7 @@ mapM_ f = V.mapM_ f . _neVec
 -- Nothing
 --
 imapM_ :: (V.Unbox a, Monad m) => (Int -> a -> m b) -> NonEmptyUVector a -> m ()
-imapM_ f = V.imapM_ f . _neVec
+imapM_ f = V.imapM_ f . _neUvec
 {-# INLINE imapM_ #-}
 
 -- | /O(n)/ Apply the monadic action to all elements of the non-empty
@@ -1592,8 +1592,8 @@ zipWith
     -> NonEmptyUVector c
 zipWith f a b = NonEmptyUVector (V.zipWith f a' b')
   where
-    a' = _neVec a
-    b' = _neVec b
+    a' = _neUvec a
+    b' = _neUvec b
 {-# INLINE zipWith #-}
 
 -- | Zip three non-empty vectors with the given function.
@@ -1608,9 +1608,9 @@ zipWith3
     -> NonEmptyUVector d
 zipWith3 f a b c = NonEmptyUVector (V.zipWith3 f a' b' c')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
 {-# INLINE zipWith3 #-}
 
 -- | Zip four non-empty vectors with the given function.
@@ -1625,10 +1625,10 @@ zipWith4
     -> NonEmptyUVector e
 zipWith4 f a b c d = NonEmptyUVector (V.zipWith4 f a' b' c' d')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
-    d' = _neVec d
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
+    d' = _neUvec d
 {-# INLINE zipWith4 #-}
 
 -- | Zip five non-empty vectors with the given function.
@@ -1644,11 +1644,11 @@ zipWith5
     -> NonEmptyUVector f
 zipWith5 f a b c d e = NonEmptyUVector (V.zipWith5 f a' b' c' d' e')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
-    d' = _neVec d
-    e' = _neVec e
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
+    d' = _neUvec d
+    e' = _neUvec e
 {-# INLINE zipWith5 #-}
 
 -- | Zip six non-empty vectors with the given function.
@@ -1665,12 +1665,12 @@ zipWith6
     -> NonEmptyUVector g
 zipWith6 k a b c d e f = NonEmptyUVector (V.zipWith6 k a' b' c' d' e' f')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
-    d' = _neVec d
-    e' = _neVec e
-    f' = _neVec f
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
+    d' = _neUvec d
+    e' = _neUvec e
+    f' = _neUvec f
 {-# INLINE zipWith6 #-}
 
 
@@ -1685,8 +1685,8 @@ izipWith
     -> NonEmptyUVector c
 izipWith f a b = NonEmptyUVector (V.izipWith f a' b')
   where
-    a' = _neVec a
-    b' = _neVec b
+    a' = _neUvec a
+    b' = _neUvec b
 {-# INLINE izipWith #-}
 
 -- | Zip three non-empty vectors and their indices with the given function.
@@ -1700,9 +1700,9 @@ izipWith3
     -> NonEmptyUVector d
 izipWith3 f a b c = NonEmptyUVector (V.izipWith3 f a' b' c')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
 {-# INLINE izipWith3 #-}
 
 -- | Zip four non-empty vectors and their indices with the given function.
@@ -1717,10 +1717,10 @@ izipWith4
     -> NonEmptyUVector e
 izipWith4 f a b c d = NonEmptyUVector (V.izipWith4 f a' b' c' d')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
-    d' = _neVec d
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
+    d' = _neUvec d
 {-# INLINE izipWith4 #-}
 
 -- | Zip five non-empty vectors and their indices with the given function.
@@ -1736,11 +1736,11 @@ izipWith5
     -> NonEmptyUVector f
 izipWith5 f a b c d e = NonEmptyUVector (V.izipWith5 f a' b' c' d' e')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
-    d' = _neVec d
-    e' = _neVec e
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
+    d' = _neUvec d
+    e' = _neUvec e
 {-# INLINE izipWith5 #-}
 
 -- | Zip six non-empty vectors and their indices with the given function.
@@ -1757,12 +1757,12 @@ izipWith6
     -> NonEmptyUVector g
 izipWith6 k a b c d e f = NonEmptyUVector (V.izipWith6 k a' b' c' d' e' f')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
-    d' = _neVec d
-    e' = _neVec e
-    f' = _neVec f
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
+    d' = _neUvec d
+    e' = _neUvec e
+    f' = _neUvec f
 {-# INLINE izipWith6 #-}
 
 -- | /O(min(n,m))/ Elementwise pairing of non-empty vector elements. This is a special case
@@ -1771,8 +1771,8 @@ izipWith6 k a b c d e f = NonEmptyUVector (V.izipWith6 k a' b' c' d' e' f')
 zip :: (V.Unbox a, V.Unbox b) => NonEmptyUVector a -> NonEmptyUVector b -> NonEmptyUVector (a, b)
 zip a b = NonEmptyUVector (V.zip a' b')
   where
-    a' = _neVec a
-    b' = _neVec b
+    a' = _neUvec a
+    b' = _neUvec b
 {-# INLINE zip #-}
 
 -- | Zip together three non-empty vectors.
@@ -1785,9 +1785,9 @@ zip3
     -> NonEmptyUVector (a, b, c)
 zip3 a b c = NonEmptyUVector (V.zip3 a' b' c')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
 {-# INLINE zip3 #-}
 
 -- | Zip together four non-empty vectors.
@@ -1801,10 +1801,10 @@ zip4
     -> NonEmptyUVector (a, b, c, d)
 zip4 a b c d = NonEmptyUVector (V.zip4 a' b' c' d')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
-    d' = _neVec d
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
+    d' = _neUvec d
 {-# INLINE zip4 #-}
 
 -- | Zip together five non-empty vectors.
@@ -1819,11 +1819,11 @@ zip5
     -> NonEmptyUVector (a, b, c, d, e)
 zip5 a b c d e = NonEmptyUVector (V.zip5 a' b' c' d' e')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
-    d' = _neVec d
-    e' = _neVec e
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
+    d' = _neUvec d
+    e' = _neUvec e
 {-# INLINE zip5 #-}
 
 -- | Zip together six non-empty vectors.
@@ -1839,12 +1839,12 @@ zip6
     -> NonEmptyUVector (a, b, c, d, e, f)
 zip6 a b c d e f = NonEmptyUVector (V.zip6 a' b' c' d' e' f')
   where
-    a' = _neVec a
-    b' = _neVec b
-    c' = _neVec c
-    d' = _neVec d
-    e' = _neVec e
-    f' = _neVec f
+    a' = _neUvec a
+    b' = _neUvec b
+    c' = _neUvec c
+    d' = _neUvec d
+    e' = _neUvec e
+    f' = _neUvec f
 {-# INLINE zip6 #-}
 
 -- ---------------------------------------------------------------------- --
@@ -1861,8 +1861,8 @@ zipWithM
     -> m (NonEmptyUVector c)
 zipWithM f a b = fmap NonEmptyUVector (V.zipWithM f a' b')
   where
-    a' = _neVec a
-    b' = _neVec b
+    a' = _neUvec a
+    b' = _neUvec b
 {-# INLINE zipWithM #-}
 
 -- | /O(min(m,n))/ Zip the two non-empty vectors with a monadic action
@@ -1876,8 +1876,8 @@ izipWithM
     -> m (NonEmptyUVector c)
 izipWithM f a b = fmap NonEmptyUVector (V.izipWithM f a' b')
   where
-    a' = _neVec a
-    b' = _neVec b
+    a' = _neUvec a
+    b' = _neUvec b
 {-# INLINE izipWithM #-}
 
 -- | /O(min(m,n))/ Zip the two non-empty vectors with the monadic action
@@ -1889,7 +1889,7 @@ zipWithM_
     -> NonEmptyUVector a
     -> NonEmptyUVector b
     -> m ()
-zipWithM_ f a b = V.zipWithM_ f (_neVec a) (_neVec b)
+zipWithM_ f a b = V.zipWithM_ f (_neUvec a) (_neUvec b)
 {-# INLINE zipWithM_ #-}
 
 -- | /O(min(m,n))/ Zip the two non-empty vectors with a monadic action
@@ -1901,7 +1901,7 @@ izipWithM_
     -> NonEmptyUVector a
     -> NonEmptyUVector b
     -> m ()
-izipWithM_ f a b = V.izipWithM_ f (_neVec a) (_neVec b)
+izipWithM_ f a b = V.izipWithM_ f (_neUvec a) (_neUvec b)
 {-# INLINE izipWithM_ #-}
 
 -- ---------------------------------------------------------------------- --
@@ -2005,7 +2005,7 @@ unzip6 (NonEmptyUVector v) = case V.unzip6 v of
 -- []
 --
 filter :: V.Unbox a => (a -> Bool) -> NonEmptyUVector a -> Vector a
-filter f = V.filter f . _neVec
+filter f = V.filter f . _neUvec
 {-# INLINE filter #-}
 
 -- | /O(n)/ Drop elements that do not satisfy the predicate which is
@@ -2024,7 +2024,7 @@ ifilter
     => (Int -> a -> Bool)
     -> NonEmptyUVector a
     -> Vector a
-ifilter f = V.ifilter f . _neVec
+ifilter f = V.ifilter f . _neUvec
 {-# INLINE ifilter #-}
 
 -- | /O(n)/ Drop elements that do not satisfy the monadic predicate.
@@ -2045,7 +2045,7 @@ filterM
     => (a -> m Bool)
     -> NonEmptyUVector a
     -> m (Vector a)
-filterM f = V.filterM f . _neVec
+filterM f = V.filterM f . _neUvec
 {-# INLINE filterM #-}
 
 -- | /O(n)/ Drop elements that do not satisfy the monadic predicate that is
@@ -2072,7 +2072,7 @@ ifilterM
 ifilterM f = fmap (V.map snd)
     . V.filterM (uncurry f)
     . V.indexed
-    . _neVec
+    . _neUvec
 {-# INLINE ifilterM #-}
 
 -- | /O(n)/ Drop repeated adjacent elements.
@@ -2081,7 +2081,7 @@ ifilterM f = fmap (V.map snd)
 -- [1,2,3,1]
 --
 uniq :: (V.Unbox a, Eq a) => NonEmptyUVector a -> NonEmptyUVector a
-uniq = NonEmptyUVector . V.uniq . _neVec
+uniq = NonEmptyUVector . V.uniq . _neUvec
 {-# INLINE uniq #-}
 
 -- | /O(n)/ Drop elements when predicate returns Nothing
@@ -2096,7 +2096,7 @@ mapMaybe
     => (a -> Maybe b)
     -> NonEmptyUVector a
     -> Vector b
-mapMaybe f = V.mapMaybe f . _neVec
+mapMaybe f = V.mapMaybe f . _neUvec
 {-# INLINE mapMaybe #-}
 
 -- | /O(n)/ Drop elements when predicate, applied to index and value, returns Nothing
@@ -2111,7 +2111,7 @@ imapMaybe
     => (Int -> a -> Maybe b)
     -> NonEmptyUVector a
     -> Vector b
-imapMaybe f = V.imapMaybe f . _neVec
+imapMaybe f = V.imapMaybe f . _neUvec
 {-# INLINE imapMaybe #-}
 
 -- | /O(n)/ Yield the longest prefix of elements satisfying the predicate
@@ -2123,7 +2123,7 @@ imapMaybe f = V.imapMaybe f . _neVec
 -- [1,2]
 --
 takeWhile :: V.Unbox a => (a -> Bool) -> NonEmptyUVector a -> Vector a
-takeWhile f = V.takeWhile f . _neVec
+takeWhile f = V.takeWhile f . _neUvec
 {-# INLINE takeWhile #-}
 
 -- | /O(n)/ Drop the longest prefix of elements that satisfy the predicate
@@ -2135,7 +2135,7 @@ takeWhile f = V.takeWhile f . _neVec
 -- [3]
 --
 dropWhile :: V.Unbox a => (a -> Bool) -> NonEmptyUVector a -> Vector a
-dropWhile f = V.dropWhile f . _neVec
+dropWhile f = V.dropWhile f . _neUvec
 {-# INLINE dropWhile #-}
 
 -- ---------------------------------------------------------------------- --
@@ -2154,7 +2154,7 @@ dropWhile f = V.dropWhile f . _neVec
 -- ([1,2],[3,4,5])
 --
 partition :: V.Unbox a => (a -> Bool) -> NonEmptyUVector a -> (Vector a, Vector a)
-partition f = V.partition f . _neVec
+partition f = V.partition f . _neUvec
 {-# INLINE partition #-}
 
 -- | /O(n)/ Split the non-empty vector in two parts, the first one
@@ -2169,7 +2169,7 @@ partition f = V.partition f . _neVec
 --
 partitionWith :: (V.Unbox a, V.Unbox b, V.Unbox c) => 
   (a -> Either b c) -> NonEmptyUVector a -> (Vector b, Vector c)
-partitionWith f = V.partitionWith f . _neVec
+partitionWith f = V.partitionWith f . _neUvec
 {-# INLINE partitionWith #-}
 
 -- | /O(n)/ Split the non-empty vector in two parts, the first one
@@ -2185,7 +2185,7 @@ unstablePartition
     => (a -> Bool)
     -> NonEmptyUVector a
     -> (Vector a, Vector a)
-unstablePartition f = V.unstablePartition f . _neVec
+unstablePartition f = V.unstablePartition f . _neUvec
 {-# INLINE unstablePartition #-}
 
 -- | /O(n)/ Split the non-empty vector into the longest prefix of elements
@@ -2198,7 +2198,7 @@ unstablePartition f = V.unstablePartition f . _neVec
 -- ([1,1],[2,3,1])
 --
 span :: V.Unbox a => (a -> Bool) -> NonEmptyUVector a -> (Vector a, Vector a)
-span f = V.span f . _neVec
+span f = V.span f . _neUvec
 {-# INLINE span #-}
 
 -- | /O(n)/ Split the vector into the longest prefix of elements that do not
@@ -2211,7 +2211,7 @@ span f = V.span f . _neVec
 -- ([1,1],[2,3,1])
 --
 break :: V.Unbox a => (a -> Bool) -> NonEmptyUVector a -> (Vector a, Vector a)
-break f = V.break f . _neVec
+break f = V.break f . _neUvec
 {-# INLINE break #-}
 
 -- ---------------------------------------------------------------------- --
@@ -2225,7 +2225,7 @@ break f = V.break f . _neVec
 -- False
 --
 elem :: (V.Unbox a, Eq a) => a -> NonEmptyUVector a -> Bool
-elem a = V.elem a . _neVec
+elem a = V.elem a . _neUvec
 {-# INLINE elem #-}
 
 -- | /O(n)/ Check if the non-empty vector does not contain an element
@@ -2238,7 +2238,7 @@ elem a = V.elem a . _neVec
 -- True
 --
 notElem :: (V.Unbox a, Eq a) => a -> NonEmptyUVector a -> Bool
-notElem a = V.notElem a . _neVec
+notElem a = V.notElem a . _neUvec
 {-# INLINE notElem #-}
 
 -- | /O(n)/ Yield 'Just' the first element matching the predicate or
@@ -2251,7 +2251,7 @@ notElem a = V.notElem a . _neVec
 -- Nothing
 --
 find :: V.Unbox a => (a -> Bool) -> NonEmptyUVector a -> Maybe a
-find f = V.find f . _neVec
+find f = V.find f . _neUvec
 {-# INLINE find #-}
 
 -- | /O(n)/ Yield 'Just' the index of the first element matching the
@@ -2264,7 +2264,7 @@ find f = V.find f . _neVec
 -- Nothing
 --
 findIndex :: V.Unbox a => (a -> Bool) -> NonEmptyUVector a -> Maybe Int
-findIndex f = V.findIndex f . _neVec
+findIndex f = V.findIndex f . _neUvec
 {-# INLINE findIndex #-}
 
 -- | /O(n)/ Yield the indices of elements satisfying the predicate in
@@ -2277,7 +2277,7 @@ findIndex f = V.findIndex f . _neVec
 -- []
 --
 findIndices :: V.Unbox a => (a -> Bool) -> NonEmptyUVector a -> Vector Int
-findIndices f = V.findIndices f . _neVec
+findIndices f = V.findIndices f . _neUvec
 {-# INLINE findIndices #-}
 
 -- | /O(n)/ Yield 'Just' the index of the first occurence of the given
@@ -2291,7 +2291,7 @@ findIndices f = V.findIndices f . _neVec
 -- Nothing
 --
 elemIndex :: (V.Unbox a, Eq a) => a -> NonEmptyUVector a -> Maybe Int
-elemIndex a = V.elemIndex a . _neVec
+elemIndex a = V.elemIndex a . _neUvec
 {-# INLINE elemIndex #-}
 
 -- | /O(n)/ Yield the indices of all occurences of the given element in
@@ -2304,7 +2304,7 @@ elemIndex a = V.elemIndex a . _neVec
 -- []
 --
 elemIndices :: (V.Unbox a, Eq a) => a -> NonEmptyUVector a -> Vector Int
-elemIndices a = V.elemIndices a . _neVec
+elemIndices a = V.elemIndices a . _neUvec
 {-# INLINE elemIndices #-}
 
 -- ---------------------------------------------------------------------- --
@@ -2313,77 +2313,77 @@ elemIndices a = V.elemIndices a . _neVec
 -- | /O(n)/ Left monoidal fold
 --
 foldl :: V.Unbox b => (a -> b -> a) -> a -> NonEmptyUVector b -> a
-foldl f a = V.foldl f a . _neVec
+foldl f a = V.foldl f a . _neUvec
 {-# INLINE foldl #-}
 
 -- | /O(n)/ Left semigroupal fold
 --
 foldl1 :: V.Unbox a => (a -> a -> a) -> NonEmptyUVector a -> a
-foldl1 f = V.foldl1 f . _neVec
+foldl1 f = V.foldl1 f . _neUvec
 {-# INLINE foldl1 #-}
 
 -- | /O(n)/ Strict Left monoidal fold
 --
 foldl' :: V.Unbox b => (a -> b -> a) -> a -> NonEmptyUVector b -> a
-foldl' f a = V.foldl' f a . _neVec
+foldl' f a = V.foldl' f a . _neUvec
 {-# INLINE foldl' #-}
 
 -- | /O(n)/ Strict Left semigroupal fold
 --
 foldl1' :: V.Unbox a => (a -> a -> a) -> NonEmptyUVector a -> a
-foldl1' f = V.foldl1' f . _neVec
+foldl1' f = V.foldl1' f . _neUvec
 {-# INLINE foldl1' #-}
 
 -- | /O(n)/ Right monoidal fold
 --
 foldr :: V.Unbox a => (a -> b -> b) -> b -> NonEmptyUVector a -> b
-foldr f b = V.foldr f b . _neVec
+foldr f b = V.foldr f b . _neUvec
 {-# INLINE foldr #-}
 
 -- | /O(n)/ Right semigroupal fold
 --
 foldr1 :: V.Unbox a => (a -> a -> a) -> NonEmptyUVector a -> a
-foldr1 f = V.foldr1 f . _neVec
+foldr1 f = V.foldr1 f . _neUvec
 {-# INLINE foldr1 #-}
 
 -- | /O(n)/ Strict right monoidal fold
 --
 foldr' :: V.Unbox a => (a -> b -> b) -> b -> NonEmptyUVector a -> b
-foldr' f b = V.foldr' f b. _neVec
+foldr' f b = V.foldr' f b. _neUvec
 {-# INLINE foldr' #-}
 
 -- | /O(n)/ Strict right semigroupal fold
 --
 foldr1' :: V.Unbox a => (a -> a -> a) -> NonEmptyUVector a -> a
-foldr1' f = V.foldr1' f . _neVec
+foldr1' f = V.foldr1' f . _neUvec
 {-# INLINE foldr1' #-}
 
 -- | /O(n)/ Left monoidal fold with function applied to each element
 -- and its index
 --
 ifoldl :: V.Unbox b => (a -> Int -> b -> a) -> a -> NonEmptyUVector b -> a
-ifoldl f a = V.ifoldl f a . _neVec
+ifoldl f a = V.ifoldl f a . _neUvec
 {-# INLINE ifoldl #-}
 
 -- | /O(n)/ Strict left monoidal fold with function applied to each element
 -- and its index
 --
 ifoldl' :: V.Unbox b => (a -> Int -> b -> a) -> a -> NonEmptyUVector b -> a
-ifoldl' f a = V.ifoldl' f a . _neVec
+ifoldl' f a = V.ifoldl' f a . _neUvec
 {-# INLINE ifoldl' #-}
 
 -- | /O(n)/ Right monoidal fold with function applied to each element
 -- and its index
 --
 ifoldr :: V.Unbox a => (Int -> a -> b -> b) -> b -> NonEmptyUVector a -> b
-ifoldr f b = V.ifoldr f b . _neVec
+ifoldr f b = V.ifoldr f b . _neUvec
 {-# INLINE ifoldr #-}
 
 -- | /O(n)/ strict right monoidal fold with function applied to each element
 -- and its index
 --
 ifoldr' :: V.Unbox a => (Int -> a -> b -> b) -> b -> NonEmptyUVector a -> b
-ifoldr' f b = V.ifoldr' f b . _neVec
+ifoldr' f b = V.ifoldr' f b . _neUvec
 {-# INLINE ifoldr' #-}
 
 -- ---------------------------------------------------------------------- --
@@ -2392,91 +2392,91 @@ ifoldr' f b = V.ifoldr' f b . _neVec
 -- | /O(n)/ Check if all elements satisfy the predicate.
 --
 all :: V.Unbox a => (a -> Bool) -> NonEmptyUVector a -> Bool
-all f = V.all f . _neVec
+all f = V.all f . _neUvec
 {-# INLINE all #-}
 
 -- | /O(n)/ Check if any element satisfies the predicate.
 --
 any :: V.Unbox a => (a -> Bool) -> NonEmptyUVector a -> Bool
-any f = V.any f . _neVec
+any f = V.any f . _neUvec
 {-# INLINE any #-}
 
 -- | /O(n)/ Check if all elements are @True@.
 --
 and :: NonEmptyUVector Bool -> Bool
-and = V.and . _neVec
+and = V.and . _neUvec
 {-# INLINE and #-}
 
 -- | /O(n)/ Check if any element is @True@
 --
 or :: NonEmptyUVector Bool -> Bool
-or = V.or . _neVec
+or = V.or . _neUvec
 {-# INLINE or #-}
 
 -- | /O(n)/ Compute the sum of the elements
 --
 sum :: (Num a, V.Unbox a) => NonEmptyUVector a -> a
-sum = V.sum . _neVec
+sum = V.sum . _neUvec
 {-# INLINE sum #-}
 
 -- | /O(n)/ Compute the produce of the elements
 --
 product :: (Num a, V.Unbox a) => NonEmptyUVector a -> a
-product = V.product . _neVec
+product = V.product . _neUvec
 {-# INLINE product #-}
 
 -- | /O(n)/ Yield the maximum element of the non-empty vector.
 --
 maximum :: (V.Unbox a, Ord a) => NonEmptyUVector a -> a
-maximum = V.maximum . _neVec
+maximum = V.maximum . _neUvec
 {-# INLINE maximum #-}
 
 -- | /O(n)/ Yield the maximum element of a non-empty vector
 -- according to the given comparison function.
 --
 maximumBy :: V.Unbox a => (a -> a -> Ordering) -> NonEmptyUVector a -> a
-maximumBy f = V.maximumBy f . _neVec
+maximumBy f = V.maximumBy f . _neUvec
 {-# INLINE maximumBy #-}
 
 -- | /O(n)/ Yield the minimum element of the non-empty vector.
 --
 minimum :: (V.Unbox a, Ord a) => NonEmptyUVector a -> a
-minimum = V.minimum . _neVec
+minimum = V.minimum . _neUvec
 {-# INLINE minimum #-}
 
 -- | /O(n)/ Yield the minimum element of the non-empty vector
 -- according to the given comparison function.
 --
 minimumBy :: V.Unbox a => (a -> a -> Ordering) -> NonEmptyUVector a -> a
-minimumBy f = V.minimumBy f . _neVec
+minimumBy f = V.minimumBy f . _neUvec
 {-# INLINE minimumBy #-}
 
 -- | /O(n)/ Yield the index of the minimum element of the
 -- non-empty vector.
 --
 minIndex :: (V.Unbox a, Ord a) => NonEmptyUVector a -> Int
-minIndex = V.minIndex . _neVec
+minIndex = V.minIndex . _neUvec
 {-# INLINE minIndex #-}
 
 -- | /O(n)/ Yield the index of the minimum element of the vector
 -- according to the given comparison function.
 --
 minIndexBy :: V.Unbox a => (a -> a -> Ordering) -> NonEmptyUVector a -> Int
-minIndexBy f = V.minIndexBy f . _neVec
+minIndexBy f = V.minIndexBy f . _neUvec
 {-# INLINE minIndexBy #-}
 
 -- | /O(n)/ Yield the index of the maximum element of the
 -- non-empty vector.
 --
 maxIndex :: (V.Unbox a, Ord a) => NonEmptyUVector a -> Int
-maxIndex = V.maxIndex . _neVec
+maxIndex = V.maxIndex . _neUvec
 {-# INLINE maxIndex #-}
 
 -- | /O(n)/ Yield the index of the maximum element of the vector
 -- according to the given comparison function.
 --
 maxIndexBy :: V.Unbox a => (a -> a -> Ordering) -> NonEmptyUVector a -> Int
-maxIndexBy f = V.maxIndexBy f . _neVec
+maxIndexBy f = V.maxIndexBy f . _neUvec
 {-# INLINE maxIndexBy #-}
 
 -- ---------------------------------------------------------------------- --
@@ -2485,75 +2485,75 @@ maxIndexBy f = V.maxIndexBy f . _neVec
 -- | /O(n)/ Monadic fold
 --
 foldM :: (V.Unbox b, Monad m) => (a -> b -> m a) -> a -> NonEmptyUVector b -> m a
-foldM f a = V.foldM f a . _neVec
+foldM f a = V.foldM f a . _neUvec
 {-# INLINE foldM #-}
 
 -- | /O(n)/ Monadic fold (action applied to each element and its index)
 --
 ifoldM :: (V.Unbox b, Monad m) => (a -> Int -> b -> m a) -> a -> NonEmptyUVector b -> m a
-ifoldM f a = V.ifoldM f a . _neVec
+ifoldM f a = V.ifoldM f a . _neUvec
 {-# INLINE ifoldM #-}
 
 -- | /O(n)/ Strict monadic fold
 --
 foldM' :: (V.Unbox b, Monad m) => (a -> b -> m a) -> a -> NonEmptyUVector b -> m a
-foldM' f a = V.foldM' f a . _neVec
+foldM' f a = V.foldM' f a . _neUvec
 {-# INLINE foldM' #-}
 
 -- | /O(n)/ Strict monadic fold (action applied to each element and its index)
 --
 ifoldM' :: (V.Unbox b, Monad m) => (a -> Int -> b -> m a) -> a -> NonEmptyUVector b -> m a
-ifoldM' f a = V.ifoldM' f a . _neVec
+ifoldM' f a = V.ifoldM' f a . _neUvec
 {-# INLINE ifoldM' #-}
 
 -- | /O(n)/ Monadic semigroupal fold
 --
 fold1M :: (V.Unbox a, Monad m) => (a -> a -> m a) -> NonEmptyUVector a -> m a
-fold1M f = V.fold1M f . _neVec
+fold1M f = V.fold1M f . _neUvec
 {-# INLINE fold1M #-}
 
 -- | /O(n)/ Strict monadic semigroupal fold
 --
 fold1M' :: (V.Unbox a, Monad m) => (a -> a -> m a) -> NonEmptyUVector a -> m a
-fold1M' f = V.fold1M' f . _neVec
+fold1M' f = V.fold1M' f . _neUvec
 {-# INLINE fold1M' #-}
 
 -- | /O(n)/ Monadic fold that discards the result
 --
 foldM_ :: (V.Unbox b, Monad m) => (a -> b -> m a) -> a -> NonEmptyUVector b -> m ()
-foldM_ f a = V.foldM_ f a . _neVec
+foldM_ f a = V.foldM_ f a . _neUvec
 {-# INLINE foldM_ #-}
 
 -- | /O(n)/ Monadic fold that discards the result (action applied to each
 -- element and its index)
 --
 ifoldM_ :: (V.Unbox b, Monad m) => (a -> Int -> b -> m a) -> a -> NonEmptyUVector b -> m ()
-ifoldM_ f a = V.ifoldM_ f a . _neVec
+ifoldM_ f a = V.ifoldM_ f a . _neUvec
 {-# INLINE ifoldM_ #-}
 
 -- | /O(n)/ Strict monadic fold that discards the result
 --
 foldM'_ :: (V.Unbox b, Monad m) => (a -> b -> m a) -> a -> NonEmptyUVector b -> m ()
-foldM'_ f a = V.foldM'_ f a . _neVec
+foldM'_ f a = V.foldM'_ f a . _neUvec
 {-# INLINE foldM'_ #-}
 
 -- | /O(n)/ Strict monadic fold that discards the result (action applied to each
 -- element and its index)
 --
 ifoldM'_ :: (V.Unbox b, Monad m) => (a -> Int -> b -> m a) -> a -> NonEmptyUVector b -> m ()
-ifoldM'_ f a = V.ifoldM'_ f a . _neVec
+ifoldM'_ f a = V.ifoldM'_ f a . _neUvec
 {-# INLINE ifoldM'_ #-}
 
 -- | /O(n)/ Monadic semigroupal fold that discards the result
 --
 fold1M_ :: (V.Unbox a, Monad m) => (a -> a -> m a) -> NonEmptyUVector a -> m ()
-fold1M_ f = V.fold1M_ f . _neVec
+fold1M_ f = V.fold1M_ f . _neUvec
 {-# INLINE fold1M_ #-}
 
 -- | /O(n)/ Strict monadic semigroupal fold that discards the result
 --
 fold1M'_ :: (V.Unbox a, Monad m) => (a -> a -> m a) -> NonEmptyUVector a -> m ()
-fold1M'_ f = V.fold1M'_ f . _neVec
+fold1M'_ f = V.fold1M'_ f . _neUvec
 {-# INLINE fold1M'_ #-}
 
 -- ---------------------------------------------------------------------- --
@@ -2562,122 +2562,122 @@ fold1M'_ f = V.fold1M'_ f . _neVec
 -- | /O(n)/ Prescan
 --
 prescanl :: (V.Unbox a, V.Unbox b) => (a -> b -> a) -> a -> NonEmptyUVector b -> NonEmptyUVector a
-prescanl f a = NonEmptyUVector . V.prescanl f a . _neVec
+prescanl f a = NonEmptyUVector . V.prescanl f a . _neUvec
 {-# INLINE prescanl #-}
 
 -- | /O(n)/ Prescan with strict accumulator
 --
 prescanl' :: (V.Unbox a, V.Unbox b) => (a -> b -> a) -> a -> NonEmptyUVector b -> NonEmptyUVector a
-prescanl' f a = NonEmptyUVector . V.prescanl' f a . _neVec
+prescanl' f a = NonEmptyUVector . V.prescanl' f a . _neUvec
 {-# INLINE prescanl' #-}
 
 -- | /O(n)/ Scan
 --
 postscanl :: (V.Unbox a, V.Unbox b) => (a -> b -> a) -> a -> NonEmptyUVector b -> NonEmptyUVector a
-postscanl f a = NonEmptyUVector . V.postscanl f a . _neVec
+postscanl f a = NonEmptyUVector . V.postscanl f a . _neUvec
 {-# INLINE postscanl #-}
 
 -- | /O(n)/ Scan with a strict accumulator
 --
 postscanl' :: (V.Unbox a, V.Unbox b) => (a -> b -> a) -> a -> NonEmptyUVector b -> NonEmptyUVector a
-postscanl' f a = NonEmptyUVector . V.postscanl' f a . _neVec
+postscanl' f a = NonEmptyUVector . V.postscanl' f a . _neUvec
 {-# INLINE postscanl' #-}
 
 -- | /O(n)/ Haskell-style scan
 --
 scanl :: (V.Unbox a, V.Unbox b) => (a -> b -> a) -> a -> NonEmptyUVector b -> NonEmptyUVector a
-scanl f a = NonEmptyUVector . V.scanl f a . _neVec
+scanl f a = NonEmptyUVector . V.scanl f a . _neUvec
 {-# INLINE scanl #-}
 
 -- | /O(n)/ Haskell-style scan with strict accumulator
 --
 scanl' :: (V.Unbox a, V.Unbox b) => (a -> b -> a) -> a -> NonEmptyUVector b -> NonEmptyUVector a
-scanl' f a = NonEmptyUVector . V.scanl' f a . _neVec
+scanl' f a = NonEmptyUVector . V.scanl' f a . _neUvec
 {-# INLINE scanl' #-}
 
 -- | /O(n)/ Semigroupal left scan
 --
 scanl1 :: V.Unbox a => (a -> a -> a) -> NonEmptyUVector a -> NonEmptyUVector a
-scanl1 f = NonEmptyUVector . V.scanl1 f . _neVec
+scanl1 f = NonEmptyUVector . V.scanl1 f . _neUvec
 {-# INLINE scanl1 #-}
 
 -- | /O(n)/ Strict semigroupal scan
 --
 scanl1' :: V.Unbox a => (a -> a -> a) -> NonEmptyUVector a -> NonEmptyUVector a
-scanl1' f = NonEmptyUVector . V.scanl1' f . _neVec
+scanl1' f = NonEmptyUVector . V.scanl1' f . _neUvec
 {-# INLINE scanl1' #-}
 
 -- | /O(n)/ Scan over a vector with its index
 --
 iscanl :: (V.Unbox a, V.Unbox b) => (Int -> a -> b -> a) -> a -> NonEmptyUVector b -> NonEmptyUVector a
-iscanl f a = NonEmptyUVector . V.iscanl f a . _neVec
+iscanl f a = NonEmptyUVector . V.iscanl f a . _neUvec
 {-# INLINE iscanl #-}
 
 -- | /O(n)/ Scan over a vector with its index with strict accumulator
 --
 iscanl' :: (V.Unbox a, V.Unbox b) => (Int -> a -> b -> a) -> a -> NonEmptyUVector b -> NonEmptyUVector a
-iscanl' f a = NonEmptyUVector . V.iscanl' f a . _neVec
+iscanl' f a = NonEmptyUVector . V.iscanl' f a . _neUvec
 {-# INLINE iscanl' #-}
 
 -- | /O(n)/ Right-to-left prescan
 --
 prescanr :: (V.Unbox a, V.Unbox b) => (a -> b -> b) -> b -> NonEmptyUVector a -> NonEmptyUVector b
-prescanr f b = NonEmptyUVector . V.prescanr f b . _neVec
+prescanr f b = NonEmptyUVector . V.prescanr f b . _neUvec
 {-# INLINE prescanr #-}
 
 -- | /O(n)/ Right-to-left prescan with strict accumulator
 --
 prescanr' :: (V.Unbox a, V.Unbox b) => (a -> b -> b) -> b -> NonEmptyUVector a -> NonEmptyUVector b
-prescanr' f b = NonEmptyUVector . V.prescanr' f b . _neVec
+prescanr' f b = NonEmptyUVector . V.prescanr' f b . _neUvec
 {-# INLINE prescanr' #-}
 
 -- | /O(n)/ Right-to-left scan
 --
 postscanr :: (V.Unbox a, V.Unbox b) => (a -> b -> b) -> b -> NonEmptyUVector a -> NonEmptyUVector b
-postscanr f b = NonEmptyUVector . V.postscanr f b . _neVec
+postscanr f b = NonEmptyUVector . V.postscanr f b . _neUvec
 {-# INLINE postscanr #-}
 
 -- | /O(n)/ Right-to-left scan with strict accumulator
 --
 postscanr' :: (V.Unbox a, V.Unbox b) => (a -> b -> b) -> b -> NonEmptyUVector a -> NonEmptyUVector b
-postscanr' f b = NonEmptyUVector . V.postscanr' f b . _neVec
+postscanr' f b = NonEmptyUVector . V.postscanr' f b . _neUvec
 {-# INLINE postscanr' #-}
 
 -- | /O(n)/ Right-to-left Haskell-style scan
 --
 scanr :: (V.Unbox a, V.Unbox b) => (a -> b -> b) -> b -> NonEmptyUVector a -> NonEmptyUVector b
-scanr f b = NonEmptyUVector . V.scanr f b . _neVec
+scanr f b = NonEmptyUVector . V.scanr f b . _neUvec
 {-# INLINE scanr #-}
 
 -- | /O(n)/ Right-to-left Haskell-style scan with strict accumulator
 --
 scanr' :: (V.Unbox a, V.Unbox b) => (a -> b -> b) -> b -> NonEmptyUVector a -> NonEmptyUVector b
-scanr' f b = NonEmptyUVector . V.scanr' f b . _neVec
+scanr' f b = NonEmptyUVector . V.scanr' f b . _neUvec
 {-# INLINE scanr' #-}
 
 -- | /O(n)/ Right-to-left Haskell-style semigroupal scan
 --
 scanr1 :: V.Unbox a => (a -> a -> a) -> NonEmptyUVector a -> NonEmptyUVector a
-scanr1 f = NonEmptyUVector . V.scanr1 f . _neVec
+scanr1 f = NonEmptyUVector . V.scanr1 f . _neUvec
 {-# INLINE scanr1 #-}
 
 -- | /O(n)/ Right-to-left Haskell-style semigroupal scan with strict accumulator
 --
 scanr1' :: V.Unbox a => (a -> a -> a) -> NonEmptyUVector a -> NonEmptyUVector a
-scanr1' f = NonEmptyUVector . V.scanr1' f . _neVec
+scanr1' f = NonEmptyUVector . V.scanr1' f . _neUvec
 {-# INLINE scanr1' #-}
 
 -- | /O(n)/ Right-to-left scan over a vector with its index
 --
 iscanr :: (V.Unbox a, V.Unbox b) => (Int -> a -> b -> b) -> b -> NonEmptyUVector a -> NonEmptyUVector b
-iscanr f b = NonEmptyUVector . V.iscanr f b . _neVec
+iscanr f b = NonEmptyUVector . V.iscanr f b . _neUvec
 {-# INLINE iscanr #-}
 
 -- | /O(n)/ Right-to-left scan over a vector with its index and a strict
 -- accumulator
 --
 iscanr' :: (V.Unbox a, V.Unbox b) => (Int -> a -> b -> b) -> b -> NonEmptyUVector a -> NonEmptyUVector b
-iscanr' f b = NonEmptyUVector . V.iscanr' f b . _neVec
+iscanr' f b = NonEmptyUVector . V.iscanr' f b . _neUvec
 {-# INLINE iscanr' #-}
 
 -- | /O(n)/ The 'intersperse' function takes an element and a 'NonEmptyUVector'

@@ -72,7 +72,7 @@ import Data.Vector.NonEmpty.InternalU
 
 -- | Length of the mutable vector.
 length :: M.Unbox a => NonEmptyMUVector s a -> Int
-length = M.length . _nemVec
+length = M.length . _nemUvec
 {-# INLINE length #-}
 
 -- ---------------------------------------------------------------------- --
@@ -81,37 +81,37 @@ length = M.length . _nemVec
 -- | Yield a part of the mutable vector without copying.
 --
 slice :: M.Unbox a => Int -> Int -> NonEmptyMUVector s a -> MVector s a
-slice n m = M.slice n m . _nemVec
+slice n m = M.slice n m . _nemUvec
 {-# INLINE slice #-}
 
 -- | Yield at the first n elements without copying.
 --
 take :: M.Unbox a => Int -> NonEmptyMUVector s a -> MVector s a
-take n = M.take n . _nemVec
+take n = M.take n . _nemUvec
 {-# INLINE take #-}
 
 -- | Yield all but the first n elements without copying.
 --
 drop :: M.Unbox a => Int -> NonEmptyMUVector s a -> MVector s a
-drop n = M.drop n . _nemVec
+drop n = M.drop n . _nemUvec
 {-# INLINE drop #-}
 
 -- | Yield the first n elements paired with the remainder without copying.
 --
 splitAt :: M.Unbox a => Int -> NonEmptyMUVector s a -> (MVector s a, MVector s a)
-splitAt n = M.splitAt n . _nemVec
+splitAt n = M.splitAt n . _nemUvec
 {-# INLINE splitAt #-}
 
 -- | Yield all but the last element without copying.
 --
 init :: M.Unbox a => NonEmptyMUVector s a -> MVector s a
-init = M.unsafeInit . _nemVec
+init = M.unsafeInit . _nemUvec
 {-# INLINE init #-}
 
 -- | Yield all but the first element without copying.
 --
 tail :: M.Unbox a => NonEmptyMUVector s a -> MVector s a
-tail = M.unsafeTail . _nemVec
+tail = M.unsafeTail . _nemUvec
 {-# INLINE tail #-}
 
 -- | Yield a part of the mutable vector without copying it. No bounds checks
@@ -125,21 +125,21 @@ unsafeSlice
       -- ^ length of the slice
     -> NonEmptyMUVector s a
     -> MVector s a
-unsafeSlice n m = M.unsafeSlice n m . _nemVec
+unsafeSlice n m = M.unsafeSlice n m . _nemUvec
 {-# INLINE unsafeSlice #-}
 
 -- | Yield the first n elements without copying. The vector must contain at
 -- least n elements but this is not checked.
 --
 unsafeTake :: M.Unbox a => Int -> NonEmptyMUVector s a -> MVector s a
-unsafeTake n = M.unsafeTake n . _nemVec
+unsafeTake n = M.unsafeTake n . _nemUvec
 {-# INLINE unsafeTake #-}
 
 -- | Yield all but the first n elements without copying. The vector must
 -- contain at least n elements but this is not checked.
 --
 unsafeDrop :: M.Unbox a => Int -> NonEmptyMUVector s a -> MVector s a
-unsafeDrop n = M.unsafeDrop n . _nemVec
+unsafeDrop n = M.unsafeDrop n . _nemUvec
 {-# INLINE unsafeDrop #-}
 
 -- ---------------------------------------------------------------------- --
@@ -162,7 +162,7 @@ fromMVector v = if M.null v then Nothing else Just (NonEmptyMUVector v)
 -- | Convert a non-empty mutable vector to a mutable vector
 --
 toMVector :: M.Unbox a => NonEmptyMUVector s a -> MVector s a
-toMVector = _nemVec
+toMVector = _nemUvec
 
 -- | Convert a mutable vector to a non-empty mutable vector
 --
@@ -288,7 +288,7 @@ unsafeGrow (NonEmptyMUVector v) n = fmap NonEmptyMUVector (M.unsafeGrow v n)
 -- | Reset all elements of the vector to some undefined value, clearing all
 -- references to external objects. This is usually a noop for unboxed vectors.
 clear :: (PrimMonad m, M.Unbox a) => NonEmptyMUVector (PrimState m) a -> m ()
-clear = M.clear . _nemVec
+clear = M.clear . _nemUvec
 {-# INLINE clear #-}
 
 -- ---------------------------------------------------------------------- --
@@ -448,5 +448,5 @@ nextPermutation
     :: (PrimMonad m,Ord e, M.Unbox e)
     => NonEmptyMUVector (PrimState m) e
     -> m Bool
-nextPermutation = M.nextPermutation . _nemVec
+nextPermutation = M.nextPermutation . _nemUvec
 {-# INLINE nextPermutation #-}
