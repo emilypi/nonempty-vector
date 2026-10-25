@@ -6,7 +6,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 -- |
 -- Module      : Data.Vector.NonEmpty.InternalU
--- Copyright   : (c) 2019-2026 Koz Ross
+-- Copyright   : (c) 2019-2026 Emily Pillmore, Koz Ross
 -- License     : BSD-style
 --
 -- Maintainer  : Emily Pillmore <emilypi@cohomolo.gy>
