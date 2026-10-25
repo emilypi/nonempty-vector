@@ -33,6 +33,7 @@ library
     Data.Vector.NonEmpty
     Data.Vector.NonEmpty.Internal
     Data.Vector.NonEmpty.Mutable
+    Data.Vector.NonEmpty.InternalU
 
   build-depends:
       base       >=4.16 && <4.23
