@@ -30,7 +30,9 @@ import qualified Test.Data.Vector.NonEmpty.ModificationU as ModificationU
 import qualified Test.Data.Vector.NonEmpty.Mutable as Mutable
 import qualified Test.Data.Vector.NonEmpty.MutableU as MutableU
 import qualified Test.Data.Vector.NonEmpty.Predicates as Predicates
+import qualified Test.Data.Vector.NonEmpty.PredicatesU as PredicatesU
 import qualified Test.Data.Vector.NonEmpty.Scans as Scans
+import qualified Test.Data.Vector.NonEmpty.ScansU as ScansU
 
 import Test.Tasty
 
@@ -48,11 +50,13 @@ main = defaultMain $ testGroup "NonEmptyVector tests"
     , Elementwise.tests
     , ElementwiseU.tests
     , Predicates.tests
+    , PredicatesU.tests
     , Grouping.tests
     , GroupingU.tests
     , Folds.tests
     , FoldsU.tests
     , Scans.tests
+    , ScansU.tests
     , Instances.tests
     , InstancesU.tests
     , Mutable.tests

@@ -71,7 +71,9 @@ test-suite tasty
     Test.Data.Vector.NonEmpty.Mutable
     Test.Data.Vector.NonEmpty.MutableU
     Test.Data.Vector.NonEmpty.Predicates
+    Test.Data.Vector.NonEmpty.PredicatesU
     Test.Data.Vector.NonEmpty.Scans
+    Test.Data.Vector.NonEmpty.ScansU
     Test.Data.Vector.NonEmpty.Util
 
   build-depends:
