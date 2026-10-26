@@ -22,8 +22,8 @@ import qualified Control.Monad as Monad
 import qualified Data.List as List
 import Data.List.NonEmpty (NonEmpty(..))
 import Data.Ord (comparing)
-import Data.Vector.Unboxed.NonEmpty (NonEmptyUVector)
-import qualified Data.Vector.Unboxed.NonEmpty as NEV
+import Data.Vector.NonEmpty.Unboxed (NonEmptyUVector)
+import qualified Data.Vector.NonEmpty.Unboxed as NEV
 
 import Test.Data.Vector.NonEmpty.Util
 import Test.QuickCheck

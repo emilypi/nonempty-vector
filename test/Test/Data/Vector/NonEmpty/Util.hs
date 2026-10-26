@@ -59,7 +59,7 @@ import Data.Maybe (fromMaybe, listToMaybe)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as VU
 import Data.Vector.NonEmpty.Internal (NonEmptyVector(..))
-import Data.Vector.NonEmpty.InternalU (NonEmptyUVector(..))
+import Data.Vector.NonEmpty.Unboxed.Internal (NonEmptyUVector(..))
 
 import Test.QuickCheck
 

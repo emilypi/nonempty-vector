@@ -5,7 +5,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE StandaloneDeriving #-}
 -- |
--- Module      : Data.Vector.NonEmpty.InternalU
+-- Module      : Data.Vector.NonEmpty.Unboxed.Internal
 -- Copyright   : (c) 2019-2026 Emily Pillmore, Koz Ross
 -- License     : BSD-style
 --
@@ -22,7 +22,7 @@
 --
 -- @since 0.3.0.0
 --
-module Data.Vector.NonEmpty.InternalU
+module Data.Vector.NonEmpty.Unboxed.Internal
 ( -- * Immutable unboxed vectors
   NonEmptyUVector(..)
   -- * Mutable unboxed vectors

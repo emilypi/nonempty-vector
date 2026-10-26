@@ -3,7 +3,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE CPP #-}
 -- |
--- Module       : Data.Vector.Unboxed.NonEmpty
+-- Module       : Data.Vector.NonEmpty.Unboxed
 -- Copyright 	: (c) 2019-2026 Emily Pillmore, Koz Ross
 -- License	: BSD-style
 -- Maintainer   : Emily Pillmore <emilypi@cohomolo.gy>
@@ -40,7 +40,7 @@
 --
 -- Credit to Roman Leshchinskiy for the original Vector library  upon which this is based.
 --
-module Data.Vector.Unboxed.NonEmpty
+module Data.Vector.NonEmpty.Unboxed
 ( -- * Boxed non-empty vectors
   NonEmptyUVector
 
@@ -217,7 +217,7 @@ import Data.Vector.Unboxed (Vector)
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Generic as G
 import Data.Vector.Unboxed.Mutable (MVector, unsafeWrite)
-import Data.Vector.NonEmpty.InternalU
+import Data.Vector.NonEmpty.Unboxed.Internal
 
 
 -- $setup

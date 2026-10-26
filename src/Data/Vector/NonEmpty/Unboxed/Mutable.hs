@@ -2,7 +2,7 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 -- |
--- Module      : Data.Vector.Unboxed.NonEmpty.Mutable
+-- Module      : Data.Vector.NonEmpty.Unboxed.Mutable
 -- Copyright   : (c) 2019-2026 Emily Pillmore, Koz Ross
 -- License     : BSD-style
 --
@@ -12,7 +12,7 @@
 --
 -- Non-empty mutable unboxed vectors.
 --
-module Data.Vector.Unboxed.NonEmpty.Mutable
+module Data.Vector.NonEmpty.Unboxed.Mutable
 ( -- * Mutable boxed vectors
   NonEmptyMUVector
 , NonEmptyIOUVector
@@ -64,7 +64,7 @@ import Data.Functor
 import Data.Maybe (Maybe(..))
 import Data.Vector.Unboxed.Mutable (MVector)
 import qualified Data.Vector.Unboxed.Mutable as M
-import Data.Vector.NonEmpty.InternalU
+import Data.Vector.NonEmpty.Unboxed.Internal
 
 
 -- ---------------------------------------------------------------------- --

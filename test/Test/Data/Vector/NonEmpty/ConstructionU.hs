@@ -22,8 +22,8 @@ module Test.Data.Vector.NonEmpty.ConstructionU
 import qualified Data.List as List
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Vector.Unboxed as V
-import qualified Data.Vector.Unboxed.NonEmpty as NEV
-import Data.Vector.NonEmpty.InternalU (NonEmptyUVector(..))
+import qualified Data.Vector.NonEmpty.Unboxed as NEV
+import Data.Vector.NonEmpty.Unboxed.Internal (NonEmptyUVector(..))
 
 import Test.Data.Vector.NonEmpty.Util
 import Test.QuickCheck

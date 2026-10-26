@@ -26,13 +26,13 @@ import Data.STRef (modifySTRef', newSTRef, readSTRef)
 import qualified Data.Vector.Unboxed as V
 import Data.Vector.Unboxed.Mutable (MVector)
 import qualified Data.Vector.Unboxed.Mutable as MV
-import Data.Vector.NonEmpty.InternalU
+import Data.Vector.NonEmpty.Unboxed.Internal
     ( NonEmptyMUVector(..)
     , NonEmptyUVector(..)
     , NonEmptyIOUVector
     , NonEmptySTUVector
     )
-import qualified Data.Vector.Unboxed.NonEmpty.Mutable as NEMV
+import qualified Data.Vector.NonEmpty.Unboxed.Mutable as NEMV
 
 import Test.Data.Vector.NonEmpty.Util
 import Test.QuickCheck
