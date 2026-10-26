@@ -32,7 +32,7 @@ import Data.Vector.NonEmpty.InternalU
     , NonEmptyIOUVector
     , NonEmptySTUVector
     )
-import qualified Data.Vector.NonEmpty.MutableU as NEMV
+import qualified Data.Vector.Unboxed.NonEmpty.Mutable as NEMV
 
 import Test.Data.Vector.NonEmpty.Util
 import Test.QuickCheck

@@ -3,7 +3,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE CPP #-}
 -- |
--- Module       : Data.Vector.NonEmptyU
+-- Module       : Data.Vector.Unboxed.NonEmpty
 -- Copyright 	: (c) 2019-2026 Emily Pillmore, Koz Ross
 -- License	: BSD-style
 -- Maintainer   : Emily Pillmore <emilypi@cohomolo.gy>
@@ -40,7 +40,7 @@
 --
 -- Credit to Roman Leshchinskiy for the original Vector library  upon which this is based.
 --
-module Data.Vector.NonEmptyU
+module Data.Vector.Unboxed.NonEmpty
 ( -- * Boxed non-empty vectors
   NonEmptyUVector
 

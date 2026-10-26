@@ -31,10 +31,10 @@ source-repository head
 library
   exposed-modules:
     Data.Vector.NonEmpty
-    Data.Vector.NonEmptyU
+    Data.Vector.Unboxed.NonEmpty
     Data.Vector.NonEmpty.Internal
     Data.Vector.NonEmpty.Mutable
-    Data.Vector.NonEmpty.MutableU
+    Data.Vector.Unboxed.NonEmpty.Mutable
     Data.Vector.NonEmpty.InternalU
 
   build-depends:

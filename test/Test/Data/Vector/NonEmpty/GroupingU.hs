@@ -5,9 +5,9 @@ module Test.Data.Vector.NonEmpty.GroupingU
 
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
-import Data.Vector.NonEmptyU (NonEmptyUVector)
+import Data.Vector.Unboxed.NonEmpty (NonEmptyUVector)
 import Data.Vector.Unboxed (Unbox)
-import qualified Data.Vector.NonEmptyU as NEV
+import qualified Data.Vector.Unboxed.NonEmpty as NEV
 
 import Test.Data.Vector.NonEmpty.Util
 import Test.QuickCheck

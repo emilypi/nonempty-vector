@@ -17,8 +17,8 @@ module Test.Data.Vector.NonEmpty.AccessorsU
 import Data.Functor.Identity (Identity(..))
 import qualified Data.List as List
 import qualified Data.Vector.Unboxed as V
-import Data.Vector.NonEmptyU (NonEmptyUVector)
-import qualified Data.Vector.NonEmptyU as NEV
+import Data.Vector.Unboxed.NonEmpty (NonEmptyUVector)
+import qualified Data.Vector.Unboxed.NonEmpty as NEV
 
 import Test.Data.Vector.NonEmpty.Util
 import Test.QuickCheck

@@ -2,7 +2,7 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 -- |
--- Module      : Data.Vector.NonEmpty.MutableU
+-- Module      : Data.Vector.Unboxed.NonEmpty.Mutable
 -- Copyright   : (c) 2019-2026 Emily Pillmore, Koz Ross
 -- License     : BSD-style
 --
@@ -12,7 +12,7 @@
 --
 -- Non-empty mutable unboxed vectors.
 --
-module Data.Vector.NonEmpty.MutableU
+module Data.Vector.Unboxed.NonEmpty.Mutable
 ( -- * Mutable boxed vectors
   NonEmptyMUVector
 , NonEmptyIOUVector

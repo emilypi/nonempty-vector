@@ -22,7 +22,7 @@ module Test.Data.Vector.NonEmpty.ConstructionU
 import qualified Data.List as List
 import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.Vector.Unboxed as V
-import qualified Data.Vector.NonEmptyU as NEV
+import qualified Data.Vector.Unboxed.NonEmpty as NEV
 import Data.Vector.NonEmpty.InternalU (NonEmptyUVector(..))
 
 import Test.Data.Vector.NonEmpty.Util

@@ -19,8 +19,8 @@ import qualified Data.List as List
 import Data.Maybe (mapMaybe)
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Unboxed.Mutable as MV
-import Data.Vector.NonEmptyU (NonEmptyUVector)
-import qualified Data.Vector.NonEmptyU as NEV
+import Data.Vector.Unboxed.NonEmpty (NonEmptyUVector)
+import qualified Data.Vector.Unboxed.NonEmpty as NEV
 
 import Test.Data.Vector.NonEmpty.Util
 import Test.QuickCheck
