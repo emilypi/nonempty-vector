@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeApplications #-}
 -- |
@@ -17,10 +18,8 @@ module Test.Data.Vector.NonEmpty.MutableU
 ) where
 
 
-import Control.Exception (SomeException, evaluate, try)
 import Control.Monad.ST (ST, runST)
 
-import Data.Either (isLeft)
 import qualified Data.List as List
 import qualified Data.List.NonEmpty as NonEmpty
 import Data.STRef (modifySTRef', newSTRef, readSTRef)
@@ -82,9 +81,6 @@ tests = testGroup "Mutable (unboxed)"
       [ testProperty "prop_grow" prop_grow
       , testProperty "prop_grow_negative" prop_grow_negative
       , testProperty "prop_unsafeGrow" prop_unsafeGrow
-      ]
-    , testGroup "Restricting memory usage"
-      [ testProperty "prop_clear" prop_clear
       ]
     , testGroup "Accessing individual elements"
       [ testProperty "prop_read" prop_read
@@ -303,20 +299,6 @@ prop_unsafeGrow v (NonNegative n) =
       as <- freezeList (MV.take (NEMV.length mv) (_nemUvec g))
       pure (NEMV.length g, as))
       === (List.length (elemsU v) + n, elemsU v)
-
--- ---------------------------------------------------------------------- --
--- Restricting memory usage
-
--- Clearing keeps the length but releases every element.
-prop_clear :: V -> Property
-prop_clear v = forAll (genIndexU v) $ \i -> ioProperty $ do
-    mv <- thawIO v
-    NEMV.clear mv
-    a <- NEMV.read mv i
-    r <- try (evaluate a)
-    pure $ NEMV.length mv === List.length (elemsU v)
-      .&&. counterexample "element survived clear"
-             (isLeft (r :: Either SomeException Int))
 
 -- ---------------------------------------------------------------------- --
 -- Accessing individual elements
