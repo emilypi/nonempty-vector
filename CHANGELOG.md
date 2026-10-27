@@ -1,5 +1,18 @@
 # Revision history for nonempty-vector
 
+## 1.0
+
+* Add immutable and mutable unboxed non-empty vectors in
+  `Data.Vector.NonEmpty.Unboxed` and `Data.Vector.NonEmpty.Unboxed.Mutable`.
+  Constructors are available through `Data.Vector.NonEmpty.Unboxed.Internal`.
+* Add property tests for the unboxed API, covering construction, conversions,
+  indexing, grouping, folds, scans, mutation, and type class instances.
+* Delegate boxed `Foldable` methods to the underlying vector and specialize
+  `Foldable1` operations, including strict folding and non-empty conversion.
+* Bound `deepseq` to `>=1.4 && <1.6`.
+
+Thanks to Koz Ross (@kozross) for the unboxed API and folding improvements.
+
 ## 0.3
 
 * Add `group` and `groupBy`, returning non-empty lists of non-empty vector slices.
