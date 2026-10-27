@@ -20,7 +20,7 @@
 -- module, you take on the risks that you break the non-emptiness
 -- invariants of the main modules. Use at your own risk.
 --
--- @since 0.3.0.0
+-- @since 1.0
 --
 module Data.Vector.NonEmpty.Unboxed.Internal
 ( -- * Immutable unboxed vectors
@@ -57,7 +57,7 @@ import qualified Text.Read as Read
 -- is introduced when working with 'Data.Vector.Unboxed.Vector's, and all performance
 -- characteristics inherited from the "Data.Unboxed.Vector" API still apply.
 --
--- @since 0.3.0.0
+-- @since 1.0
 --
 newtype NonEmptyUVector a = NonEmptyUVector
     { _neUvec :: V.Vector a
@@ -89,7 +89,7 @@ instance (V.Unbox a, Read a) => Read (NonEmptyUVector a) where
 -- is introduced when working with 'MVector's, and all performance
 -- characteristics inherited from the 'MVector' API still apply.
 --
--- @since 0.3.0.0
+-- @since 1.0
 --
 newtype NonEmptyMUVector s a = NonEmptyMUVector
     { _nemUvec :: MVector s a }
@@ -99,12 +99,12 @@ newtype NonEmptyMUVector s a = NonEmptyMUVector
 
 -- | t'NonEmptyMUVector' parametrized by 'Control.Monad.Primitive.PrimState' 'IO'.
 --
--- @since 0.3.0.0
+-- @since 1.0
 --
 type NonEmptyIOUVector = NonEmptyMUVector RealWorld
 
 -- | t'NonEmptyMUVector' parametrized by @t'Control.Monad.Primitive.PrimState' ('ST' s)@.
 --
--- @since 0.3.0.0
+-- @since 1.0
 --
 type NonEmptySTUVector s = NonEmptyMUVector s

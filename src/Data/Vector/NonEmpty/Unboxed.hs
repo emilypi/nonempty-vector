@@ -2726,7 +2726,7 @@ intersperse sep nev@(NonEmptyUVector v)
 --
 -- See also 'Data.Vector.group'.
 --
--- @since 0.3
+-- @since 1.0
 --
 group :: (V.Unbox a, Eq a) => NonEmptyUVector a -> NonEmpty (NonEmptyUVector a)
 group = groupBy (==)
@@ -2746,7 +2746,7 @@ group = groupBy (==)
 --
 -- See also 'Data.Vector.groupBy'.
 --
--- @since 0.3
+-- @since 1.0
 --
 groupBy
     :: (Eq a, V.Unbox a)
