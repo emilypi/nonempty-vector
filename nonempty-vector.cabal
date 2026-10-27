@@ -31,8 +31,11 @@ source-repository head
 library
   exposed-modules:
     Data.Vector.NonEmpty
+    Data.Vector.NonEmpty.Unboxed
     Data.Vector.NonEmpty.Internal
     Data.Vector.NonEmpty.Mutable
+    Data.Vector.NonEmpty.Unboxed.Mutable
+    Data.Vector.NonEmpty.Unboxed.Internal
 
   build-depends:
       base       >=4.16 && <4.23
@@ -50,16 +53,27 @@ test-suite tasty
   main-is:           Main.hs
   other-modules:
     Test.Data.Vector.NonEmpty.Accessors
+    Test.Data.Vector.NonEmpty.AccessorsU
     Test.Data.Vector.NonEmpty.Construction
+    Test.Data.Vector.NonEmpty.ConstructionU
     Test.Data.Vector.NonEmpty.Conversion
+    Test.Data.Vector.NonEmpty.ConversionU
     Test.Data.Vector.NonEmpty.Elementwise
+    Test.Data.Vector.NonEmpty.ElementwiseU
     Test.Data.Vector.NonEmpty.Folds
+    Test.Data.Vector.NonEmpty.FoldsU
     Test.Data.Vector.NonEmpty.Grouping
+    Test.Data.Vector.NonEmpty.GroupingU
     Test.Data.Vector.NonEmpty.Instances
+    Test.Data.Vector.NonEmpty.InstancesU
     Test.Data.Vector.NonEmpty.Modification
+    Test.Data.Vector.NonEmpty.ModificationU
     Test.Data.Vector.NonEmpty.Mutable
+    Test.Data.Vector.NonEmpty.MutableU
     Test.Data.Vector.NonEmpty.Predicates
+    Test.Data.Vector.NonEmpty.PredicatesU
     Test.Data.Vector.NonEmpty.Scans
+    Test.Data.Vector.NonEmpty.ScansU
     Test.Data.Vector.NonEmpty.Util
 
   build-depends:
